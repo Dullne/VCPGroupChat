@@ -4,6 +4,14 @@
 
 VCPGroupChat 是 VCP 群聊产品层的 monorepo。它把浏览器前端和群聊业务后端放在同一个产品项目里，同时保持 VCPToolBox 作为独立的核心能力服务。
 
+## Star 历史
+
+<p align="center">
+  <a href="https://www.star-history.com/#Dullne/VCPGroupChat&Date">
+    <img alt="VCPGroupChat Star 历史图" src="https://api.star-history.com/svg?repos=dullne/vcpgroupchat&type=Date">
+  </a>
+</p>
+
 ## 项目边界
 
 ```text
