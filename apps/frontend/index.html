@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 群聊室</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style-fixes.css">
+    <link rel="stylesheet" href="css/role-library-enhancements.css">
+    <link rel="stylesheet" href="css/layout-three-column.css?v=4">
+    <link rel="stylesheet" href="css/ui-components.css?v=3">
+    <link rel="stylesheet" href="css/frontend-polish.css?v=1">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
+</head>
+<body id="ai-group-chat-project">
+    <div id="chat-container">
+        <div id="chat-header">
+            <div class="header-brand">
+                <div class="header-kicker">VCP Multi-Agent Workspace</div>
+                <h1>莱恩家的小窝</h1>
+            </div>
+            <div id="controls-area">
+                 <div id="header-context-summary" class="header-context-summary" aria-live="polite">
+                     <div class="header-context-pill">
+                         <span class="header-context-label">当前群组</span>
+                         <strong id="header-current-group-name">未选择群组</strong>
+                     </div>
+                     <div class="header-context-pill">
+                         <span class="header-context-label">当前会话</span>
+                         <strong id="header-current-session-title">未选择会话</strong>
+                     </div>
+                     <span id="header-context-hint" class="header-context-hint">左侧切换，右侧查看群组信息</span>
+                 </div>
+                 <div class="header-compat-selects" aria-hidden="true" hidden>
+                     <label for="config-select" class="header-compat-label">内部群组选择</label>
+                     <select id="config-select" title="选择群聊配置" tabindex="-1"></select>
+                     <select id="chat-session-select" title="选择聊天记录" tabindex="-1" aria-label="内部聊天记录选择"></select>
+                 </div>
+                 <button id="mobile-launch-group-toggle" class="mobile-launch-group-cta" title="像微信群一样选择 AI 角色并开聊">+ 发起群聊</button>
+                 <button id="team-manager-toggle" title="团队角色池">团队</button>
+                 <button id="role-studio-toggle" title="角色工坊">工坊</button>
+                 <button id="role-library-toggle" title="角色库">角色库</button>
+                 <button id="language-toggle" title="切换到英文" aria-label="切换语言" aria-pressed="false">EN</button>
+                 <button id="dark-mode-toggle" title="切换夜间模式">🌙</button>
+                 <div id="ai-status"></div>
+            </div>
+        </div>
+
+        <div id="chat-sidebar">
+            <div class="sidebar-section sidebar-chat-section">
+                <div class="section-header sidebar-chat-header">
+                    <div>
+                        <h3>群聊</h3>
+                        <p class="sidebar-section-subtitle">一个群聊就是一个持续聊天入口</p>
+                    </div>
+                    <button class="sidebar-launch-chat-btn" id="sidebar-create-group-btn" title="像微信群一样选择 AI 角色并开聊">+ 发起群聊</button>
+                </div>
+                <div class="group-list" id="sidebar-group-list"></div>
+            </div>
+            <div class="sidebar-section sidebar-session-compat" hidden aria-hidden="true">
+                <div class="section-header">
+                    <h3>内部会话</h3>
+                </div>
+                <div class="session-list" id="sidebar-session-list"></div>
+            </div>
+        </div>
+
+        <div id="chat-main">
+            <div id="chat-messages"></div>
+            <div id="input-wrapper">
+                <div id="image-preview-area" style="display: none;">
+                     <img id="image-preview" src="#" alt="图片预览" />
+                     <button id="remove-image-button" title="移除图片">×</button>
+                </div>
+                <div id="chat-input-area">
+                    <input type="file" id="image-input" accept="image/*" style="display: none;" />
+                    <div class="left-input-buttons">
+                         <button id="new-chat-button" title="开始新的聊天">NEW</button>
+                         <label for="image-input" id="attach-image-button" class="button-like-label" title="添加图片">图片</label>
+                    </div>
+                    <textarea id="message-input" placeholder="输入你的消息..." rows="1"></textarea>
+                    <button id="send-button" title="发送消息">发送</button>
+                    <div id="ai-buttons" style="display: none;"></div>
+                </div>
+            </div>
+            <div id="floating-ai-status-window">
+                 <h4>本轮发言女仆</h4>
+                 <div id="current-round-ais"></div>
+            </div>
+        </div>
+
+        <div id="chat-panel">
+            <div id="round-role-panel">
+                <div class="cognitive-inspector-hero">
+                    <div class="cognitive-inspector-kicker">Cognitive Inspector</div>
+                    <div id="cognitive-inspector-profile-name" class="cognitive-inspector-title">当前群组</div>
+                    <div id="cognitive-inspector-profile-summary" class="cognitive-inspector-summary">正在读取群组认知状态。</div>
+                </div>
+                <div class="cognitive-inspector-stats" aria-label="当前群聊认知状态">
+                    <div class="cognitive-inspector-stat">
+                        <span class="cognitive-inspector-stat-label">成员</span>
+                        <strong id="cognitive-inspector-member-count">0</strong>
+                    </div>
+                    <div class="cognitive-inspector-stat">
+                        <span class="cognitive-inspector-stat-label">模式</span>
+                        <strong id="cognitive-inspector-mode">顺序协作</strong>
+                    </div>
+                    <div class="cognitive-inspector-stat">
+                        <span class="cognitive-inspector-stat-label">会话</span>
+                        <strong id="cognitive-inspector-session-count">0</strong>
+                    </div>
+                </div>
+                <div class="cognitive-inspector-section">
+                    <div class="cognitive-inspector-section-title">群组章程</div>
+                    <div id="cognitive-inspector-charter" class="cognitive-inspector-charter">暂无群组章程。</div>
+                </div>
+                <div class="cognitive-inspector-section">
+                    <div class="cognitive-inspector-section-title">在场角色</div>
+                    <div id="cognitive-inspector-members" class="cognitive-inspector-members"></div>
+                </div>
+                <div class="cognitive-inspector-section">
+                    <div class="cognitive-inspector-section-title">最近一轮运行</div>
+                    <div id="cognitive-inspector-runtime" class="cognitive-inspector-runtime" aria-live="polite">
+                        <div class="cognitive-inspector-runtime-meta">
+                            <span id="cognitive-inspector-runtime-state" class="cognitive-runtime-pill cognitive-runtime-pill-preview">前端预测</span>
+                            <span id="cognitive-inspector-runtime-round">等待首轮消息</span>
+                        </div>
+                        <div id="cognitive-inspector-runtime-summary" class="cognitive-inspector-runtime-summary">发送消息后，这里会显示后端真实选择、成功发言和失败角色。</div>
+                        <div id="cognitive-inspector-runtime-roles" class="cognitive-inspector-runtime-roles"></div>
+                    </div>
+                </div>
+                <div class="cognitive-inspector-section cognitive-inspector-synthesis-section">
+                    <div class="cognitive-inspector-section-title">群聊状态与沉淀</div>
+                    <div class="cognitive-synthesis-panel" aria-live="polite">
+                        <div id="cognitive-inspector-synthesis-summary" class="cognitive-synthesis-summary"></div>
+                        <div id="cognitive-inspector-participant-states" class="cognitive-synthesis-grid" aria-label="角色参与状态"></div>
+                        <div id="cognitive-inspector-memory-deposition" class="cognitive-synthesis-list" aria-label="记忆沉淀"></div>
+                        <div id="cognitive-inspector-project-assets" class="cognitive-synthesis-list" aria-label="项目资产"></div>
+                    </div>
+                </div>
+                <div class="cognitive-inspector-section cognitive-inspector-memory-section">
+                    <div class="cognitive-inspector-section-title-row">
+                        <div class="cognitive-inspector-section-title">记忆与反思</div>
+                        <button id="cognitive-inspector-memory-generate" type="button" class="role-action-btn role-action-secondary">生成反思</button>
+                    </div>
+                    <div id="cognitive-inspector-memory-summary" class="cognitive-memory-summary">还没有会话反思。发送几轮消息后，可以生成候选记忆。</div>
+                    <div class="cognitive-index-repair-panel" aria-label="向量索引修复">
+                        <div class="cognitive-index-repair-copy">
+                            <strong>向量索引修复</strong>
+                            <span id="cognitive-inspector-index-repair-status">先扫描，只做 dry-run，不会消耗向量额度。</span>
+                        </div>
+                        <div class="cognitive-index-repair-actions">
+                            <button id="cognitive-inspector-index-scan" type="button" class="role-action-btn role-action-secondary">扫描待补索引</button>
+                            <button id="cognitive-inspector-index-requeue-one" type="button" class="role-action-btn role-action-secondary" disabled>补 1 条（会消耗向量额度）</button>
+                            <button id="cognitive-inspector-index-requeue-five" type="button" class="role-action-btn role-action-secondary" disabled>补 5 条（会消耗向量额度）</button>
+                        </div>
+                        <div id="cognitive-inspector-index-repair-list" class="cognitive-index-repair-list"></div>
+                    </div>
+                    <div id="cognitive-inspector-memory-trace" class="cognitive-memory-trace"></div>
+                    <div id="cognitive-inspector-memory-candidates" class="cognitive-memory-candidates"></div>
+                </div>
+                <div class="round-role-panel-header cognitive-inspector-section">
+                    <div class="round-role-panel-copy">
+                        <div class="round-role-panel-title">本轮发言策略</div>
+                        <div id="round-role-summary" class="round-role-summary"></div>
+                    </div>
+                    <div class="round-role-panel-actions">
+                        <button id="toggle-role-selection-btn" type="button" class="role-action-btn role-action-secondary">展开</button>
+                        <button id="clear-role-selection-btn" type="button" class="role-action-btn role-action-secondary">清空点名</button>
+                    </div>
+                </div>
+                <div id="role-selection-list-wrap" class="round-role-selection-wrap round-role-selection-collapsed">
+                    <div id="role-selection-list" class="role-selection-list"></div>
+                </div>
+                <div id="round-role-debug" class="round-role-debug">
+                    <div class="round-role-debug-header">
+                        <div class="round-role-debug-title">策略预览</div>
+                        <div id="round-role-debug-meta" class="round-role-debug-meta"></div>
+                    </div>
+                    <div id="round-role-debug-list" class="round-role-debug-list"></div>
+                </div>
+            </div>
+        </div>
+        <div id="role-manager-modal" class="role-manager-hidden">
+            <div id="role-manager-panel">
+                <div class="role-manager-header">
+                    <div class="workspace-header-copy">
+                        <h3 id="workspace-panel-title">团队</h3>
+                        <p id="workspace-panel-subtitle" class="role-manager-tip"></p>
+                    </div>
+                    <div class="workspace-mode-switcher" aria-label="工作区模式">
+                        <button type="button" class="workspace-mode-switch" data-workspace-mode-toggle="launcher" aria-pressed="false">发起群聊</button>
+                        <button type="button" class="workspace-mode-switch" data-workspace-mode-toggle="team" aria-pressed="true">团队</button>
+                        <button type="button" class="workspace-mode-switch" data-workspace-mode-toggle="studio" aria-pressed="false">工坊</button>
+                        <button type="button" class="workspace-mode-switch" data-workspace-mode-toggle="library" aria-pressed="false">角色库</button>
+                    </div>
+                    <button id="role-manager-close" title="关闭">×</button>
+                </div>
+
+                <div id="team-manager-view" class="workspace-view">
+                    <div class="workspace-team-flow">
+                        <div class="workspace-flow-grid workspace-flow-grid-primary">
+                            <div class="role-manager-section workspace-team-column">
+                                <h4>1. 选择或创建团队</h4>
+                                <p class="role-manager-tip">团队就是一个角色池：先建一个方向，再把相关角色拉进来。日常发起群聊仍从左侧“+ 发起群聊”开始。</p>
+                                <input id="team-search" type="search" class="role-form-search" placeholder="搜索团队名称 / 描述">
+                                <div id="team-list" class="team-list"></div>
+                                <div id="current-team-summary" class="role-empty"></div>
+                                <div id="team-form-status" class="profile-form-status"></div>
+                                <form id="team-form" class="role-form">
+                                    <input id="team-name" name="name" type="text" placeholder="新团队名称" required>
+                                    <textarea id="team-description" name="description" placeholder="团队职责说明"></textarea>
+                                    <div class="role-form-actions">
+                                        <button id="create-team-btn" type="submit">创建这个团队</button>
+                                        <button id="update-team-btn" type="button" class="role-action-btn role-action-secondary">更新团队</button>
+                                        <button id="delete-team-btn" type="button" class="role-action-btn role-action-danger">删除团队</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="role-manager-section workspace-team-members-column">
+                                <h4>2. 从角色库拉人进团队</h4>
+                                <p class="role-manager-tip">这就是团队的主功能：按标签/关键词筛选角色，点“加入这个团队”。已加入的人会固定在上方，作为这个团队的角色池。</p>
+                                <div class="role-form-inline role-form-inline-split">
+                                    <div class="role-inline-field">
+                                        <label for="team-member-search" class="role-form-inline-label">搜索角色</label>
+                                        <input id="team-member-search" type="search" class="role-form-search" placeholder="按角色名 / 标签 / 描述筛选">
+                                    </div>
+                                    <div class="role-inline-field">
+                                        <label for="team-member-tag-filter" class="role-form-inline-label">标签筛选</label>
+                                        <select id="team-member-tag-filter"></select>
+                                    </div>
+                                </div>
+                                <div id="team-member-pool-meta" class="role-manager-tip"></div>
+                                <div id="team-member-pool-list" class="session-role-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="workspace-flow-bridge">
+                            <span>团队成员池准备好后，左侧“+ 发起群聊”会更容易选人</span>
+                        </div>
+
+                        <div id="group-launch-guide" class="group-launch-guide">
+                            <div class="launcher-step-strip" aria-label="发起群聊步骤">
+                                <span class="launcher-step-pill">1 选成员</span>
+                                <span class="launcher-step-pill">2 起群名</span>
+                                <span class="launcher-step-pill">3 进入聊天</span>
+                            </div>
+                            <div>
+                                <strong>发起一个新的 AI 群聊</strong>
+                                <span>像微信拉人建群一样：从 AI 通讯录选成员，起一个群名，然后直接开始对话。</span>
+                            </div>
+                        </div>
+
+                        <div class="workspace-flow-grid workspace-flow-grid-secondary">
+                            <div id="launcher-role-picker" class="launcher-role-picker">
+                                <div class="launcher-role-picker-header">
+                                    <div>
+                                        <h4>选择群聊成员</h4>
+                                        <p class="role-manager-tip">从 AI 通讯录里拉人进群。已选成员会固定显示在上方，点击成员卡片即可加入或移出。</p>
+                                    </div>
+                                    <button id="launcher-role-clear-btn" type="button" class="role-action-btn role-action-secondary">清空选择</button>
+                                </div>
+                                <div class="role-form-inline role-form-inline-split">
+                                    <div class="role-inline-field">
+                                        <label for="launcher-role-search" class="role-form-inline-label">搜索联系人</label>
+                                        <input id="launcher-role-search" type="search" class="role-form-search" placeholder="按名称 / 标签 / 描述搜索 AI 成员">
+                                    </div>
+                                    <div class="role-inline-field">
+                                        <label for="launcher-role-tag-filter" class="role-form-inline-label">按标签看</label>
+                                        <select id="launcher-role-tag-filter"></select>
+                                    </div>
+                                </div>
+                                <div id="launcher-role-meta" class="role-manager-tip"></div>
+                                <div id="launcher-selected-roles" class="launcher-selected-roles"></div>
+                                <div id="launcher-role-list" class="session-role-list launcher-role-list"></div>
+                            </div>
+
+                            <div class="role-manager-section workspace-group-column">
+                                <h4>确认群聊</h4>
+                                <p class="role-manager-tip">给这次群聊起个名字。创建后会自动进入聊天，后续历史仍在左侧同一个群聊入口里。</p>
+                                <div class="launcher-create-summary">
+                                    <strong>创建后立即开聊</strong>
+                                    <span>已选 AI 成员会直接进入新群聊。底层角色池和 Prompt 编排由系统自动处理。</span>
+                                </div>
+                                <div class="launcher-quick-fields">
+                                    <label class="launcher-field-label" for="group-profile-name">群聊名称</label>
+                                    <label class="launcher-field-label" for="group-profile-description">一句话说明</label>
+                                </div>
+                                <input id="group-profile-search" type="search" class="role-form-search" placeholder="搜索群聊配置 / 描述 / 成员">
+                                <div id="group-profile-search-meta" class="role-manager-tip"></div>
+                                <div id="group-profile-list" class="group-profile-list"></div>
+                                <div id="current-profile-summary" class="role-empty"></div>
+                                <div id="group-profile-form-status" class="profile-form-status"></div>
+                                <form id="group-profile-form" class="role-form">
+                                    <input id="group-profile-name" name="name" type="text" placeholder="例如：产品共创小组" required>
+                                    <input id="group-profile-description" name="description" type="text" placeholder="这个群聊主要用来做什么？">
+                                    <select id="group-profile-mode" name="mode">
+                                        <option value="sequential">顺序协作（默认）</option>
+                                        <option value="invite_only">邀请发言（必须点名）</option>
+                                        <option value="naturerandom">自然随机（实验）</option>
+                                    </select>
+                                    <textarea id="group-profile-invite-prompt" name="invite_prompt" placeholder="邀请发言时附加提示（可选）"></textarea>
+                                    <div id="group-profile-naturerandom-options" class="role-form-inline role-form-inline-split role-form-inline-hidden">
+                                        <div class="role-inline-field">
+                                            <label for="group-profile-random-min" class="role-form-inline-label">最少发言人数</label>
+                                            <input id="group-profile-random-min" name="random_min_speakers" type="number" min="1" max="6" value="2">
+                                        </div>
+                                        <div class="role-inline-field">
+                                            <label for="group-profile-random-max" class="role-form-inline-label">最多发言人数</label>
+                                            <input id="group-profile-random-max" name="random_max_speakers" type="number" min="1" max="8" value="3">
+                                        </div>
+                                        <div class="role-inline-field">
+                                            <label for="group-profile-mention-mode" class="role-form-inline-label">点名策略</label>
+                                            <select id="group-profile-mention-mode" name="mention_mode">
+                                                <option value="priority">点名优先（仅点名发言）</option>
+                                                <option value="additive">点名+随机补位</option>
+                                                <option value="ignore">忽略点名，仅随机</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <textarea id="group-profile-prompt" name="group_prompt" placeholder="群组级协作指令，留空则继承当前群组或默认模板"></textarea>
+                                    <label class="role-checkbox role-checkbox-copy">
+                                        <input id="group-profile-clone" name="cloneCurrentProfile" type="checkbox" checked>
+                                        <span class="role-checkbox-copy-body">
+                                            <span class="role-checkbox-copy-title">克隆当前群组成员与群组 Prompt</span>
+                                            <span class="role-checkbox-copy-hint">会复制当前已选群组的成员编排和群组级提示词到新模板。</span>
+                                        </span>
+                                    </label>
+                                    <label class="role-checkbox launcher-start-session-check">
+                                        <input id="group-profile-start-session" name="startSession" type="checkbox" checked>
+                                        创建后立即切换到新会话
+                                    </label>
+                                    <div class="role-form-actions">
+                                        <button id="load-group-profile-btn" type="button" class="role-action-btn role-action-secondary">载入当前模板</button>
+                                        <button id="duplicate-group-profile-btn" type="button" class="role-action-btn role-action-secondary">复制当前模板</button>
+                                        <button id="start-session-with-profile-btn" type="button" class="role-action-btn role-action-secondary">用当前模板开新会话</button>
+                                        <button id="save-group-profile-btn" type="button" class="role-action-btn role-action-secondary">保存当前模板</button>
+                                        <button id="delete-group-profile-btn" type="button" class="role-action-btn role-action-danger">删除当前模板</button>
+                                        <button id="create-group-profile-btn" type="submit">创建这个群组</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="role-manager-section workspace-group-members-column">
+                                <h4>4. 从团队拉人入群</h4>
+                                <p class="role-manager-tip">群组只能从当前团队成员池里选人。团队决定可选角色，群组决定本次谁上场。</p>
+                                <div id="group-member-pool-meta" class="role-manager-tip"></div>
+                                <div id="group-member-pool-list" class="session-role-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="role-studio-view" class="workspace-view workspace-view-hidden">
+                    <div class="role-manager-section">
+                        <h4>一句话创建角色</h4>
+                        <p class="role-manager-tip">普通用户不应该手填一堆角色字段。先说一句需求，系统帮你生成角色草稿，再做必要微调。</p>
+                        <div class="role-studio-factory-panel" aria-label="角色工坊生成流水线">
+                            <div class="role-studio-factory-copy">
+                                <div class="role-studio-factory-kicker">Role Factory</div>
+                                <strong>PromptX 负责角色结构，agency-agents 负责专业参考，VCP 负责变成可上场角色。</strong>
+                                <span>工坊不会直接改仓库文件；它会生成一个 VCP 角色草稿，你确认后才加入当前会话。</span>
+                            </div>
+                            <div class="role-studio-factory-steps">
+                                <div class="role-studio-factory-step">
+                                    <span>1</span>
+                                    <strong>描述需求</strong>
+                                    <small>一句话说明想补什么角色</small>
+                                </div>
+                                <div class="role-studio-factory-step">
+                                    <span>2</span>
+                                    <strong>选引擎/参考</strong>
+                                    <small>PromptX、agency 或混合</small>
+                                </div>
+                                <div class="role-studio-factory-step">
+                                    <span>3</span>
+                                    <strong>生成草稿</strong>
+                                    <small>检查职责、记忆和模板</small>
+                                </div>
+                                <div class="role-studio-factory-step">
+                                    <span>4</span>
+                                    <strong>加入会话</strong>
+                                    <small>先作为临时角色上场</small>
+                                </div>
+                            </div>
+                            <div id="role-studio-factory-contract" class="role-studio-factory-contract">生成目标：VCP 群聊角色草稿，不会直接创建 PromptX 文件或 agency 仓库角色。</div>
+                        </div>
+                        <form id="role-idea-form" class="role-form">
+                            <textarea id="role-idea-input" name="idea" placeholder="例如：帮我创建一个既懂产品又懂代码、负责拆解需求和推进交付的角色。"></textarea>
+                            <div class="role-studio-source-panel">
+                                <div class="role-form-inline role-form-inline-split">
+                                    <div class="role-inline-field">
+                                        <label for="role-studio-engine-select" class="role-form-inline-label">生成引擎</label>
+                                        <select id="role-studio-engine-select" name="generationEngine"></select>
+                                    </div>
+                                    <div class="role-inline-field">
+                                        <label for="role-studio-reference-search" class="role-form-inline-label">参考模板检索</label>
+                                        <input id="role-studio-reference-search" type="search" placeholder="例如：产品经理、prompt engineer、security">
+                                    </div>
+                                </div>
+                                <div id="role-studio-engine-meta" class="role-manager-tip">混合模式会用 PromptX 女娲做角色工程，再用 agency-agents 模板补足专业度。</div>
+                                <div id="role-studio-selected-references" class="role-studio-selected-references"></div>
+                                <div id="role-studio-reference-list" class="role-studio-reference-list"></div>
+                                <div id="role-studio-reference-meta" class="role-manager-tip"></div>
+                            </div>
+                            <div class="role-form-inline role-form-inline-split">
+                                <div class="role-inline-field">
+                                    <label for="role-idea-model-select" class="role-form-inline-label">创角模型策略</label>
+                                    <select id="role-idea-model-select" name="preferredModel"></select>
+                                </div>
+                                <div class="role-inline-field">
+                                    <label for="role-runtime-model-select" class="role-form-inline-label">角色运行模型</label>
+                                    <select id="role-runtime-model-select" name="runtimeModel"></select>
+                                </div>
+                            </div>
+                            <div id="role-idea-model-meta" class="role-manager-tip">默认按后端模型池自动优选，指定模型失败时仍会自动回退。</div>
+                            <div id="role-runtime-model-meta" class="role-manager-tip">角色运行模型决定它后续发言时调用哪一个模型，留空则走核心默认。</div>
+                            <div class="role-form-actions">
+                                <button id="draft-role-idea-btn" type="submit">生成角色草稿</button>
+                                <button id="clear-role-idea-btn" type="button" class="role-action-btn role-action-secondary">清空</button>
+                            </div>
+                        </form>
+                        <div id="role-idea-status" class="profile-form-status">先输入一句话需求，再生成角色草稿。</div>
+                    </div>
+
+                    <div class="role-manager-section">
+                        <h4>草稿预览</h4>
+                        <p class="role-manager-tip">先确认角色定位、职责和记忆命名是否合理。普通用户到这一步通常就够了。</p>
+                        <div id="role-draft-preview" class="role-draft-preview">
+                            <div id="role-draft-empty" class="role-empty">还没有角色草稿。先输入一句话需求，或展开高级编辑手动创建。</div>
+                            <div id="role-draft-content" class="role-draft-content role-draft-content-hidden">
+                                <div class="role-draft-topline">
+                                    <div class="role-draft-title-wrap">
+                                        <div id="role-draft-name" class="role-draft-name"></div>
+                                        <div id="role-draft-description" class="role-draft-description"></div>
+                                        <div id="role-draft-meta" class="role-badges role-draft-meta role-draft-content-hidden"></div>
+                                    </div>
+                                    <div id="role-draft-memory" class="role-badges"></div>
+                                </div>
+                                <div class="role-draft-grid">
+                                    <div class="role-draft-block">
+                                        <div class="role-draft-block-title">职责</div>
+                                        <div id="role-draft-responsibilities" class="role-draft-list"></div>
+                                    </div>
+                                    <div class="role-draft-block">
+                                        <div class="role-draft-block-title">认知草稿</div>
+                                        <div id="role-draft-persona" class="role-card-description"></div>
+                                    </div>
+                                    <div class="role-draft-block">
+                                        <div class="role-draft-block-title">模板摘要</div>
+                                        <div id="role-draft-template" class="role-card-description"></div>
+                                    </div>
+                                </div>
+                                <div class="role-form-actions">
+                                    <button id="create-role-from-draft-btn" type="button">创建并加入当前会话</button>
+                                    <button id="save-role-draft-btn" type="button" class="role-action-btn role-action-secondary">保存到角色库</button>
+                                    <button id="save-role-draft-team-btn" type="button" class="role-action-btn role-action-secondary">保存并加入当前团队</button>
+                                    <button id="save-role-draft-group-btn" type="button" class="role-action-btn role-action-secondary">保存并加入当前群组</button>
+                                    <button id="toggle-advanced-role-form-btn" type="button" class="role-action-btn role-action-secondary">展开高级编辑</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="role-advanced-editor-section" class="role-manager-section role-studio-editor-hidden">
+                        <h4>高级编辑</h4>
+                        <p class="role-manager-tip">只有在你需要精细控制模型、记忆本命名或底层模板时，才需要改这里。</p>
+                        <form id="ephemeral-role-form" class="role-form">
+                            <input id="role-form-name" name="name" type="text" placeholder="角色名称" required>
+                            <input id="role-form-memory" name="privateNotebook" type="text" placeholder="私有记忆本名称">
+                            <input id="role-form-knowledge" name="knowledgeNotebook" type="text" placeholder="知识记忆本名称">
+                            <input id="role-form-model" name="model" type="text" placeholder="模型名，留空则走默认">
+                            <textarea id="role-form-description" name="description" placeholder="角色简介"></textarea>
+                            <textarea id="role-form-persona" name="persona" placeholder="角色定位 / 认知描述"></textarea>
+                            <textarea id="role-form-responsibilities" name="responsibilities" placeholder="职责范围，每行一条"></textarea>
+                            <textarea id="role-form-template" name="template" placeholder="补充模板或系统提示核心内容"></textarea>
+                            <button id="create-ephemeral-role-btn" type="submit">创建临时角色</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="role-library-view" class="workspace-view workspace-view-hidden">
+                    <div class="role-library-console" aria-label="角色库筛选">
+                        <div class="role-library-console-copy">
+                            <div class="role-library-console-kicker">AI Address Book</div>
+                            <strong>先找角色，再决定导入、进团队，还是进当前群组。</strong>
+                            <span>角色库是联系人总表；团队是角色池；群组才是真正上场聊天的房间。</span>
+                        </div>
+                        <div class="role-library-filters">
+                            <input id="role-library-search" type="search" class="role-form-search" placeholder="搜索角色名 / 标签 / 描述 / 来源">
+                            <select id="role-library-source-filter" class="role-filter-select" aria-label="按来源筛选角色">
+                                <option value="">全部来源</option>
+                                <option value="core">核心角色</option>
+                                <option value="ephemeral">临时角色</option>
+                                <option value="agency_agents">agency-agents</option>
+                                <option value="promptx">PromptX</option>
+                            </select>
+                            <select id="role-library-status-filter" class="role-filter-select" aria-label="按状态筛选角色">
+                                <option value="">全部状态</option>
+                                <option value="group">当前群组成员</option>
+                                <option value="team">当前团队成员</option>
+                                <option value="imported">已导入核心</option>
+                                <option value="not-imported">未导入目录</option>
+                            </select>
+                        </div>
+                        <div id="role-library-summary" class="role-library-summary">正在读取角色通讯录。</div>
+                    </div>
+                    <div class="role-manager-section">
+                        <div class="role-manager-section-title-row">
+                            <h4>外部角色目录</h4>
+                            <button id="refresh-import-sources-btn" type="button" class="role-action-btn role-action-secondary">刷新目录</button>
+                        </div>
+                        <p class="role-manager-tip">这些模板来自 PromptX 和 agency-agents。导入动作会写入 VCP 核心认知层，是否加入当前群组由业务后端决定。</p>
+                        <div id="import-source-list" class="import-source-list"></div>
+                    </div>
+
+                    <div class="role-manager-section">
+                        <h4>当前可用角色</h4>
+                        <p class="role-manager-tip">这里展示当前会话已可用的角色。核心角色可加入或移出当前群组，临时角色可长期化。</p>
+                        <div id="session-role-list" class="session-role-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script src="config.js"></script> --> <!-- 改为动态加载 -->
+    <!-- 引入 marked.js 用于 Markdown 解析 -->
+    <script src="marked.min.js"></script>
+    <script type="module" src="js/core/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+services:
+  llmgroupchat:
+    image: nginx:alpine
+    container_name: llmgroupchat
+    ports:
+      - "4090:80"
+    volumes:
+      - .:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped

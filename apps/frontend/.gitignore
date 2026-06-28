@@ -1,0 +1,21 @@
+# Local browser automation artifacts
+.playwright-cli/
+output/
+
+# Runtime and dependency folders
+node_modules/
+dist/
+build/
+
+# Logs and local OS/editor noise
+*.log
+.DS_Store
+*.swp
+*.tmp
+*.backup
+
+# Superseded local draft; active layout is css/layout-three-column.css
+layout-refactor.css
+
+# Migration safety backup; active entry is js/core/app.js
+js/core/app.modular.thin-backup.js

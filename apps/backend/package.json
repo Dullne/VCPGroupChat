@@ -1,0 +1,25 @@
+{
+  "name": "vcp-groupchat-backend",
+  "version": "0.1.0",
+  "description": "Group chat business backend for VCP role core",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/*.test.js",
+    "test:container": "docker exec vcp-groupchat-backend sh -lc 'node --test tests/*.test.js'",
+    "test:continuous": "node scripts/continuous-smoke.mjs",
+    "hygiene:report": "node scripts/runtime-hygiene-report.mjs --format text",
+    "hygiene:prune:dry-run": "node scripts/runtime-hygiene-prune.mjs",
+    "hygiene:prune:confirm": "GROUPCHAT_RUNTIME_PRUNE=1 node scripts/runtime-hygiene-prune.mjs --write --confirm-empty-smoke-sessions",
+    "project-assets:hcc:dry-run": "node scripts/project-assets-to-hcc.mjs",
+    "project-assets:hcc:create": "GROUPCHAT_HCC_CREATE=1 node scripts/project-assets-to-hcc.mjs --write",
+    "rebuild:native": "npm rebuild better-sqlite3",
+    "test:host:repair": "npm run rebuild:native && npm test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
+}

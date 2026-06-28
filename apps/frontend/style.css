@@ -1,0 +1,1908 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    /* background-color: #f4f4f4; */ /* Removed for background image */
+    display: flex;
+    /* justify-content: center; */ /* Removed for left alignment */
+    align-items: center;
+    min-height: 100vh;
+}
+
+#chat-container {
+    width: 120%; /* 左右加宽 15% */
+    max-width: 1405px; /* 左右加宽 15% */
+    height: 95vh; /* 进一步缩小上下边界距离 */
+    max-height: 1160px; /* 调整最大高度以适应更高分辨率 */
+    /* background-color: #fff; */ /* Removed for background image */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-left: 20px; /* Align left with same margin as floating window right */
+}
+
+#chat-header {
+    padding: 15px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px; /* Add some space between title and controls */
+}
+
+#controls-area {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between select dropdown and AI status */
+}
+
+#chat-session-select {
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+#chat-session-select:focus {
+    outline: none;
+    border-color: white;
+}
+
+/* Style options within the select dropdown */
+#chat-session-select option {
+    background-color: #4a90e2; /* Match header background */
+    color: white;
+}
+
+#config-select,
+#chat-session-select,
+#team-manager-toggle,
+#role-studio-toggle,
+#role-library-toggle,
+#dark-mode-toggle {
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+#config-select option,
+#chat-session-select optgroup {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.workspace-toggle-active {
+    border-color: rgba(255, 255, 255, 0.82);
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+.role-form-search {
+    width: 100%;
+    border: 1px solid #c8d7eb;
+    border-radius: 10px;
+    padding: 9px 10px;
+    box-sizing: border-box;
+    font-size: 0.92em;
+    background: white;
+}
+
+.group-profile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.group-profile-card {
+    border-radius: 12px;
+    border: 1px solid rgba(74, 144, 226, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 246, 253, 0.92));
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.group-profile-card:hover,
+.group-profile-card:focus-visible {
+    border-color: rgba(74, 144, 226, 0.42);
+    box-shadow: 0 10px 24px rgba(74, 144, 226, 0.12);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.group-profile-card-active {
+    border-color: rgba(74, 144, 226, 0.55);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.16);
+}
+
+#chat-header h1 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+#ai-status {
+    font-size: 0.9em;
+}
+
+#ai-status span {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+#chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    background-size: cover; /* Ensure background covers the area */
+    background-position: center center; /* Center the background */
+    background-repeat: no-repeat; /* Prevent tiling */
+}
+
+#round-role-panel {
+    border-top: 1px solid #e6edf6;
+    border-bottom: 1px solid #e6edf6;
+    background: linear-gradient(180deg, rgba(247, 250, 253, 0.96), rgba(238, 244, 251, 0.92));
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.round-role-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.round-role-panel-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.round-role-panel-title {
+    font-size: 0.94em;
+    font-weight: bold;
+    color: #203854;
+}
+
+.round-role-summary {
+    font-size: 0.84em;
+    color: #5f728a;
+    line-height: 1.5;
+}
+
+.round-role-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.round-role-selection-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.round-role-selection-collapsed {
+    display: none;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex; /* Use flexbox for layout */
+    align-items: flex-end; /* Align avatar and bubble bottom */
+    /* max-width, padding, border-radius, word-wrap, line-height moved to .message-content */
+}
+
+/* New class for the avatar image */
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* Circular avatar */
+    margin: 0 10px; /* Space between avatar and message bubble */
+    object-fit: cover; /* Ensure image covers the area well */
+    flex-shrink: 0; /* Prevent avatar from shrinking */
+    align-self: flex-start; /* Align avatar to the top of the flex container */
+}
+
+/* New class to wrap the actual message text and sender */
+.message-content {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 75%; /* Max width for the bubble */
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.user-message {
+    /* background-color moved to .message-content */
+    align-self: flex-end; /* Keep the whole message row to the right */
+    flex-direction: row-reverse; /* Avatar on the right */
+    /* border-bottom-right-radius moved to .message-content */
+}
+
+/* Apply styles specifically to user message content */
+.user-message .message-content {
+    background-color: rgba(220, 248, 198, 0.7); /* Semi-transparent light green */
+    border-bottom-right-radius: 5px;
+    backdrop-filter: blur(8px); /* Add blur effect */
+    -webkit-backdrop-filter: blur(8px); /* For Safari compatibility */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Optional: subtle border */
+}
+
+.ai-message {
+    /* background-color moved to .message-content */
+    align-self: flex-start; /* Keep the whole message row to the left */
+    flex-direction: row; /* Avatar on the left (default, but explicit) */
+    /* border-bottom-left-radius moved to .message-content */
+}
+
+/* Apply styles specifically to AI message content */
+.ai-message .message-content {
+    background-color: rgba(255, 255, 255, 0.6); /* More transparent white */
+    border-bottom-left-radius: 5px;
+    backdrop-filter: blur(10px); /* Add blur effect */
+    -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
+    border: 1px solid rgba(255, 255, 255, 0.18); /* Optional: subtle border */
+}
+
+.message .sender {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.ai-message .sender {
+     color: #4a69bd; /* Different color for AI sender */
+}
+
+.user-message .sender {
+     color: #3a7a3e; /* Different color for User sender */
+     /* text-align: right; /* Alignment handled by flexbox now */
+}
+
+
+#input-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack preview area on top of input area */
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+#image-preview-area {
+    padding: 10px 15px 5px 15px; /* Padding around the preview */
+    position: relative; /* For positioning the remove button */
+    max-width: 150px; /* Limit preview width */
+    align-self: flex-start; /* Align preview to the left */
+}
+
+#image-preview {
+    max-width: 100%;
+    max-height: 80px; /* Limit preview height */
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    display: block; /* Ensure img behaves like a block */
+}
+
+#remove-image-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    line-height: 16px; /* Center the 'x' */
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#remove-image-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+
+/* --- Global Input Area Styles (Applies to Desktop & Mobile unless overridden) --- */
+#chat-input-area {
+    display: flex;
+    padding: 10px 15px; /* Consistent padding */
+    align-items: stretch; /* Stretch items to match tallest */
+    gap: 8px; /* Space between elements */
+}
+
+/* Global style for the left button container */
+.left-input-buttons {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 4px; /* Space between stacked buttons */
+    order: 1; /* This group is the first item */
+    flex-shrink: 0;
+}
+
+/* Global styles for buttons inside the left vertical group */
+.left-input-buttons button {
+    padding: 0;
+    border-radius: 8px; /* Rounded rectangle */
+    height: 32px; /* Smaller height */
+    width: 36px;  /* Adjust width */
+    font-size: 0.8em; /* Smaller font size */
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Global specific styles for NEW button */
+#new-chat-button {
+     background-color: #f39c12;
+     font-size: 0.7em; /* Even smaller font for "NEW" */
+     font-weight: bold;
+}
+#new-chat-button:hover {
+     background-color: #e67e22;
+}
+
+/* Styles for Attach button (label) to match NEW button */
+#attach-image-button { /* ID selector still works on the label */
+    /* --- Copy common styles from .left-input-buttons button --- */
+    padding: 0; /* Reset label padding */
+    border-radius: 8px; /* Explicitly add rounded rectangle */
+    height: 32px; /* Explicitly set height */
+    width: 36px;  /* Explicitly set width */
+    flex-shrink: 0;
+    display: flex; /* Use flex for alignment */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+    box-sizing: border-box;
+    border: none; /* Remove default label border */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    /* --- Copy specific styles from #new-chat-button --- */
+    background-color: #f39c12; /* Match NEW button background */
+    font-size: 0.7em; /* Match NEW button font size */
+    font-weight: bold; /* Match NEW button font weight */
+    color: white; /* Explicitly set text color to white */
+    /* Note: The text "File" might need a slightly larger font-size than "NEW" */
+    /* You can adjust the font-size here if needed, e.g., font-size: 0.8em; */
+}
+#attach-image-button:hover {
+     background-color: #e67e22; /* Match NEW button hover */
+}
+
+
+/* Global styles for message input */
+#message-input {
+    flex-grow: 1; /* Allow input to take available space */
+    order: 2; /* Input field is the second item */
+    padding: 8px 12px; /* Keep padding */
+    border: 1px solid #ccc;
+    border-radius: 18px; /* Keep input radius */
+    resize: none;
+    /* height: 68px; Removed fixed height, rely on stretch */
+    max-height: 80px; /* Limit max height */
+    overflow-y: auto;
+    font-size: 1em; /* Default font size */
+    line-height: 1.4;
+    box-sizing: border-box; /* Ensure padding/border are included in height calculation */
+}
+
+/* Global styles for Send button */
+#send-button {
+    order: 3; /* Send button is the third item */
+    padding: 0 15px; /* Horizontal padding for text */
+    /* height: 68px; Removed fixed height, rely on stretch */
+    width: auto; /* Auto width based on text */
+    border-radius: 18px; /* Match input radius */
+    font-size: 0.9em; /* Default font size */
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box; /* Ensure padding/border are included */
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: #4a90e2;
+}
+#send-button:hover {
+    background-color: #357abd;
+}
+
+
+#ai-buttons {
+    margin-top: 10px; /* Add space above AI buttons */
+    padding-left: 10px; /* Align with input field */
+    display: flex; /* Use flexbox for layout */
+    flex-wrap: wrap; /* Allow buttons to wrap */
+    gap: 5px; /* Space between buttons */
+}
+
+#ai-buttons button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+#ai-buttons button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Style for loading indicator */
+.loading-indicator {
+    display: inline-block;
+    margin-left: 5px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: #000;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Floating AI Status Window Styles */
+#floating-ai-status-window {
+    position: absolute; /* Changed from fixed to absolute relative to chat-container */
+    top: 75px; /* Adjust top position below the header */
+    right: 20px; /* Position on the right */
+    width: 180px; /* Adjust width as needed */
+    max-height: calc(92vh - 100px); /* Adjust max height based on container height and top offset */
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    z-index: 100; /* Ensure it's above other elements */
+    overflow-y: auto; /* Add scroll if content overflows */
+    display: none; /* Initially hidden */
+}
+
+#floating-ai-status-window h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #333;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+#role-manager-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 28, 45, 0.42);
+    z-index: 300;
+    display: none;
+    justify-content: flex-end;
+}
+
+#role-manager-modal.role-manager-open {
+    display: flex;
+}
+
+#role-manager-panel {
+    width: min(460px, 100vw);
+    height: 100vh;
+    background: #f7f9fc;
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.18);
+    padding: 20px 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+}
+
+.role-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.workspace-header-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.role-manager-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #1c2f4a;
+}
+
+.workspace-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.workspace-view-hidden {
+    display: none;
+}
+
+#role-manager-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #dbe5f3;
+    color: #1c2f4a;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.role-manager-section {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(74, 144, 226, 0.15);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.role-manager-section h4 {
+    margin: 0;
+    font-size: 0.98em;
+    color: #24466d;
+}
+
+.role-manager-section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.role-manager-tip {
+    margin: 0;
+    color: #5f728a;
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+
+.role-selection-list,
+.session-role-list,
+.import-source-list,
+.import-source-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.import-source-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 12px;
+    background: #eef4fb;
+}
+
+.import-source-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.import-source-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.import-source-title {
+    font-weight: bold;
+    color: #203854;
+}
+
+.import-source-meta {
+    color: #5f728a;
+    font-size: 0.84em;
+}
+
+.role-selection-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #eef4fb;
+}
+
+.role-selection-item input {
+    margin-top: 3px;
+}
+
+.role-selection-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.role-selection-title {
+    font-weight: bold;
+    color: #203854;
+}
+
+.role-manager-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.role-manager-actions button,
+#create-role-from-draft-btn,
+#create-ephemeral-role-btn,
+#create-group-profile-btn {
+    border: none;
+    border-radius: 10px;
+    background: #4a90e2;
+    color: white;
+    padding: 9px 12px;
+    cursor: pointer;
+}
+
+.role-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.role-form input:not([type="checkbox"]):not([type="radio"]),
+.role-form select,
+.role-form textarea {
+    width: 100%;
+    border: 1px solid #c8d7eb;
+    border-radius: 10px;
+    padding: 9px 10px;
+    box-sizing: border-box;
+    font-size: 0.92em;
+    background: white;
+}
+
+.role-form textarea {
+    min-height: 78px;
+    resize: vertical;
+}
+
+.role-form-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.role-form-inline-split {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.role-inline-field {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.role-form-inline-label {
+    color: #5f728a;
+    font-size: 0.84em;
+    line-height: 1.4;
+}
+
+.role-section-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+#role-idea-input {
+    min-height: 108px;
+}
+
+.role-studio-source-panel {
+    border: 1px solid #d9e5f4;
+    border-radius: 14px;
+    background: #f7fbff;
+    padding: 12px;
+}
+
+.role-studio-reference-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+    max-height: 240px;
+    overflow: auto;
+}
+
+.role-studio-reference-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    text-align: left;
+    border: 1px solid #d8e4f2;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #26394f;
+    padding: 10px;
+    cursor: pointer;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.role-studio-reference-card:hover {
+    border-color: #8cb7e8;
+    box-shadow: 0 8px 20px rgba(45, 92, 140, 0.12);
+    transform: translateY(-1px);
+}
+
+.role-studio-reference-card-selected {
+    border-color: #2c7be5;
+    background: #eef6ff;
+    box-shadow: 0 0 0 2px rgba(44, 123, 229, 0.12);
+}
+
+.role-studio-reference-topline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.role-studio-reference-name {
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.role-studio-reference-desc {
+    color: #5f728a;
+    font-size: 0.86em;
+    line-height: 1.45;
+}
+
+.role-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.role-form-actions .role-action-btn,
+.role-form-actions #create-role-from-draft-btn,
+.role-form-actions #create-group-profile-btn {
+    flex: 1 1 140px;
+}
+
+.role-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    color: #385472;
+}
+
+.role-checkbox input {
+    margin: 0;
+}
+
+.profile-summary-title {
+    font-weight: bold;
+    color: #203854;
+}
+
+.profile-summary-description {
+    color: #56687f;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.profile-summary-meta {
+    color: #5f728a;
+    font-size: 0.84em;
+    line-height: 1.5;
+}
+
+.profile-form-status {
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #eef4fb;
+    color: #56708d;
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+
+.profile-form-status-ready {
+    background: #eaf7ef;
+    color: #2f6a43;
+}
+
+.profile-form-status-warning {
+    background: #fff1dd;
+    color: #8d5d15;
+}
+
+.role-draft-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.role-draft-content-hidden,
+.role-studio-editor-hidden {
+    display: none;
+}
+
+.role-draft-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.role-draft-topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.role-draft-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.role-draft-name {
+    font-size: 1.05em;
+    font-weight: bold;
+    color: #203854;
+}
+
+.role-draft-description {
+    color: #56687f;
+    font-size: 0.92em;
+    line-height: 1.5;
+}
+
+.role-draft-meta {
+    justify-content: flex-start;
+}
+
+.role-draft-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.role-draft-block {
+    border-radius: 12px;
+    background: #eef4fb;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.role-draft-block-title {
+    font-weight: bold;
+    color: #24466d;
+}
+
+.role-draft-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.role-draft-list-item {
+    border-radius: 10px;
+    background: white;
+    padding: 9px 10px;
+    color: #35506f;
+    font-size: 0.9em;
+    line-height: 1.45;
+}
+
+.role-card {
+    border-radius: 12px;
+    border: 1px solid rgba(74, 144, 226, 0.18);
+    background: white;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.role-card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.role-card-title {
+    font-weight: bold;
+    color: #203854;
+}
+
+.role-card-description {
+    color: #56687f;
+    font-size: 0.9em;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.role-card-meta {
+    color: #5f728a;
+    font-size: 0.84em;
+    line-height: 1.5;
+}
+
+.role-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.role-badge {
+    font-size: 0.74em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e4eefb;
+    color: #32557e;
+}
+
+.role-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.role-inline-editor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.role-inline-select {
+    flex: 1 1 240px;
+    min-width: 0;
+    border: 1px solid #c8d7eb;
+    border-radius: 10px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    font-size: 0.88em;
+    background: white;
+    color: #24466d;
+}
+
+.role-action-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: white;
+    background: #4a90e2;
+}
+
+.role-action-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.role-action-btn.role-action-secondary {
+    background: #8b9bb0;
+}
+
+.role-action-btn.role-action-danger {
+    background: #c85b5b;
+}
+
+.role-empty {
+    border-radius: 10px;
+    background: #eef4fb;
+    color: #5f728a;
+    padding: 12px;
+    font-size: 0.9em;
+}
+
+#current-round-ais {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-status-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Push button to the right */
+    padding: 5px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.ai-status-item img {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+    transition: filter 0.3s ease, opacity 0.3s ease; /* Add transition for smooth greying */
+}
+
+.ai-status-item span {
+    flex-grow: 1; /* Allow name to take available space */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-status-item .close-ai-btn {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px; /* Space between name and button */
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.ai-status-item .close-ai-btn:hover {
+    background-color: #e05252;
+}
+
+/* Style for the X button when AI is excluded for the next round */
+.ai-status-item .close-ai-btn.excluded-next-round {
+    background-color: #bbb; /* Grey background */
+    opacity: 0.6;
+    cursor: not-allowed; /* Indicate it's already marked for exclusion */
+}
+
+/* Style for inactive AI avatars in the floating window */
+.ai-status-item img.inactive-avatar {
+    filter: grayscale(80%);
+    opacity: 0.5;
+}
+.ai-status-item .close-ai-btn.excluded-next-round:hover {
+     background-color: #aaa; /* Slightly darker grey on hover */
+}
+
+.ai-status-item .mute-ai-btn {
+    background-color: #ffae42; /* Orange default */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px; /* Space between close and mute buttons */
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+}
+
+.ai-status-item .mute-ai-btn.muted {
+    background-color: #888; /* Grey when muted */
+    opacity: 0.7;
+}
+
+.ai-status-item .mute-ai-btn:hover:not(.muted) {
+    background-color: #ff9a1f;
+}
+
+.ai-status-item .mute-ai-btn:hover.muted {
+    background-color: #666;
+}
+
+/* Responsive Design for Mobile Devices */
+@media (max-width: 768px) {
+    body {
+        /* Remove flex centering for mobile, allow natural flow */
+        display: block;
+        min-height: auto; /* Allow body height to adjust */
+        padding: 0; /* Remove default padding if any */
+    }
+
+    #chat-container {
+        width: 100%;
+        max-width: none;
+        height: 100vh; /* Full viewport height */
+        max-height: none;
+        border-radius: 0; /* Remove rounded corners */
+        box-shadow: none; /* Remove shadow */
+        padding-top: 50px; /* Reduced padding to match the slimmer floating bar */
+        margin-left: 0; /* Reset left margin for mobile */
+    }
+
+    #chat-header {
+        padding: 10px 15px; /* Reduce padding */
+        flex-direction: column; /* Stack title and controls */
+        align-items: flex-start; /* Align items to the start */
+        gap: 8px; /* Reduce gap */
+    }
+
+    #chat-header h1 {
+        /* Hide the main title on mobile */
+        display: none;
+    }
+    #controls-area {
+        width: 100%; /* Take full width */
+        justify-content: space-between; /* Space out controls */
+        gap: 10px; /* Adjust gap */
+    }
+
+    #chat-session-select,
+    #config-select { /* Apply to config select too */
+        font-size: 0.85em;
+        padding: 4px 6px;
+        flex-grow: 1; /* Allow selects to grow */
+    }
+
+    #team-manager-toggle,
+    #role-studio-toggle,
+    #role-library-toggle,
+    #dark-mode-toggle {
+        flex-shrink: 0;
+    }
+
+    .round-role-panel-header {
+        flex-direction: column;
+    }
+
+    .round-role-panel-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .role-draft-topline {
+        flex-direction: column;
+    }
+
+    #ai-status {
+        /* Hide the AI status display entirely on small screens */
+        display: none;
+    }
+
+    #chat-messages {
+        padding: 15px; /* Adjust padding */
+    }
+
+    .message {
+        margin-bottom: 10px; /* Reduce margin */
+    }
+
+    .avatar {
+        width: 40px; /* Smaller avatar */
+        height: 40px;
+        margin: 0 8px; /* Adjust margin */
+    }
+
+    .message-content {
+        padding: 8px 12px; /* Smaller padding */
+        max-width: 85%; /* Allow slightly wider bubbles */
+        font-size: 0.95em; /* Adjust font size if needed */
+    }
+
+    #input-wrapper {
+        /* No changes needed unless specific issues arise */
+    }
+
+    #image-preview-area {
+        padding: 8px 10px 4px 10px;
+        max-width: 100px;
+    }
+
+    #image-preview {
+        max-height: 60px;
+    }
+
+    #remove-image-button {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+        line-height: 14px;
+    }
+
+    /* --- Mobile Specific Overrides --- */
+    /* Remove redundant layout rules for input area and buttons, as they are now global */
+
+    #chat-input-area {
+        /* Mobile inherits flex, stretch, gap */
+        padding: 8px 10px; /* Slightly less padding on mobile */
+        align-items: flex-end; /* Align items to the bottom */
+    }
+
+    .left-input-buttons {
+        flex-direction: row; /* Stack buttons horizontally */
+    }
+
+    /* Ensure left buttons match Send button's border-radius on mobile */
+    .left-input-buttons button {
+        border-radius: 18px; /* Match send button radius */
+        /* Inherit other styles like height, width from global */
+    }
+    /* Keep specific mobile style overrides if needed below */
+    /* #attach-image-button { ... } */
+    /* #new-chat-button { ... } */
+    /* Ensure attach button (label) also gets mobile border-radius */
+    #attach-image-button {
+        border-radius: 18px; /* Match other mobile buttons */
+    }
+
+
+    #message-input {
+        /* Mobile inherits flex-grow, order, max-height from global */
+        height: 32px; /* Match button height */
+        font-size: 0.9em; /* Slightly smaller font on mobile */
+        padding: 8px 10px; /* Adjust mobile horizontal padding */
+    }
+
+    #send-button {
+        /* Mobile inherits order, border-radius, background from global */
+        height: 32px; /* Match button height */
+        padding: 0 12px; /* Adjust mobile horizontal padding */
+        font-size: 0.85em; /* Slightly smaller font on mobile */
+    }
+
+
+    #ai-buttons {
+        order: 3; /* Place AI buttons last */
+        width: 100%; /* Take full width */
+        justify-content: center; /* Center buttons */
+        margin-top: 8px;
+        padding-left: 0; /* Remove left padding */
+    }
+
+    #ai-buttons button {
+        padding: 4px 8px;
+        font-size: 0.8em;
+    }
+
+    #floating-ai-status-window {
+        /* --- Mobile Horizontal Bar Style --- */
+        display: flex; /* Use flex for layout */
+        flex-direction: column; /* Stack title (hidden) and ais */
+        position: fixed; /* Float at the top */
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: auto; /* Adjust height based on content */
+        min-height: 40px; /* Reduced minimum height */
+        background-color: rgba(29, 91, 161, 1); /* Use header color with transparency */
+        padding: 5px 10px; /* Reduced padding */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        z-index: 101; /* Ensure it's above chat header */
+        border-radius: 0; /* No rounded corners */
+        overflow-x: auto; /* Allow horizontal scrolling if too many avatars */
+        overflow-y: hidden;
+        border: none; /* Remove border */
+    }
+
+    #floating-ai-status-window h4 {
+        /* Hide the title on mobile */
+        display: none;
+    }
+
+    #current-round-ais {
+        /* Arrange items horizontally */
+        flex-direction: row;
+        justify-content: center; /* Center the avatars */
+        gap: 15px; /* Increased space between AI items */
+        align-items: center; /* Vertically align items */
+        /* gap: 10px; /* Space between AI items - overridden by justify-content? Use margin/padding on items if needed */
+        width: 100%; /* Take full width */
+        padding: 5px 0; /* Add some vertical padding */
+        position: relative; /* Enable positioning */
+        left: -10px; /* Move the container 10px to the left */
+    }
+
+    .ai-status-item {
+        /* Adjust item layout: Avatar on left, buttons stacked vertically on right */
+        display: flex; /* Use flex for avatar + button group layout */
+        flex-direction: row; /* Avatar and button group side-by-side */
+        align-items: center; /* Align avatar and button group vertically */
+        background-color: transparent; /* Remove item background */
+        gap: 5px; /* Space between avatar and button group */
+        padding: 0; /* Remove item padding */
+        gap: 3px; /* Small gap between avatar and buttons */
+        min-width: 40px; /* Ensure minimum width */
+    }
+
+    .ai-status-item span {
+        /* Hide the AI name */
+        display: none;
+    }
+
+    .ai-status-item img {
+        /* Adjust avatar size */
+        width: 30px;
+        height: 30px;
+        margin-right: 0; /* Remove margin */
+    }
+
+     /* Container for buttons to the right of avatar */
+    .ai-status-item .button-group {
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 3px; /* Space between buttons */
+    }
+
+    .ai-status-item .close-ai-btn,
+    .ai-status-item .mute-ai-btn {
+        /* Adjust button size and position */
+        width: 15px;
+        height: 15px;
+        font-size: 9px;
+        line-height: 14px; /* Adjust line height */
+        margin-left: 0; /* Remove margin */
+        position: static; /* Override absolute positioning if any */
+        border-radius: 3px; /* Slightly rounded corners */
+    }
+
+     /* Specific adjustments if needed */
+    .ai-status-item .close-ai-btn {
+         /* background-color: rgba(255, 107, 107, 0.8); */
+    }
+    .ai-status-item .mute-ai-btn {
+         /* background-color: rgba(255, 174, 66, 0.8); */
+    }
+    .ai-status-item .mute-ai-btn.muted {
+        /* background-color: rgba(136, 136, 136, 0.8); */
+    }
+
+    #role-manager-panel {
+        width: 100vw;
+        padding: 16px 14px;
+    }
+}
+
+/* Style for highlighted @mentions */
+.mention-highlight {
+    color: #007bff; /* Standard blue color */
+    font-weight: bold; /* Make it bold */
+    background-color: rgba(0, 123, 255, 0.1); /* Optional: subtle background highlight */
+    padding: 1px 3px; /* Optional: add some padding */
+    border-radius: 3px; /* Optional: rounded corners */
+}
+/* Generic label styles removed, specific styles applied above */
+/* Ensure the hidden file input doesn't affect layout (keep this part) */
+#image-input {
+    display: none;
+}
+/* --- Markdown Table Styles --- */
+.message-content table {
+    border-collapse: collapse; /* 合并单元格边框 */
+    width: auto; /* 表格宽度自适应内容，或设为 100% 如果需要 */
+    margin-top: 1em; /* 表格上方留白 */
+    margin-bottom: 1em; /* 表格下方留白 */
+    border: 1px solid rgba(0, 0, 0, 0.2); /* 整体表格外边框，颜色较浅 */
+    font-size: 0.95em; /* 调整表格内字体大小 */
+}
+
+.message-content th,
+.message-content td {
+    border: 1px solid rgba(0, 0, 0, 0.15); /* 单元格边框，颜色更浅 */
+    padding: 8px 12px; /* 单元格内边距 */
+    text-align: left; /* 文本左对齐 */
+}
+
+.message-content th {
+    background-color: rgba(0, 0, 0, 0.05); /* 表头单元格浅灰色背景 */
+    font-weight: bold; /* 表头字体加粗 */
+}
+
+/* 可选：为奇数行添加微弱背景色，增加可读性 */
+.message-content tr:nth-child(odd) td {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+/* Night Mode Styles */
+body.night-mode {
+    background-color: #1e1e1e;
+    color: #eee;
+}
+
+.night-mode #chat-container {
+    background-color: #2d2d2d;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.night-mode #chat-header {
+    background-color: #3a3a3a;
+    border-bottom-color: #555;
+}
+
+.night-mode #chat-header h1 {
+    color: #eee;
+}
+
+.night-mode #chat-session-select,
+.night-mode #config-select,
+.night-mode #team-manager-toggle,
+.night-mode #role-studio-toggle,
+.night-mode #role-library-toggle,
+.night-mode #dark-mode-toggle {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #eee;
+}
+
+.night-mode #chat-session-select option {
+    background-color: #3a3a3a;
+    color: #eee;
+}
+
+.night-mode .workspace-toggle-active {
+    border-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.night-mode .role-form-search {
+    background: #20262f;
+    border-color: #4e5b6d;
+    color: #eef4ff;
+}
+
+.night-mode .group-profile-card {
+    background: linear-gradient(180deg, #313844, #2b313b);
+    border-color: rgba(138, 180, 248, 0.18);
+}
+
+.night-mode .group-profile-card:hover,
+.night-mode .group-profile-card:focus-visible {
+    border-color: rgba(138, 180, 248, 0.42);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.night-mode .group-profile-card-active {
+    border-color: rgba(138, 180, 248, 0.48);
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.15);
+}
+
+.night-mode #ai-status span {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.night-mode #chat-messages {
+    border-bottom-color: #555;
+}
+
+.night-mode #round-role-panel {
+    border-top-color: #4c5868;
+    border-bottom-color: #4c5868;
+    background: linear-gradient(180deg, rgba(45, 52, 64, 0.96), rgba(39, 45, 55, 0.94));
+}
+
+.night-mode .round-role-panel-title {
+    color: #eef4ff;
+}
+
+.night-mode .round-role-summary {
+    color: #c7d3e0;
+}
+
+.night-mode .message .sender {
+    color: #bbb;
+}
+
+.night-mode .ai-message .sender {
+    color: #8ab4f8; /* Lighter blue for AI sender */
+}
+
+.night-mode .user-message .sender {
+    color: #a5d6a7; /* Lighter green for User sender */
+}
+
+.night-mode .user-message .message-content {
+    background-color: rgba(60, 60, 60, 0.7); /* Darker semi-transparent */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.night-mode .ai-message .message-content {
+    background-color: rgba(45, 45, 45, 0.6); /* Darker more transparent */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.night-mode #input-wrapper {
+    border-top-color: #555;
+    background-color: #3a3a3a;
+}
+
+.night-mode #image-preview-area {
+    border-color: #555;
+}
+
+.night-mode #image-preview {
+    border-color: #555;
+}
+
+.night-mode #remove-image-button {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #1e1e1e;
+}
+
+.night-mode #remove-image-button:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.night-mode #chat-input-area {
+    /* No specific changes needed unless elements within need adjustment */
+}
+
+.night-mode .left-input-buttons button {
+    background-color: #555;
+    color: #eee;
+}
+
+.night-mode .left-input-buttons button:hover {
+    background-color: #666;
+}
+
+.night-mode #new-chat-button,
+.night-mode #attach-image-button {
+     background-color: #f39c12; /* Keep orange for visibility */
+}
+.night-mode #new-chat-button:hover,
+.night-mode #attach-image-button:hover {
+     background-color: #e67e22; /* Keep orange hover */
+}
+
+
+.night-mode #message-input {
+    border-color: #555;
+    background-color: #4a4a4a;
+    color: #eee;
+}
+
+.night-mode #send-button {
+    background-color: #4a90e2; /* Keep blue for visibility */
+}
+.night-mode #send-button:hover {
+    background-color: #357abd; /* Keep blue hover */
+}
+
+
+.night-mode #ai-buttons button {
+    border-color: #555;
+    background-color: #4a4a4a;
+    color: #eee;
+}
+
+.night-mode #ai-buttons button:hover {
+    background-color: #555;
+}
+
+.night-mode .loading-indicator {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: #eee;
+}
+
+.night-mode #floating-ai-status-window {
+    background-color: rgba(45, 45, 45, 0.9);
+    border-color: #555;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.night-mode #floating-ai-status-window h4 {
+    color: #eee;
+    border-bottom-color: #555;
+}
+
+.night-mode .ai-status-item {
+    background-color: #3a3a3a;
+}
+
+.night-mode .ai-status-item .close-ai-btn {
+    background-color: #ff6b6b; /* Keep red */
+}
+.night-mode .ai-status-item .close-ai-btn:hover {
+    background-color: #e05252; /* Keep red hover */
+}
+.night-mode .ai-status-item .close-ai-btn.excluded-next-round {
+    background-color: #666; /* Darker grey */
+}
+.night-mode .ai-status-item .close-ai-btn.excluded-next-round:hover {
+     background-color: #555; /* Even darker grey on hover */
+}
+
+.night-mode .ai-status-item .mute-ai-btn {
+    background-color: #ffae42; /* Keep orange */
+}
+.night-mode .ai-status-item .mute-ai-btn.muted {
+    background-color: #888; /* Keep grey when muted */
+}
+.night-mode .ai-status-item .mute-ai-btn:hover:not(.muted) {
+    background-color: #ff9a1f; /* Keep orange hover */
+}
+.night-mode .ai-status-item .mute-ai-btn:hover.muted {
+    background-color: #666; /* Keep grey hover */
+}
+
+.night-mode #role-manager-panel {
+    background: #262b33;
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.35);
+}
+
+.night-mode .role-manager-header h3 {
+    color: #f0f4f8;
+}
+
+.night-mode #role-manager-close {
+    background: #3b4450;
+    color: #f0f4f8;
+}
+
+.night-mode .role-manager-section,
+.night-mode .role-card,
+.night-mode .import-source-block {
+    background: #313844;
+    border-color: rgba(138, 180, 248, 0.18);
+}
+
+.night-mode .role-manager-section h4,
+.night-mode .role-selection-title,
+.night-mode .role-card-title,
+.night-mode .import-source-title {
+    color: #e9f1ff;
+}
+
+.night-mode .role-manager-tip,
+.night-mode .role-card-description,
+.night-mode .role-empty,
+.night-mode .import-source-meta {
+    color: #c7d3e0;
+}
+
+.night-mode .role-form-inline-label {
+    color: #c7d3e0;
+}
+
+.night-mode .role-card-meta {
+    color: #c7d3e0;
+}
+
+.night-mode .role-studio-source-panel {
+    border-color: #4e5b6d;
+    background: #202936;
+}
+
+.night-mode .role-studio-reference-card {
+    border-color: #4e5b6d;
+    background: #20262f;
+    color: #eef4ff;
+}
+
+.night-mode .role-studio-reference-card-selected {
+    border-color: #8ab4f8;
+    background: #263b59;
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.16);
+}
+
+.night-mode .role-studio-reference-desc {
+    color: #c7d3e0;
+}
+
+.night-mode .role-selection-item,
+.night-mode .role-empty {
+    background: #394252;
+}
+
+.night-mode .role-form input,
+.night-mode .role-form select,
+.night-mode .role-form textarea {
+    background: #20262f;
+    border-color: #4e5b6d;
+    color: #eef4ff;
+}
+
+.night-mode .role-inline-select {
+    background: #20262f;
+    border-color: #4e5b6d;
+    color: #eef4ff;
+}
+
+.night-mode .role-checkbox {
+    color: #d7e3f2;
+}
+
+.night-mode .role-badge {
+    background: #43506a;
+    color: #dbe8ff;
+}
+
+.night-mode .role-action-btn.role-action-danger {
+    background: #b44d4d;
+}
+
+.night-mode .profile-summary-title {
+    color: #eef4ff;
+}
+
+.night-mode .profile-summary-description,
+.night-mode .profile-summary-meta {
+    color: #c7d3e0;
+}
+
+.night-mode .profile-form-status {
+    background: #394252;
+    color: #c7d3e0;
+}
+
+.night-mode .profile-form-status-ready {
+    background: #294334;
+    color: #ccebd6;
+}
+
+.night-mode .profile-form-status-warning {
+    background: #544225;
+    color: #f6ddb0;
+}
+
+.night-mode .role-draft-name {
+    color: #eef4ff;
+}
+
+.night-mode .role-draft-description {
+    color: #c7d3e2;
+}
+
+.night-mode .role-draft-meta {
+    color: #dbe8ff;
+}
+
+.night-mode .role-draft-block {
+    background: #2a3340;
+}
+
+.night-mode .role-draft-block-title {
+    color: #d6e4f5;
+}
+
+.night-mode .role-draft-list-item {
+    background: #20262f;
+    color: #d8e4f3;
+}
+
+/* Mobile Night Mode Overrides */
+@media (max-width: 768px) {
+    .night-mode #floating-ai-status-window {
+        background-color: rgba(30, 30, 30, 1); /* Darker background for mobile bar */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Markdown Table Styles for Night Mode */
+.night-mode .message-content table {
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Lighter border */
+}
+
+.night-mode .message-content th,
+.night-mode .message-content td {
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Even lighter border */
+}
+
+.night-mode .message-content th {
+    background-color: rgba(255, 255, 255, 0.05); /* Lighter header background */
+}
+
+.night-mode .message-content tr:nth-child(odd) td {
+    background-color: rgba(255, 255, 255, 0.02); /* Lighter odd row background */
+}
+
+/* Force wrapping for preformatted text/code within messages */
+.message-content pre code {
+    white-space: pre-wrap; /* Standard way to wrap preformatted text */
+    word-wrap: break-word; /* Fallback for older browsers */
+    font-family: sans-serif; /* Use the standard sans-serif font */
+    font-size: 1em; /* Set font size explicitly to match message content */
+    line-height: inherit; /* Inherit line height from parent */
+    font-weight: normal; /* Ensure it's not bold unless explicitly marked in content */
+}
+
+/* Daily Note Bubble Styles */
+.daily-note-bubble {
+    background-color: rgba(255, 250, 240, 0.105); /* 浅米色背景 */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin: 5px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    font-style: italic;
+}
+
+/* Tool Use Bubble Styles */
+.tool-use-bubble {
+    background-color: rgba(220, 230, 240, 0.122); /* 浅蓝色背景 */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    font-style: normal;
+    color: #2c3e50; /* 深色文本 */
+    display: inline-block; /* 确保气泡正确显示 */
+    width: auto; /* 宽度自适应内容 */
+    overflow-wrap: break-word; /* 确保文本换行 */
+}
+
+/* Night Mode for Daily Note Bubble */
+.night-mode .daily-note-bubble {
+    background-color: rgba(60, 55, 45, 0.179); /* 深米色背景 */
+    border: 1px solid rgba(255, 255, 255, 0.052);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.073);
+}
+
+/* Night Mode for Tool Use Bubble */
+.night-mode .tool-use-bubble {
+    background-color: rgba(50, 60, 70, 0.192); /* 深蓝色背景 */
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    color: #ecf0f1; /* 浅色文本 */
+}

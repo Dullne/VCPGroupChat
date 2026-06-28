@@ -1,0 +1,35 @@
+services:
+  groupchat-backend:
+    build:
+      context: ./apps/backend
+    container_name: vcp-groupchat-backend
+    ports:
+      - "7010:7010"
+    env_file:
+      - path: ./apps/backend/config.env
+        required: false
+    environment:
+      PORT: 7010
+      VCP_CORE_URL: ${VCP_CORE_URL:-http://host.docker.internal:6005}
+      PROMPTX_RESOURCE_DIR: ${PROMPTX_RESOURCE_DIR:-/usr/src/external/PromptX/packages/resource}
+      AGENCY_AGENTS_DIR: ${AGENCY_AGENTS_DIR:-/usr/src/external/agency-agents}
+    volumes:
+      - ./apps/backend:/usr/src/app
+      - /usr/src/app/node_modules
+      - ../PromptX/packages/resource:/usr/src/external/PromptX/packages/resource:ro
+      - ../agency-agents:/usr/src/external/agency-agents:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  groupchat-frontend:
+    image: nginx:alpine
+    container_name: vcp-groupchat-frontend
+    depends_on:
+      - groupchat-backend
+    ports:
+      - "4090:80"
+    volumes:
+      - ./apps/frontend:/usr/share/nginx/html:ro
+      - ./apps/frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped

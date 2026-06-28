@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+apps/**/node_modules/
+
+# Local env and secrets
+.env
+.env.*
+config.env
+apps/backend/config.env
+!*.example
+!config.env.example
+
+# Runtime data
+data/
+apps/backend/data/
+*.db
+*.db-shm
+*.db-wal
+
+# Local caches and coordination
+.hello-cc/
+apps/backend/.hello-cc/
+.npm-cache/
+apps/backend/.npm-cache/
+apps/frontend/.playwright-cli/
+apps/frontend/output/
+
+# Build output
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS/editor
+.DS_Store
+*.swp
+*.tmp
+*~

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Runtime data
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Local env and secrets
+config.env
+.env
+.env.*
+!*.example
+!config.env.example
+
+# Local coordination and caches
+.hello-cc/
+.npm-cache/
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS/editor
+.DS_Store
+*.swp
+*~

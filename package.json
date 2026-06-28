@@ -1,0 +1,15 @@
+{
+  "name": "vcp-groupchat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Product monorepo for the VCP group chat frontend and business backend.",
+  "scripts": {
+    "compose:up": "docker compose up --build",
+    "compose:down": "docker compose down",
+    "backend:start": "npm --prefix apps/backend start",
+    "backend:test": "npm --prefix apps/backend test",
+    "frontend:test:i18n": "node apps/frontend/tests/i18n-table-integrity.test.mjs && node apps/frontend/tests/i18n-renderer-coverage.test.mjs",
+    "test": "npm run backend:test && npm run frontend:test:i18n"
+  }
+}

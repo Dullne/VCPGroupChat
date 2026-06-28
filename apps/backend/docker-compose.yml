@@ -1,0 +1,16 @@
+# Only for standalone backend debugging. For the product frontend plus backend
+# stack, run docker compose from the VCPGroupChat repository root.
+services:
+  groupchat-backend:
+    build: .
+    container_name: vcp-groupchat-backend
+    ports:
+      - "7010:7010"
+    env_file:
+      - ./config.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

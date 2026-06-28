@@ -1,0 +1,360 @@
+/* 角色库模块增强样式 */
+
+/* ========== 搜索和筛选区域 ========== */
+.role-library-console {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(91, 141, 239, 0.14), transparent 38%),
+    var(--color-bg-elevated);
+}
+
+.role-library-console-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.role-library-console-kicker {
+  color: var(--color-text-tertiary);
+  font-size: 0.72em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.role-library-console-copy strong {
+  color: var(--color-text-primary);
+  font-size: 1.02em;
+}
+
+.role-library-console-copy span,
+.role-library-summary {
+  color: var(--color-text-secondary);
+  font-size: 0.88em;
+  line-height: 1.55;
+}
+
+.role-library-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.role-library-filters input[type="text"],
+.role-library-filters input[type="search"] {
+  flex: 1;
+  min-width: 200px;
+}
+
+.role-library-summary {
+  padding: 9px 11px;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.role-filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.role-filter-select:hover {
+  border-color: var(--color-border-hover);
+}
+
+.role-filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* ========== 折叠功能 ========== */
+.import-source-block {
+  margin-bottom: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+  padding: 0;
+  gap: 0;
+}
+
+.import-source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--color-bg-elevated);
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.import-source-header:hover {
+  background: rgba(91, 141, 239, 0.05);
+}
+
+.import-source-title-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-height: 28px;
+}
+
+.collapse-toggle {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: transform 0.2s, color 0.2s;
+}
+
+.collapse-toggle:hover {
+  color: var(--color-primary);
+}
+
+.collapse-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s;
+}
+
+.collapse-toggle[aria-expanded="false"] .collapse-icon {
+  transform: rotate(-90deg);
+}
+
+.import-source-title {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.import-source-meta {
+  font-size: 0.8em;
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  background: var(--color-primary-light);
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* ========== 角色列表容器 ========== */
+.import-source-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.import-source-items[data-collapsed="true"] {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 16px;
+  overflow: hidden;
+}
+
+/* ========== 优化角色卡片 ========== */
+.role-card {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.role-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(91, 141, 239, 0.15);
+  transform: translateY(-2px);
+}
+
+.role-card-in-team {
+  border-left: 4px solid var(--color-primary);
+}
+
+.role-card-in-group {
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.22);
+}
+
+.role-card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.role-card-title {
+  font-weight: 600;
+  font-size: 1em;
+  color: var(--color-text-primary);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.role-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.role-badge {
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.role-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+}
+
+.role-badge-primary {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.role-badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.role-badge-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+}
+
+.role-card-description {
+  font-size: 0.9em;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.7em;
+}
+
+.role-card-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.8em;
+  color: var(--color-text-tertiary);
+}
+
+.role-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.role-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.role-card-actions button {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+/* ========== 空状态 ========== */
+.role-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 0.9em;
+}
+
+/* ========== 暗色模式适配 ========== */
+body.dark-mode .import-source-header {
+  background: var(--color-bg-elevated);
+}
+
+body.dark-mode .import-source-header:hover {
+  background: rgba(91, 141, 239, 0.08);
+}
+
+body.dark-mode .role-card {
+  background: var(--color-bg-elevated);
+}
+
+body.dark-mode .role-filter-select {
+  background: var(--color-bg-elevated);
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+  .role-library-filters {
+    flex-direction: column;
+  }
+
+  .role-library-filters input[type="text"],
+  .role-filter-select {
+    width: 100%;
+  }
+
+  .import-source-items {
+    grid-template-columns: 1fr;
+    max-height: 400px;
+  }
+
+  .role-card-actions {
+    flex-direction: column;
+  }
+
+  .role-card-actions button {
+    width: 100%;
+  }
+}
+
+/* ========== 滚动条优化 ========== */
+.import-source-items::-webkit-scrollbar {
+  width: 8px;
+}
+
+.import-source-items::-webkit-scrollbar-track {
+  background: var(--color-bg-elevated);
+  border-radius: 4px;
+}
+
+.import-source-items::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+.import-source-items::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
