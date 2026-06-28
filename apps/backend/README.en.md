@@ -19,7 +19,7 @@ npm test
 npm start
 ```
 
-The default backend port is `7010`.
+The default port is `7010`. In the product stack, this service provides both the backend API and the static `apps/frontend` UI.
 
 For local Docker debugging:
 
@@ -27,7 +27,7 @@ For local Docker debugging:
 docker compose up --build
 ```
 
-For the product frontend plus backend stack, use the compose file in the VCPGroupChat repository root.
+This subdirectory compose file is only for standalone debugging. The default product runtime is `docker compose up --build` from the VCPGroupChat repository root, which starts one `groupchat-app` container and opens `http://127.0.0.1:7010`.
 
 ## Configuration
 

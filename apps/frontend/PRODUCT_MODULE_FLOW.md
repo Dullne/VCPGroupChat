@@ -9,7 +9,7 @@
   - Team / GroupProfile / Session 生命周期，其中 GroupProfile 是内部群聊配置
   - 成员编排（把核心角色拉入群聊）
   - 会话执行编排（转发到核心 role-turn）
-- 群聊前端（LLMGroupChat）：
+- 群聊前端（VCPGroupChat Frontend）：
   - 微信式群聊列表、发起群聊、会话操作
   - 团队角色池管理、角色工坊（一句话创角）、角色库导入
 

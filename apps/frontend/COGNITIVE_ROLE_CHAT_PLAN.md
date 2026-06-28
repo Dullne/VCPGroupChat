@@ -1,8 +1,8 @@
-# VCP LLMGroupChat Cognitive Role-Chat Product Plan
+# VCPGroupChat Cognitive Role-Chat Product Plan
 
 ## 1. Product Definition
 
-VCP LLMGroupChat is a cognitive AI person-chat system backed by reusable role templates.
+VCPGroupChat is a cognitive AI person-chat system backed by reusable role templates.
 
 Users should be able to pull long-lived AI people into a group chat like a social messaging product, while the system keeps the deeper agent capabilities: professional templates, persona, responsibilities, memory, model preferences, tool permissions, group prompts, speaking rules, and session history.
 
@@ -432,7 +432,7 @@ Open Wizard关闭验收-010408 / sess_144a0fde496047ccbc9aa0b5ebaf3bbc
 Evidence:
 
 ```text
-LLMGroupChat/output/playwright/cognitive-inspector-runtime-trace.png
+apps/frontend/output/playwright/cognitive-inspector-runtime-trace.png
 ```
 
 ### Phase 4: Person Library as AI Address Book
@@ -490,7 +490,7 @@ Open Role Library
 Evidence:
 
 ```text
-LLMGroupChat/output/playwright/role-library-address-book.png
+apps/frontend/output/playwright/role-library-address-book.png
 ```
 
 ### Phase 5: Person Studio as Person Factory
@@ -554,7 +554,7 @@ Open Role Studio
 Evidence:
 
 ```text
-LLMGroupChat/output/playwright/role-studio-factory.png
+apps/frontend/output/playwright/role-studio-factory.png
 ```
 
 Implementation status:
@@ -613,7 +613,7 @@ Open Role Studio
 Evidence:
 
 ```text
-LLMGroupChat/output/playwright/role-studio-persist-library.png
+apps/frontend/output/playwright/role-studio-persist-library.png
 ```
 
 ### Phase 6: Memory and Reflection Loop
@@ -675,16 +675,16 @@ Do not reset dirty files.
 Minimum checks after Phase 1:
 
 ```bash
-node --check LLMGroupChat/js/core/dom-binding-getters-workspace.js
-node --check LLMGroupChat/js/core/ui-event-bindings-shell.js
-node --check LLMGroupChat/js/ui/workspace-renderers-mode.js
-curl -sS http://127.0.0.1:4090/ | rg "launch-group-toggle|发起群聊"
+node --check apps/frontend/js/core/dom-binding-getters-workspace.js
+node --check apps/frontend/js/core/ui-event-bindings-shell.js
+node --check apps/frontend/js/ui/workspace-renderers-mode.js
+curl -sS http://127.0.0.1:7010/ | rg "launch-group-toggle|发起群聊"
 ```
 
 Browser checks:
 
 ```text
-Open http://127.0.0.1:4090/
+Open http://127.0.0.1:7010/
 Click Launch Group Chat
 Confirm modal opens with launch copy
 Confirm group creation form is visible

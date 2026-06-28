@@ -1,4 +1,4 @@
-# LLMGroupChat Commit Readiness Inventory
+# VCPGroupChat Frontend Commit Readiness Inventory
 
 Last audited: 2026-06-22
 
@@ -32,8 +32,8 @@ New runtime/config files:
 
 - `.gitignore`
 - `config_backend.js`
-- `docker-compose.yml`
-- `nginx.conf`
+- `docker-compose.yml` (standalone frontend debugging only)
+- `nginx.conf` (standalone frontend debugging only)
 - `favicon.svg`
 - `css/`
 - `js/`
@@ -75,17 +75,17 @@ Role source data:
 ## Verification Commands
 
 ```bash
-find LLMGroupChat/js -type f -name '*.js' -print | sort | while IFS= read -r f; do
+find apps/frontend/js -type f -name '*.js' -print | sort | while IFS= read -r f; do
   node --check "$f" || exit 1
 done
 
-curl -I --max-time 5 http://127.0.0.1:4090/
+curl -I --max-time 5 http://127.0.0.1:7010/
 curl -sS --max-time 5 http://127.0.0.1:7010/api/bootstrap
 ```
 
 Expected current smoke result:
 
-- frontend `4090`: `200 OK`
+- product UI `7010`: `200 OK`
 - backend bootstrap: profiles, teams, and roles returned
 
 ## Known Local Test Data

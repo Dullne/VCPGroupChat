@@ -1,3 +1,6 @@
+# Standalone frontend debugging only. The default product stack is the
+# repository-root compose file, where GroupChatBackend serves this frontend
+# from the same `groupchat-app` container on port 7010.
 services:
   llmgroupchat:
     image: nginx:alpine

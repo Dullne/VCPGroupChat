@@ -8,8 +8,8 @@ VCPGroupChat is the product-layer monorepo for the VCP group chat experience. It
 
 ```text
 VCPGroupChat
-  apps/frontend   Static browser UI, served on port 4090 by default
-  apps/backend    Group chat business API, served on port 7010 by default
+  apps/frontend   Static browser UI, served same-origin by the product backend
+  apps/backend    Group chat business API and frontend static host, served on port 7010 by default
 
 External dependencies
   VCPToolBox       Core role, memory, and import APIs, usually port 6005
@@ -18,7 +18,7 @@ External dependencies
   model provider   OpenAI-compatible endpoint configured by GROUPCHAT_LLM_*
 ```
 
-The frontend and business backend belong together because group chat product features usually change across UI, API, and orchestration logic at the same time. VCPToolBox stays separate because it is the core capability layer, not the product UI or product orchestration layer.
+The frontend and business backend belong together and run as one `groupchat-app` container in the default Docker Compose setup. This keeps the group chat product easier to develop, test, and start as a unit. VCPToolBox stays separate because it is the core capability layer, not the product UI or product orchestration layer.
 
 ## Quick Start
 
@@ -29,13 +29,13 @@ cp apps/backend/config.env.example apps/backend/config.env
 docker compose up --build
 ```
 
-Open the frontend:
+Open the product UI:
 
 ```text
-http://127.0.0.1:4090
+http://127.0.0.1:7010
 ```
 
-The backend listens on:
+The backend API listens on the same origin:
 
 ```text
 http://127.0.0.1:7010
@@ -72,7 +72,7 @@ GROUPCHAT_ROLE_STUDIO_MODELS=
 
 ## Local Development
 
-Backend only:
+Product backend only:
 
 ```bash
 cd apps/backend
@@ -81,12 +81,20 @@ npm test
 npm start
 ```
 
-Frontend only:
+By default, the backend also serves the static files from `apps/frontend`. Open:
+
+```text
+http://127.0.0.1:7010
+```
+
+Frontend-only debugging:
 
 ```bash
 cd apps/frontend
 python3 -m http.server 4090
 ```
+
+The standalone frontend uses `config_backend.js` to call `http://127.0.0.1:7010` automatically.
 
 Run product-level checks from the monorepo root:
 
@@ -94,7 +102,7 @@ Run product-level checks from the monorepo root:
 npm run test
 ```
 
-The root `test` script runs backend tests and lightweight frontend i18n checks. Live frontend smoke tests may require the backend and frontend services to be running first.
+The root `test` script runs backend tests and lightweight frontend i18n checks. Live smoke tests require the product app to be running first.
 
 ## Git And Security Hygiene
 
@@ -102,4 +110,4 @@ Do not commit local secrets, runtime databases, cache folders, browser automatio
 
 ## Migration Notes
 
-This monorepo was created by copying the current product frontend from `LLMGroupChat` into `apps/frontend` and the current product backend from `GroupChatBackend` into `apps/backend`. The original repositories can remain as source or history references; this repository is the product-layer home going forward.
+This monorepo was created by migrating the earlier standalone frontend and business backend into `apps/frontend` and `apps/backend`. The original repositories can remain as source or history references; this repository is the product-layer home going forward.

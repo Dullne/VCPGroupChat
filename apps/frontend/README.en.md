@@ -4,7 +4,7 @@
 
 This is the static browser frontend for VCPGroupChat.
 
-In the product Docker Compose stack, it is served by Nginx and talks to the business backend through `window.loadedConfig.BackendUrl` in `config_backend.js`.
+In the default product Docker Compose stack, it is served same-origin by GroupChatBackend and no longer needs a separate Nginx frontend container. For standalone debugging, it still talks to the business backend through `window.loadedConfig.BackendUrl` in `config_backend.js`.
 
 ## Local Run
 
@@ -24,6 +24,12 @@ The default backend URL is:
 http://127.0.0.1:7010
 ```
 
+The default product stack opens directly at:
+
+```text
+http://127.0.0.1:7010
+```
+
 ## Tests
 
 Lightweight tests can be run from the product root:
@@ -32,7 +38,7 @@ Lightweight tests can be run from the product root:
 npm run frontend:test:i18n
 ```
 
-Some smoke tests require a running frontend and backend.
+Some smoke tests require the product app to be running.
 
 ## Notes
 

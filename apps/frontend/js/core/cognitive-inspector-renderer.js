@@ -351,7 +351,7 @@ function appendProjectAssetGroup(container, label, items, variant, getDetail) {
 }
 
 function buildProjectAssetsHccCommand(synthesisId, scriptName) {
-    return `cd GroupChatBackend && npm run ${scriptName} -- --synthesis ${synthesisId}`;
+    return `cd apps/backend && npm run ${scriptName} -- --synthesis ${synthesisId}`;
 }
 
 function appendProjectAssetsConfirmation(container, synthesis, project_assets, recommendedTasks) {

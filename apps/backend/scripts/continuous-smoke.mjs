@@ -25,8 +25,9 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 
 const scriptFile = fileURLToPath(import.meta.url);
 const backendDir = dirname(dirname(scriptFile));
-const projectRoot = dirname(backendDir);
-const frontendTestsDir = join(projectRoot, 'LLMGroupChat', 'tests');
+const appsDir = dirname(backendDir);
+const projectRoot = dirname(appsDir);
+const frontendTestsDir = join(appsDir, 'frontend', 'tests');
 
 function normalizeBaseUrl(value, fallback) {
     return String(value || fallback).replace(/\/$/, '');
@@ -296,7 +297,7 @@ async function runBackendContainerTests() {
     console.log('[smoke] running backend container tests');
     await runCommand('npm', ['run', 'test:container'], {
         cwd: backendDir,
-        label: 'GroupChatBackend container tests'
+        label: 'VCPGroupChat app container tests'
     });
 }
 
@@ -330,7 +331,7 @@ async function runLiveApiSmoke(options) {
 export async function runContinuousSmoke() {
     const options = {
         backendUrl: normalizeBaseUrl(process.env.GROUPCHAT_BACKEND_URL, 'http://127.0.0.1:7010'),
-        frontendUrl: normalizeBaseUrl(process.env.GROUPCHAT_FRONTEND_URL, 'http://127.0.0.1:4090'),
+        frontendUrl: normalizeBaseUrl(process.env.GROUPCHAT_FRONTEND_URL, 'http://127.0.0.1:7010'),
         bootstrapBudgetBytes: getBudget(
             'GROUPCHAT_BOOTSTRAP_BUDGET_BYTES',
             DEFAULT_BOOTSTRAP_PAYLOAD_BUDGET_BYTES

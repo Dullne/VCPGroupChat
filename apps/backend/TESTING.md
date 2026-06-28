@@ -10,9 +10,9 @@
 ## Continuous Smoke
 
 `npm run test:continuous` is a host-side smoke runner for the live GroupChat
-stack. It runs the backend container tests, checks the live backend and frontend
-ports, verifies `/api/bootstrap` and gzipped `/api/roles` stay on the
-`role-summary-v1` summary contract, and then runs every `LLMGroupChat/tests/*.mjs`
+stack. It runs the app container tests, checks the live product origin at
+`http://127.0.0.1:7010`, verifies `/api/bootstrap` and gzipped `/api/roles` stay on the
+`role-summary-v1` summary contract, and then runs every `apps/frontend/tests/*.mjs`
 smoke test.
 
 The default byte budgets are:
@@ -48,5 +48,5 @@ npm test
 ```
 
 The container test runtime is independent from the host `node_modules` ABI. Use
-`npm run test:container` when validating the running `vcp-groupchat-backend`
+`npm run test:container` when validating the running `vcp-groupchat-app`
 container.

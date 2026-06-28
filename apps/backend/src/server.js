@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 
 dotenv.config({ path: 'config.env' });
 
@@ -20,6 +22,9 @@ const { buildGroupProfilePatchPayload } = require('./services/groupProfilePayloa
 const { createHttpError } = require('./services/httpError');
 
 const PORT = Number(process.env.PORT || 7010);
+const FRONTEND_STATIC_DIR = process.env.FRONTEND_STATIC_DIR
+    ? path.resolve(process.env.FRONTEND_STATIC_DIR)
+    : path.resolve(__dirname, '../../frontend');
 const USER_NAME = process.env.GROUPCHAT_USER_NAME || '用户';
 const USER_PROMPT = process.env.GROUPCHAT_USER_PROMPT || '用户是当前任务的最终决策者。';
 
@@ -45,6 +50,23 @@ const orchestrator = new Orchestrator({
 const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '50mb' }));
+
+function mountFrontendStatic(expressApp) {
+    const indexPath = path.join(FRONTEND_STATIC_DIR, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+        console.warn(`Frontend static directory not mounted; index.html not found at ${indexPath}`);
+        return;
+    }
+
+    expressApp.use(express.static(FRONTEND_STATIC_DIR, {
+        setHeaders(res) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+    }));
+    console.log(`Serving VCPGroupChat frontend from ${FRONTEND_STATIC_DIR}`);
+}
 
 function normalizeText(value) {
     return String(value ?? '').trim();
@@ -73,8 +95,8 @@ function buildProjectAssetsHccBridgePayload(synthesis) {
     return {
         mode: 'host_command_required',
         synthesis_id: synthesisId,
-        dry_run_command: `cd GroupChatBackend && npm run project-assets:hcc:dry-run -- ${baseArgs.join(' ')}`,
-        create_command: `cd GroupChatBackend && npm run project-assets:hcc:create -- ${baseArgs.join(' ')}`,
+        dry_run_command: `cd apps/backend && npm run project-assets:hcc:dry-run -- ${baseArgs.join(' ')}`,
+        create_command: `cd apps/backend && npm run project-assets:hcc:create -- ${baseArgs.join(' ')}`,
         dry_run_args: ['npm', 'run', 'project-assets:hcc:dry-run', '--', ...baseArgs],
         create_args: ['npm', 'run', 'project-assets:hcc:create', '--', ...baseArgs],
         write_guard: 'GROUPCHAT_HCC_CREATE=1',
@@ -279,7 +301,7 @@ app.get('/api/health', async (_req, res) => {
         const coreHealth = await vcpCoreClient.getHealth();
         res.json({
             ok: true,
-            service: 'vcp-groupchat-backend',
+            service: 'vcp-groupchat-app',
             core: coreHealth
         });
     } catch (error) {
@@ -1570,6 +1592,8 @@ app.patch('/api/core-roles/:roleId/model', async (req, res) => {
         });
     }
 });
+
+mountFrontendStatic(app);
 
 app.listen(PORT, () => {
     console.log(`GroupChatBackend listening on port ${PORT}`);

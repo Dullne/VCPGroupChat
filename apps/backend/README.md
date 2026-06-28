@@ -19,7 +19,7 @@ npm test
 npm start
 ```
 
-默认后端端口是 `7010`。
+默认端口是 `7010`。在产品栈中，这个服务同时提供后端 API 和 `apps/frontend` 静态页面。
 
 本地 Docker 调试：
 
@@ -27,7 +27,7 @@ npm start
 docker compose up --build
 ```
 
-如果要启动产品前端加后端的完整栈，请使用 VCPGroupChat 仓库根目录的 compose 文件。
+这个子目录 compose 只用于 standalone 调试。默认产品运行方式是在 VCPGroupChat 仓库根目录执行 `docker compose up --build`，启动一个 `groupchat-app` 容器并打开 `http://127.0.0.1:7010`。
 
 ## 配置
 

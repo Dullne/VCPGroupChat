@@ -1,4 +1,4 @@
-# LLMGroupChat Frontend Module Map
+# VCPGroupChat Frontend Module Map
 
 This directory contains the current ES module frontend for the VCP group chat UI.
 The legacy `script.js` entry is no longer used by `index.html`.
