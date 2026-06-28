@@ -75,7 +75,7 @@ export function createBootstrapRefreshActions(deps) {
 
         syncRoleStudioModelPreference();
         syncRoleRuntimeModelPreference();
-        dom.title.textContent = getConfig()?.AppTitle || nextBootstrapData.app_name || 'VCP Group Chat';
+        dom.title.textContent = getConfig()?.AppTitle || nextBootstrapData.app_name || 'VCPGroupChat - AI 项目协作室';
         renderProfileSelectOptions(previousProfileId);
     }
 

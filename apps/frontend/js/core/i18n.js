@@ -6,9 +6,7 @@ export const DEFAULT_LOCALE = 'zh-CN';
 export const EN_LOCALE = 'en';
 
 const TEXT_TRANSLATIONS = new Map(Object.entries({
-    "AI 群聊室": "AI Group Chat Room",
     "VCPGroupChat - AI 项目协作室": "VCPGroupChat - AI Project Workspace",
-    "莱恩家的小窝": "Laiye's AI Lounge",
     "当前群组": "Current Group",
     "当前会话": "Current Session",
     "未选择群组": "No group selected",

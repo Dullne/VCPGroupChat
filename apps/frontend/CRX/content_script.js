@@ -1,4 +1,4 @@
-console.log("AI Chat History Manager: Content script loaded.");
+console.log("VCPGroupChat History Manager: Content script loaded.");
 
 const CHAT_DATA_KEY = 'aiGroupChatData';
 const PAGE_ID = 'ai-group-chat-project'; // The ID we added to the body
@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         } else {
             console.log("Content script: Not the target page, ignoring action:", request.action);
             // Optionally send a response indicating it's not the right page
-            sendResponse({ error: "Not the AI chat project page." });
+            sendResponse({ error: "Not the VCPGroupChat project page." });
         }
         return true; // Indicate asynchronous response (optional here, but good practice)
     }
@@ -163,4 +163,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
 });
 
-console.log("AI Chat History Manager: Content script listener attached.");
+console.log("VCPGroupChat History Manager: Content script listener attached.");

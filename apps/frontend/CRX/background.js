@@ -1,4 +1,4 @@
-console.log("AI Chat History Manager: Background service worker started.");
+console.log("VCPGroupChat History Manager: Background service worker started.");
 
 const PAGE_ID = 'ai-group-chat-project'; // Must match content_script.js and index.html
 
@@ -10,7 +10,7 @@ async function findChatTab() {
     // Optimization: Could query based on title or URL pattern if known.
     const tabs = await chrome.tabs.query({
         // Example optimization: query based on title if it's consistent
-        // title: "AI 群聊室"
+        // title: "VCPGroupChat - AI 项目协作室"
     });
 
     for (const tab of tabs) {
@@ -87,4 +87,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // return true; // Already handled above
 });
 
-console.log("AI Chat History Manager: Background listeners attached.");
+console.log("VCPGroupChat History Manager: Background listeners attached.");

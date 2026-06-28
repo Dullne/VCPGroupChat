@@ -302,7 +302,7 @@ app.get('/api/bootstrap', async (req, res) => {
         const roleTemplates = personIdentityService.listRoleTemplates();
 
         const bootstrapPayload = {
-            app_name: 'VCP Group Chat',
+            app_name: 'VCPGroupChat',
             user_name: USER_NAME,
             user_prompt: USER_PROMPT,
             default_team_id: DEFAULT_TEAM.id,
