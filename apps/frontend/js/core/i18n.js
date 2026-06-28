@@ -7,6 +7,7 @@ export const EN_LOCALE = 'en';
 
 const TEXT_TRANSLATIONS = new Map(Object.entries({
     "AI 群聊室": "AI Group Chat Room",
+    "VCPGroupChat - AI 项目协作室": "VCPGroupChat - AI Project Workspace",
     "莱恩家的小窝": "Laiye's AI Lounge",
     "当前群组": "Current Group",
     "当前会话": "Current Session",
@@ -760,8 +761,8 @@ export function applyLocaleToDocument(doc = getDocument()) {
     const locale = getLocale();
     doc.documentElement.lang = locale;
     doc.documentElement.dataset.locale = locale;
-    doc.title = translateUiText(doc.__i18nTitleSource || REVERSE_TEXT_TRANSLATIONS.get(doc.title) || doc.title || 'AI 群聊室', locale);
-    doc.__i18nTitleSource = REVERSE_TEXT_TRANSLATIONS.get(doc.title) || doc.__i18nTitleSource || 'AI 群聊室';
+    doc.title = translateUiText(doc.__i18nTitleSource || REVERSE_TEXT_TRANSLATIONS.get(doc.title) || doc.title || 'VCPGroupChat - AI 项目协作室', locale);
+    doc.__i18nTitleSource = REVERSE_TEXT_TRANSLATIONS.get(doc.title) || doc.__i18nTitleSource || 'VCPGroupChat - AI 项目协作室';
     updateLanguageToggle(doc, locale);
     return locale;
 }
