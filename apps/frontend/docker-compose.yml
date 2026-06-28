@@ -1,10 +1,10 @@
 # Standalone frontend debugging only. The default product stack is the
-# repository-root compose file, where GroupChatBackend serves this frontend
+# repository-root compose file, where the VCPGroupChat product backend serves this frontend
 # from the same `groupchat-app` container on port 7010.
 services:
-  llmgroupchat:
+  vcpgroupchat-ui-debug:
     image: nginx:alpine
-    container_name: llmgroupchat
+    container_name: vcpgroupchat-ui-debug
     ports:
       - "4090:80"
     volumes:

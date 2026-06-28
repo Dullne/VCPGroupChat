@@ -217,9 +217,9 @@ async function checkBackendSessions(baseUrl) {
 
 async function checkFrontend(frontendUrl) {
     const response = await requestRaw(`${frontendUrl}/`);
-    assertStatus(response, 200, 'GroupChat frontend /');
+    assertStatus(response, 200, 'VCPGroupChat frontend /');
     if (response.body.length === 0) {
-        throw new Error('GroupChat frontend / returned an empty body');
+        throw new Error('VCPGroupChat frontend / returned an empty body');
     }
     console.log(`[smoke] frontend /: ${response.body.length} bytes`);
 }
@@ -294,7 +294,7 @@ function runCommand(command, args, options = {}) {
 }
 
 async function runBackendContainerTests() {
-    console.log('[smoke] running backend container tests');
+    console.log('[smoke] running VCPGroupChat app container tests');
     await runCommand('npm', ['run', 'test:container'], {
         cwd: backendDir,
         label: 'VCPGroupChat app container tests'
@@ -349,7 +349,7 @@ export async function runContinuousSmoke() {
     await runBackendContainerTests();
     await runLiveApiSmoke(options);
     await runFrontendSmokeTests();
-    console.log('[smoke] continuous GroupChat smoke passed');
+    console.log('[smoke] continuous VCPGroupChat smoke passed');
 }
 
 const isCli = process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url;

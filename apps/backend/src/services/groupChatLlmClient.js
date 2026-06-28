@@ -15,7 +15,7 @@ class GroupChatLlmClient {
             return;
         }
         const err = new Error(
-            'GROUPCHAT_LLM_BASE_URL is required for GroupChatBackend model calls. '
+            'GROUPCHAT_LLM_BASE_URL is required for VCPGroupChat backend model calls. '
             + 'VCP core configuration is separate and is not used as a model fallback.'
         );
         err.status = 500;

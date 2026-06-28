@@ -1596,5 +1596,5 @@ app.patch('/api/core-roles/:roleId/model', async (req, res) => {
 mountFrontendStatic(app);
 
 app.listen(PORT, () => {
-    console.log(`GroupChatBackend listening on port ${PORT}`);
+    console.log(`VCPGroupChat app listening on port ${PORT}`);
 });

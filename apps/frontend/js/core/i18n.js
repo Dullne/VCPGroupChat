@@ -457,7 +457,7 @@ const TEXT_TRANSLATIONS = new Map(Object.entries({
     "先扫描，只做 dry-run，不会消耗向量额度；补索引按钮才会提交核心队列。": "Scan first (dry-run only, no vector quota consumed); the requeue buttons submit to the core queue.",
     "没有发现需要补向量索引的记忆文件。": "No memory files found that need vector index repair.",
     "正在请求业务后端代理核心扫描，不会暴露核心密钥。": "Requesting the business backend to proxy the core scan; core keys are not exposed.",
-    "核心索引扫描暂不可用。请确认 VCPToolBox 与 GroupChatBackend 都已启动。": "Core index scan is unavailable. Make sure both VCPToolBox and GroupChatBackend are running.",
+    "核心索引扫描暂不可用。请确认 VCPToolBox 与 VCPGroupChat 产品后端都已启动。": "Core index scan is unavailable. Make sure both VCPToolBox and the VCPGroupChat product backend are running.",
     "等待角色回合返回核心记忆协议。发送消息后，这里会显示核心层实际开放的记忆读写范围。": "Waiting for a role turn to return the core memory protocol. After you send a message, the actual core read/write scope will appear here.",
     "当前是默认团队：承载系统默认角色池，暂不支持删除与重命名。": "This is the default team: it holds the system default role pool and cannot be deleted or renamed.",
     "系统默认角色池，保留历史群聊入口与核心角色。": "System default role pool, preserving historical group chat entries and core roles."

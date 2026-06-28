@@ -4,7 +4,7 @@
 
 This is the static browser frontend for VCPGroupChat.
 
-In the default product Docker Compose stack, it is served same-origin by GroupChatBackend and no longer needs a separate Nginx frontend container. For standalone debugging, it still talks to the business backend through `window.loadedConfig.BackendUrl` in `config_backend.js`.
+In the default product Docker Compose stack, it is served same-origin by the VCPGroupChat product backend and no longer needs a separate Nginx frontend container. For standalone debugging, it still talks to the business backend through `window.loadedConfig.BackendUrl` in `config_backend.js`.
 
 ## Local Run
 
@@ -42,4 +42,4 @@ Some smoke tests require the product app to be running.
 
 ## Notes
 
-This app is no longer configured through the old standalone `config_default.js` and `script.js` flow. Product runtime data comes from GroupChatBackend APIs.
+This app no longer starts through the old standalone config and monolithic entry flow. Product runtime data comes from VCPGroupChat product backend APIs.

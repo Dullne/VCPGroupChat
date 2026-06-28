@@ -1,10 +1,10 @@
-# VCPGroupChat Frontend Commit Readiness Inventory
+# VCPGroupChat Frontend Runtime Notes
 
-Last audited: 2026-06-22
+Last audited: 2026-06-28
 
-This repo is in the middle of a large frontend modularization and product UX
-migration. The app runs from ES modules now; the old `script.js` entry is no
-longer used by `index.html`.
+This directory contains the browser UI for VCPGroupChat. In the default product
+runtime, the frontend is served by the VCPGroupChat product backend from the
+same `groupchat-app` container on port `7010`.
 
 ## Current Runtime Entry
 
@@ -19,34 +19,32 @@ longer used by `index.html`.
 - `js/core/app.js`
 - `config_backend.js`
 
-## Files That Should Be Included In The Migration Commit
+## Default Product Runtime
 
-Core tracked changes:
+Run from the repository root:
 
-- `index.html`
-- `style.css`
-- delete `script.js`
-- delete `config_default.js`
+```bash
+docker compose up --build
+```
 
-New runtime/config files:
+Open:
 
-- `.gitignore`
-- `config_backend.js`
-- `docker-compose.yml` (standalone frontend debugging only)
-- `nginx.conf` (standalone frontend debugging only)
-- `favicon.svg`
-- `css/`
-- `js/`
+```text
+http://127.0.0.1:7010
+```
 
-Product and architecture docs:
+The default product runtime does not start a separate frontend container.
 
-- `COMMIT_READINESS.md`
-- `COGNITIVE_ROLE_CHAT_PLAN.md`
-- `PRODUCT_MODULE_FLOW.md`
+## Standalone Frontend Debugging
 
-Role source data:
+These files remain only for frontend-only debugging:
 
-- `role_registry_agency.json`
+- `docker-compose.yml`
+- `nginx.conf`
+- `Start.Bat`
+
+Standalone debugging uses port `4090` and calls the product backend on `7010`
+through `config_backend.js`.
 
 ## Files Intentionally Ignored
 
@@ -57,20 +55,25 @@ Role source data:
 - `*.backup`
   - Local safety snapshots such as `index.html.backup`.
 - `js/core/app.modular.thin-backup.js`
-  - Migration safety backup. The active entry is `js/core/app.js`.
+  - Local safety backup. The active entry is `js/core/app.js`.
 - `layout-refactor.css`
   - Superseded local layout draft. The active layout file is
     `css/layout-three-column.css`, further refined by `css/frontend-polish.css`
     and `css/style-fixes.css`.
 
-## Why `layout-refactor.css` Is Not A Commit Candidate
+## Why `layout-refactor.css` Is Ignored
 
 - It is not referenced by `index.html`.
 - It overlaps with `css/layout-three-column.css`.
 - It still describes an older three-row layout with an `input` grid area, while
   the current app uses the active three-column layout plus polish layers.
-- Keeping it untracked would create confusion during review, so it is ignored as
-  a local draft instead of being deleted.
+- It is kept out of the tracked runtime as a local draft.
+
+## Historical Runtime Cleanup
+
+The former standalone frontend entry/config files are no longer part of the
+tracked runtime and should not be reintroduced. Current product runtime data
+comes from VCPGroupChat product backend APIs.
 
 ## Verification Commands
 
@@ -88,16 +91,14 @@ Expected current smoke result:
 - product UI `7010`: `200 OK`
 - backend bootstrap: profiles, teams, and roles returned
 
-## Known Local Test Data
+## Local Data Note
 
-The local backend currently contains validation group chats whose names include
-`验收`, `Launcher`, or `Wizard`. They were created by browser-based end-to-end
-checks and can be cleaned separately if a clean demo database is needed.
+Smoke tests and browser checks may create local validation group chats in the
+ignored backend database. Those records are runtime data and should not be
+committed.
 
-## Review Risks Before Commit
+## Compatibility Notes
 
-- This is a large migration: reviewers should inspect it as a product/frontend
-  rewrite rather than a small patch.
 - Hidden compatibility nodes remain in `index.html` because modules still use
   them as internal state anchors:
   - `#config-select`

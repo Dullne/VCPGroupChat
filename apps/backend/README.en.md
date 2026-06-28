@@ -1,14 +1,14 @@
-# GroupChatBackend
+# VCPGroupChat Backend
 
 **Language: [中文](README.md) | English**
 
-GroupChatBackend is the business backend for VCP group chat. It owns the group chat API, session orchestration, person/template bindings, role studio flows, memory candidate review, and the bridge between the group chat frontend and the VCP core service.
+VCPGroupChat Backend is the product backend package inside VCPGroupChat. It owns the group chat API, session orchestration, person/template bindings, role studio flows, memory candidate review, and the bridge between `apps/frontend` and the VCP core service.
 
 It is intentionally separate from the VCP core project:
 
-- GroupChatBackend handles product workflows for group chat.
-- VCP core provides core role storage, memory APIs, and import APIs. It is not used as GroupChatBackend's model gateway.
-- VCPGroupChat Frontend is the browser frontend that talks to this backend.
+- VCPGroupChat Backend handles product workflows for group chat.
+- VCP core provides core role storage, memory APIs, and import APIs. It is not used as the product backend's model gateway.
+- `apps/frontend` is the browser frontend that talks to this backend.
 
 ## Quick Start
 
@@ -57,12 +57,12 @@ AGENCY_AGENTS_DIR=../agency-agents
 
 ## Model And Key Boundaries
 
-GroupChatBackend can use its own OpenAI-compatible model provider. This is completely separate from the VCP core project's model configuration.
+VCPGroupChat Backend can use its own OpenAI-compatible model provider. This is completely separate from the VCP core project's model configuration.
 
-Use these variables when GroupChatBackend should call its own model endpoint for group chat person replies and role studio draft generation:
+Use these variables when the product backend should call its own model endpoint for group chat person replies and role studio draft generation:
 
 - `GROUPCHAT_LLM_PROVIDER`: optional label for the provider.
-- `GROUPCHAT_LLM_BASE_URL`: OpenAI-compatible base URL, for example a `/v1` endpoint. This is required for GroupChatBackend model calls.
+- `GROUPCHAT_LLM_BASE_URL`: OpenAI-compatible base URL, for example a `/v1` endpoint. This is required for product backend model calls.
 - `GROUPCHAT_LLM_API_KEY`: API key for the backend-owned model endpoint. Keep it only in local or deployment secrets.
 - `GROUPCHAT_ROLE_MODEL`: optional first-choice model for group chat person replies.
 - `GROUPCHAT_ROLE_FALLBACK_MODELS`: optional comma-separated fallback model list for group chat person replies.
@@ -75,10 +75,10 @@ Use these variables for VCP core connectivity:
 
 The two key sets are independent. A deployment may configure both:
 
-- `GROUPCHAT_LLM_API_KEY` for GroupChatBackend's own model calls.
-- `VCP_CORE_KEY` for secured access from GroupChatBackend to VCP core.
+- `GROUPCHAT_LLM_API_KEY` for product backend model calls.
+- `VCP_CORE_KEY` for secured access from the product backend to VCP core.
 
-If `GROUPCHAT_LLM_BASE_URL` is empty, GroupChatBackend model calls fail with a configuration error. Core role APIs, import APIs, and memory APIs still go through `VCP_CORE_URL`.
+If `GROUPCHAT_LLM_BASE_URL` is empty, product backend model calls fail with a configuration error. Core role APIs, import APIs, and memory APIs still go through `VCP_CORE_URL`.
 
 ## Tests
 

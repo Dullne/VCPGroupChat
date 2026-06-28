@@ -1,7 +1,7 @@
 {
-  "name": "vcp-groupchat-backend",
+  "name": "vcpgroupchat-api",
   "version": "0.1.0",
-  "description": "Group chat business backend for VCP role core",
+  "description": "Product API package for VCPGroupChat",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

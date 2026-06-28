@@ -1,4 +1,4 @@
-# GroupChatBackend Testing
+# VCPGroupChat Backend Testing
 
 ## Normal Test Commands
 
@@ -9,7 +9,7 @@
 
 ## Continuous Smoke
 
-`npm run test:continuous` is a host-side smoke runner for the live GroupChat
+`npm run test:continuous` is a host-side smoke runner for the live VCPGroupChat
 stack. It runs the app container tests, checks the live product origin at
 `http://127.0.0.1:7010`, verifies `/api/bootstrap` and gzipped `/api/roles` stay on the
 `role-summary-v1` summary contract, and then runs every `apps/frontend/tests/*.mjs`

@@ -4,7 +4,7 @@
 
 这是 VCPGroupChat 的静态浏览器前端。
 
-在默认产品 Docker Compose 栈中，它由 GroupChatBackend 同源托管，不再需要单独的 Nginx 前端容器。独立调试时，它仍然通过 `config_backend.js` 里的 `window.loadedConfig.BackendUrl` 访问业务后端。
+在默认产品 Docker Compose 栈中，它由 VCPGroupChat 产品后端同源托管，不再需要单独的 Nginx 前端容器。独立调试时，它仍然通过 `config_backend.js` 里的 `window.loadedConfig.BackendUrl` 访问业务后端。
 
 ## 本地运行
 
@@ -42,4 +42,4 @@ npm run frontend:test:i18n
 
 ## 说明
 
-这个前端不再通过旧的独立 `config_default.js` 和 `script.js` 流程配置。产品运行时数据来自 GroupChatBackend API。
+这个前端不再通过旧的独立配置和单体入口流程启动。产品运行时数据来自 VCPGroupChat 产品后端 API。

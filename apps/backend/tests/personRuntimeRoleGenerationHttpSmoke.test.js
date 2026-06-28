@@ -35,7 +35,7 @@ function waitForBackendReady(child, timeoutMs = 8000) {
 
         child.stdout.on('data', chunk => {
             output += chunk.toString();
-            if (/GroupChatBackend listening on port/.test(output)) {
+            if (/VCPGroupChat app listening on port/.test(output)) {
                 clearTimeout(timer);
                 resolve(output);
             }
@@ -127,8 +127,8 @@ async function testHttpRouteGeneratesRuntimeRoleAndUpdatesPerson() {
         });
 
         const readyOutput = await waitForBackendReady(backend);
-        const backendPortMatch = readyOutput.match(/GroupChatBackend listening on port (\d+)/);
-        assert.ok(backendPortMatch, 'backend announces its port');
+        const backendPortMatch = readyOutput.match(/VCPGroupChat app listening on port (\d+)/);
+        assert.ok(backendPortMatch, 'app announces its port');
         assert.strictEqual(Number(backendPortMatch[1]), backendPort);
         const baseUrl = `http://127.0.0.1:${backendPort}`;
 

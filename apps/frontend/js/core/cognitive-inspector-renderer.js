@@ -877,7 +877,7 @@ function renderMemoryIndexRepair(dom, memoryIndexRepair) {
     if (repairState.error) {
         const empty = document.createElement('div');
         empty.className = 'cognitive-inspector-empty cognitive-index-repair-empty';
-        empty.textContent = '核心索引扫描暂不可用。请确认 VCPToolBox 与 GroupChatBackend 都已启动。';
+        empty.textContent = '核心索引扫描暂不可用。请确认 VCPToolBox 与 VCPGroupChat 产品后端都已启动。';
         dom.cognitiveInspectorIndexRepairList.appendChild(empty);
         return;
     }

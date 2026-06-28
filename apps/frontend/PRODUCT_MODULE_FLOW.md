@@ -1,11 +1,11 @@
-# VCP GroupChat 前端产品模块流（重构版）
+# VCPGroupChat 前端产品模块流
 
 ## 1. 能力边界
 
 - 核心认知层（VCPToolBox）：
   - 角色认知、模板、记忆、导入源（PromptX / agency-agents）
   - 不负责团队/群组业务编排
-- 群聊业务后端（GroupChatBackend）：
+- 群聊产品后端（VCPGroupChat Backend）：
   - Team / GroupProfile / Session 生命周期，其中 GroupProfile 是内部群聊配置
   - 成员编排（把核心角色拉入群聊）
   - 会话执行编排（转发到核心 role-turn）

@@ -1,7 +1,7 @@
 # VCPGroupChat Frontend Module Map
 
 This directory contains the current ES module frontend for the VCP group chat UI.
-The legacy `script.js` entry is no longer used by `index.html`.
+`index.html` now loads the ES module runtime directly.
 
 ## Runtime Entry
 
@@ -41,7 +41,7 @@ The current UI is organized around a WeChat-style group chat model:
 
 - Hidden compatibility controls such as `#config-select`, `#chat-session-select`, and `#sidebar-session-list` are still present because existing modules use them as internal state anchors.
 - Do not remove those compatibility nodes until the dependent modules are explicitly migrated away from them.
-- `core/app.modular.thin-backup.js` is a migration backup and should not be used as the active entry.
+- `core/app.modular.thin-backup.js` is a local safety backup and should not be used as the active entry.
 
 ## Local Artifacts
 
