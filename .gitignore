@@ -19,6 +19,7 @@ apps/backend/data/
 
 # Local caches and coordination
 .hello-cc/
+.superpowers/
 apps/backend/.hello-cc/
 .npm-cache/
 apps/backend/.npm-cache/
