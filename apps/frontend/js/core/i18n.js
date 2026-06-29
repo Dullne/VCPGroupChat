@@ -610,7 +610,13 @@ const PATTERN_TRANSLATIONS = [
     [/^团队「(.+)」下共 (\d+) 套群聊配置（全局 (\d+)）。$/, match => `Team "${match[1]}": ${match[2]} group chat configurations here (${match[3]} globally).`],
     [/^当前团队下共 (\d+) 套群聊配置（全局 (\d+)）。$/, match => `Current team: ${match[1]} group chat configurations here (${match[2]} globally).`],
     // Role draft fallback with name.
+    [/^后端模型接口未配置（GROUPCHAT_LLM_BASE_URL），已使用本地草稿兜底。配置 GroupChatBackend 的模型地址后可使用后端创角：(.+)。当前草稿可继续创建。$/, match => `Backend model endpoint is not configured (GROUPCHAT_LLM_BASE_URL); used a local draft fallback: ${match[1]}. Configure the GroupChatBackend model base URL to use backend role creation. You can continue with the current draft.`],
+    [/^后端模型接口未配置（GROUPCHAT_LLM_BASE_URL），已使用本地草稿兜底。配置 GroupChatBackend 的模型地址后可使用后端创角。建议先改一个更具体的角色名，再创建角色。$/, () => 'Backend model endpoint is not configured (GROUPCHAT_LLM_BASE_URL); used a local draft fallback. Configure the GroupChatBackend model base URL to use backend role creation. Set a more specific role name, then create the role.'],
+    [/^后端创角请求超时，已使用本地草稿兜底：(.+)。当前草稿可继续创建。$/, match => `Backend role creation timed out; used a local draft fallback: ${match[1]}. You can continue with the current draft.`],
+    [/^后端创角请求超时，已使用本地草稿兜底。建议先改一个更具体的角色名，再创建角色。$/, () => 'Backend role creation timed out; used a local draft fallback. Set a more specific role name, then create the role.'],
+    [/^后端创角返回错误，已使用本地草稿兜底：(.+)：(.+)。当前草稿可继续创建。$/, match => `Backend role creation returned an error; used a local draft fallback: ${match[2]}. Error: ${match[1]}. You can continue with the current draft.`],
     [/^后端创角暂时不可用，已使用本地草稿兜底：(.+)。检查后可继续创建。$/, match => `Backend role creation is temporarily unavailable; used a local draft fallback: ${match[1]}. Review, then continue creating.`],
+    [/^后端创角暂时不可用，已使用本地草稿兜底：(.+)。当前草稿可继续创建。$/, match => `Backend role creation is temporarily unavailable; used a local draft fallback: ${match[1]}. You can continue with the current draft.`],
     // Cognitive inspector: memory traces, core-write, vector index, index repair.
     // Anchored composites; names/notebooks/paths in match[1] stay as data.
     [/^核心写入：(.+) 已完成$/, match => `Core write: ${match[1]} completed`],

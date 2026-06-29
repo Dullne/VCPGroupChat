@@ -1,3 +1,30 @@
+function summarizeErrorMessage(error) {
+    return String(error?.message || error || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 260);
+}
+
+function classifyDraftFallbackError(error) {
+    const message = summarizeErrorMessage(error);
+    if (/GROUPCHAT_LLM_BASE_URL/.test(message)) {
+        return {
+            reason: 'llm_backend_unconfigured',
+            message
+        };
+    }
+    if (/timeout|timed out|超时/i.test(message)) {
+        return {
+            reason: 'llm_backend_timeout',
+            message
+        };
+    }
+    return {
+        reason: 'llm_backend_error',
+        message
+    };
+}
+
 export async function generateRoleDraftFromIdea(deps) {
     const {
         idea,
@@ -43,13 +70,16 @@ export async function generateRoleDraftFromIdea(deps) {
         };
     } catch (error) {
         console.error(error);
+        const fallbackError = classifyDraftFallbackError(error);
         return {
             draft: applyRuntimeModelPreferenceToDraft(buildRoleDraftFromIdea(idea)),
             draftMeta: normalizeRoleDraftMeta({
                 source: 'fallback',
                 model: 'local-heuristic',
                 requested_model: getSelectedRoleStudioModel() || null,
-                engine: getSelectedRoleStudioEngine?.() || 'hybrid'
+                engine: getSelectedRoleStudioEngine?.() || 'hybrid',
+                fallback_reason: fallbackError.reason,
+                fallback_message: fallbackError.message
             }),
             usedFallback: true
         };

@@ -6,6 +6,8 @@ export function normalizeRoleDraftMeta(meta) {
     const profileName = String(meta?.profile_name || meta?.profileName || '').trim();
     const sessionId = String(meta?.session_id || meta?.sessionId || '').trim();
     const engine = String(meta?.engine || meta?.generation_engine || meta?.generationEngine || '').trim();
+    const fallbackReason = String(meta?.fallback_reason || meta?.fallbackReason || '').trim();
+    const fallbackMessage = String(meta?.fallback_message || meta?.fallbackMessage || '').trim();
     const promptxFiles = Array.isArray(meta?.promptx_files || meta?.promptxFiles)
         ? (meta.promptx_files || meta.promptxFiles).map(item => String(item || '').trim()).filter(Boolean)
         : [];
@@ -13,7 +15,7 @@ export function normalizeRoleDraftMeta(meta) {
         ? (meta.agency_references || meta.agencyReferences).filter(Boolean)
         : [];
 
-    if (!source && !model && !selectedModel && !requestedModel && !profileName && !sessionId && !engine && !promptxFiles.length && !agencyReferences.length) {
+    if (!source && !model && !selectedModel && !requestedModel && !profileName && !sessionId && !engine && !fallbackReason && !fallbackMessage && !promptxFiles.length && !agencyReferences.length) {
         return null;
     }
 
@@ -25,6 +27,8 @@ export function normalizeRoleDraftMeta(meta) {
         profileName,
         sessionId,
         engine,
+        fallbackReason,
+        fallbackMessage,
         promptxFiles,
         agencyReferences
     };

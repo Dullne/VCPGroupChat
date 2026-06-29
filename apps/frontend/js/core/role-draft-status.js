@@ -1,3 +1,16 @@
+function buildFallbackIntro(draftMeta) {
+    if (draftMeta?.fallbackReason === 'llm_backend_unconfigured') {
+        return '后端模型接口未配置（GROUPCHAT_LLM_BASE_URL），已使用本地草稿兜底。配置 GroupChatBackend 的模型地址后可使用后端创角';
+    }
+    if (draftMeta?.fallbackReason === 'llm_backend_timeout') {
+        return '后端创角请求超时，已使用本地草稿兜底';
+    }
+    if (draftMeta?.fallbackMessage) {
+        return `后端创角返回错误，已使用本地草稿兜底：${draftMeta.fallbackMessage}`;
+    }
+    return '后端创角暂时不可用，已使用本地草稿兜底';
+}
+
 export function buildRoleDraftStatusState(deps) {
     const {
         draft,
@@ -10,10 +23,11 @@ export function buildRoleDraftStatusState(deps) {
     const generationStatus = describeRoleDraftGeneration(draftMeta);
 
     if (usedFallback) {
+        const fallbackIntro = buildFallbackIntro(draftMeta);
         return {
             text: usesFallbackName
-                ? '后端创角暂时不可用，已使用本地草稿兜底。建议先改一个更具体的角色名，再创建角色。'
-                : `后端创角暂时不可用，已使用本地草稿兜底：${draft.name}。检查后可继续创建。`,
+                ? `${fallbackIntro}。建议先改一个更具体的角色名，再创建角色。`
+                : `${fallbackIntro}：${draft.name}。当前草稿可继续创建。`,
             className: 'profile-form-status profile-form-status-warning'
         };
     }

@@ -42,6 +42,58 @@ const ENGINE_ALIASES = new Map([
 ]);
 
 const DEFAULT_AGENCY_LIMIT = 3;
+const KEYWORD_HINTS = [
+    {
+        pattern: /产品|需求|路线图|用户|prd|product/i,
+        ids: ['product/product-manager', 'product/product-feedback-synthesizer'],
+        terms: ['product', 'manager', 'requirements', 'roadmap', 'prd', 'user']
+    },
+    {
+        pattern: /代码|开发|技术|工程|架构|software|code|engineering|engineer|developer/i,
+        ids: [
+            'engineering/engineering-software-architect',
+            'engineering/engineering-ai-engineer',
+            'engineering/engineering-backend-architect',
+            'engineering/engineering-frontend-developer'
+        ],
+        terms: ['engineering', 'engineer', 'developer', 'software', 'code', 'architecture', 'backend', 'frontend', 'api']
+    },
+    {
+        pattern: /prompt|提示词|角色|agent|智能体/i,
+        ids: ['engineering/engineering-prompt-engineer', 'engineering/engineering-ai-engineer'],
+        terms: ['prompt', 'agent', 'ai', 'engineer']
+    },
+    {
+        pattern: /前端|界面|ui|ux|react|vue|css/i,
+        ids: ['engineering/engineering-frontend-developer', 'design/design-ui-designer'],
+        terms: ['frontend', 'ui', 'ux', 'react', 'vue', 'css', 'designer']
+    },
+    {
+        pattern: /后端|api|数据库|服务/i,
+        ids: ['engineering/engineering-backend-architect', 'engineering/engineering-software-architect'],
+        terms: ['backend', 'api', 'database', 'service', 'architect']
+    },
+    {
+        pattern: /安全|漏洞|威胁|security/i,
+        ids: ['security/security-architect', 'security/security-appsec-engineer'],
+        terms: ['security', 'appsec', 'threat', 'architect']
+    },
+    {
+        pattern: /测试|质量|qa|验收/i,
+        ids: ['testing/testing-api-tester', 'testing/testing-reality-checker'],
+        terms: ['testing', 'qa', 'quality', 'api']
+    },
+    {
+        pattern: /营销|增长|运营|内容|私域/i,
+        ids: ['marketing/marketing-growth-hacker', 'marketing/marketing-content-creator'],
+        terms: ['marketing', 'growth', 'content', 'operations']
+    },
+    {
+        pattern: /项目|推进|交付|协调|管理/i,
+        ids: ['project-management/project-manager-senior', 'project-management/project-management-project-shepherd'],
+        terms: ['project', 'management', 'delivery', 'coordination']
+    }
+];
 
 function fileExists(filePath) {
     try {
@@ -142,6 +194,32 @@ function scoreText(tokens, text, weight = 1) {
     return tokens.reduce((score, token) => (
         haystack.includes(token) ? score + weight : score
     ), 0);
+}
+
+function collectKeywordHints(value) {
+    const hintedIds = new Set();
+    const expandedTerms = [];
+    for (const hint of KEYWORD_HINTS) {
+        if (hint.pattern.test(String(value || ''))) {
+            for (const id of hint.ids) {
+                hintedIds.add(id);
+            }
+            expandedTerms.push(...hint.terms);
+        }
+    }
+
+    return {
+        hintedIds,
+        expandedTokens: [...new Set(expandedTerms.map(term => term.toLowerCase()).filter(Boolean))]
+    };
+}
+
+function buildSearchTokens(value) {
+    const tokens = tokenize(value);
+    const hints = collectKeywordHints(value);
+    return [...new Set([...tokens, ...hints.expandedTokens])]
+        .filter(token => token.length >= 2)
+        .slice(0, 120);
 }
 
 function normalizeSourceItemId(value) {
@@ -399,26 +477,8 @@ class RoleStudioSourceService {
             };
         }
 
-        const tokens = tokenize(idea);
-        const keywordHints = [
-            [/产品|需求|路线图|prd|product/i, ['product/product-manager', 'product/product-feedback-synthesizer']],
-            [/prompt|提示词|角色|agent|智能体/i, ['engineering/engineering-prompt-engineer', 'engineering/engineering-ai-engineer']],
-            [/前端|界面|ui|ux|react|vue|css/i, ['engineering/engineering-frontend-developer', 'design/design-ui-designer']],
-            [/后端|api|数据库|架构|服务/i, ['engineering/engineering-backend-architect', 'engineering/engineering-software-architect']],
-            [/安全|漏洞|威胁|security/i, ['security/security-architect', 'security/security-appsec-engineer']],
-            [/测试|质量|qa|验收/i, ['testing/testing-api-tester', 'testing/testing-reality-checker']],
-            [/营销|增长|运营|内容|私域/i, ['marketing/marketing-growth-hacker', 'marketing/marketing-content-creator']],
-            [/项目|推进|交付|协调|管理/i, ['project-management/project-manager-senior', 'project-management/project-management-project-shepherd']]
-        ];
-
-        const hintedIds = new Set();
-        for (const [pattern, ids] of keywordHints) {
-            if (pattern.test(String(idea || ''))) {
-                for (const id of ids) {
-                    hintedIds.add(id);
-                }
-            }
-        }
+        const tokens = buildSearchTokens(idea);
+        const { hintedIds } = collectKeywordHints(idea);
 
         const scored = catalog.agents.map(agent => {
             const text = [
@@ -520,7 +580,8 @@ class RoleStudioSourceService {
     async listSources({ query = '', limit = 30 } = {}) {
         const agency = this.loadAgencyAgents();
         const promptx = this.loadPromptXNuwaContext();
-        const tokens = tokenize(query);
+        const tokens = buildSearchTokens(query);
+        const { hintedIds } = collectKeywordHints(query);
         const maxItems = Math.max(1, Math.min(100, Number(limit) || 30));
 
         const agencyItems = agency.available
@@ -533,6 +594,7 @@ class RoleStudioSourceService {
                             + scoreText(tokens, agent.description, 4)
                             + scoreText(tokens, agent.vibe, 3)
                             + scoreText(tokens, agent.excerpt, 1)
+                            + (hintedIds.has(agent.id) ? 24 : 0)
                         )
                         : 1
                 }))
