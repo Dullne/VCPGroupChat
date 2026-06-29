@@ -10,7 +10,7 @@
     "backend:start": "npm --prefix apps/backend start",
     "backend:test": "npm --prefix apps/backend test",
     "frontend:test:i18n": "node apps/frontend/tests/i18n-table-integrity.test.mjs && node apps/frontend/tests/i18n-renderer-coverage.test.mjs",
-    "frontend:test:role-studio": "node apps/frontend/tests/role-studio-fallback-status.test.mjs",
+    "frontend:test:role-studio": "node apps/frontend/tests/role-studio-fallback-status.test.mjs && node apps/frontend/tests/role-studio-renderer-imports.test.mjs",
     "frontend:test": "npm run frontend:test:i18n && npm run frontend:test:role-studio",
     "test": "npm run backend:test && npm run frontend:test"
   }

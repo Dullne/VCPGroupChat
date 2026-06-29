@@ -1,5 +1,6 @@
 import { applyRoleStudioEmptyDraftState } from './role-studio-renderer-empty-state.js';
 import { applyRoleStudioFilledDraftState } from './role-studio-renderer-filled-state.js';
+import { translateUiText } from '../core/i18n.js';
 
 export function createRoleStudioRenderer(deps) {
     const {
