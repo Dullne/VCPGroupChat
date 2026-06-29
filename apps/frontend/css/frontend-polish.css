@@ -2606,6 +2606,11 @@ body.night-mode #team-member-tag-filter {
     min-width: 0;
 }
 
+#role-draft-preview {
+    scroll-margin-top: 16px;
+    outline: none;
+}
+
 .role-draft-grid {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
 }

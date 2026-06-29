@@ -1,3 +1,5 @@
+import { translateUiText } from './i18n.js';
+
 export function normalizeRoleDraftMeta(meta) {
     const source = String(meta?.source || '').trim();
     const model = String(meta?.model || '').trim();

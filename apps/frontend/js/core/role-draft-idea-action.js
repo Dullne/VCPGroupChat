@@ -38,6 +38,7 @@ export function createRoleDraftIdeaAction(deps) {
         }
 
         setRoleDraftLoadingUi(dom);
+        let shouldRevealDraftPreview = false;
 
         try {
             const generated = await generateRoleDraftFromIdea(buildRoleDraftGenerationContext({
@@ -64,8 +65,11 @@ export function createRoleDraftIdeaAction(deps) {
                 setAdvancedRoleEditorExpanded,
                 applyRoleDraftToForm
             });
+            shouldRevealDraftPreview = true;
         } finally {
-            restoreRoleDraftUi(dom, renderRoleStudio);
+            restoreRoleDraftUi(dom, renderRoleStudio, {
+                revealDraftPreview: shouldRevealDraftPreview
+            });
         }
     };
 }

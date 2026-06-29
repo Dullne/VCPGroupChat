@@ -17,6 +17,7 @@ export const DOM_BINDING_ROLE_GETTERS = {
     roleIdeaStatus: byId('role-idea-status'),
     draftRoleIdeaBtn: byId('draft-role-idea-btn'),
     clearRoleIdeaBtn: byId('clear-role-idea-btn'),
+    roleDraftPreview: byId('role-draft-preview'),
     roleDraftEmpty: byId('role-draft-empty'),
     roleDraftContent: byId('role-draft-content'),
     roleDraftName: byId('role-draft-name'),
