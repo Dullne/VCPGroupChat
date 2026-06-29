@@ -202,8 +202,12 @@
                     <div class="workspace-team-flow">
                         <div class="workspace-flow-grid workspace-flow-grid-primary">
                             <div class="role-manager-section workspace-team-column">
-                                <h4>1. 选择或创建团队</h4>
-                                <p class="role-manager-tip">团队就是一个角色池：先建一个方向，再把相关角色拉进来。日常发起群聊仍从左侧“+ 发起群聊”开始。</p>
+                                <h4>1. 团队草稿 / 已有团队</h4>
+                                <p class="role-manager-tip">新团队先进入草稿台，选好成员后一次创建；已有团队仍在这里维护成员池。</p>
+                                <div class="team-draft-actions">
+                                    <button id="start-team-draft-btn" type="button" class="role-action-btn">新建团队</button>
+                                    <button id="copy-default-team-members-btn" type="button" class="role-action-btn role-action-secondary">从默认团队复制成员</button>
+                                </div>
                                 <input id="team-search" type="search" class="role-form-search" placeholder="搜索团队名称 / 描述">
                                 <div id="team-list" class="team-list"></div>
                                 <div id="current-team-summary" class="role-empty"></div>
@@ -212,7 +216,7 @@
                                     <input id="team-name" name="name" type="text" placeholder="新团队名称" required>
                                     <textarea id="team-description" name="description" placeholder="团队职责说明"></textarea>
                                     <div class="role-form-actions">
-                                        <button id="create-team-btn" type="submit">创建这个团队</button>
+                                        <button id="create-team-btn" type="submit">创建团队并加入 0 人</button>
                                         <button id="update-team-btn" type="button" class="role-action-btn role-action-secondary">更新团队</button>
                                         <button id="delete-team-btn" type="button" class="role-action-btn role-action-danger">删除团队</button>
                                     </div>
@@ -220,8 +224,8 @@
                             </div>
 
                             <div class="role-manager-section workspace-team-members-column">
-                                <h4>2. 从角色库拉人进团队</h4>
-                                <p class="role-manager-tip">这就是团队的主功能：按标签/关键词筛选角色，点“加入这个团队”。已加入的人会固定在上方，作为这个团队的角色池。</p>
+                                <h4>2. 先选成员，再创建团队</h4>
+                                <p class="role-manager-tip">草稿态下先把成员加入“已选成员”，提交后才会创建新团队；已有团队则直接维护成员池。</p>
                                 <div class="role-form-inline role-form-inline-split">
                                     <div class="role-inline-field">
                                         <label for="team-member-search" class="role-form-inline-label">搜索角色</label>

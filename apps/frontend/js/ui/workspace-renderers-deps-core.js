@@ -8,7 +8,11 @@ export function buildWorkspaceRendererModeAndTeamDeps(deps) {
         renderAll,
         getManagedTeam,
         getManagedTeamMembers,
-        getBootstrapData
+        getBootstrapData,
+        getTeamDraftMode,
+        getTeamDraftSelectedRoleIds,
+        startTeamDraft,
+        setTeamDraftMode
     } = deps;
 
     return {
@@ -21,18 +25,26 @@ export function buildWorkspaceRendererModeAndTeamDeps(deps) {
             getFilteredTeams,
             getManagedTeamId,
             getManagedTeamMembers,
+            getTeamDraftMode,
+            getTeamDraftSelectedRoleIds,
+            startTeamDraft,
+            setTeamDraftMode,
             setManagedTeam,
             renderAll
         },
         teamSummaryDeps: {
             getDom,
             getManagedTeam,
-            getManagedTeamMembers
+            getManagedTeamMembers,
+            getTeamDraftMode,
+            getTeamDraftSelectedRoleIds
         },
         teamFormStatusDeps: {
             getDom,
             getManagedTeam,
-            getBootstrapData
+            getBootstrapData,
+            getTeamDraftMode,
+            getTeamDraftSelectedRoleIds
         }
     };
 }

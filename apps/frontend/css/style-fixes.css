@@ -1023,6 +1023,39 @@ body.night-mode .round-role-debug-item {
     padding-right: 4px;
 }
 
+.team-draft-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.team-draft-actions .role-action-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+}
+
+.team-draft-card {
+    background: linear-gradient(180deg, rgba(31, 122, 224, 0.12), rgba(47, 138, 82, 0.08));
+    border-style: dashed;
+}
+
+.team-draft-card .team-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.team-draft-card .team-card-title::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--success);
+    box-shadow: 0 0 0 4px rgba(47, 138, 82, 0.12);
+}
+
 .team-card {
     border: 1px solid var(--line);
     border-radius: 12px;
@@ -1083,6 +1116,29 @@ body.night-mode .round-role-debug-item {
 
 .team-member-card-in-team {
     border-color: var(--brand) !important;
+}
+
+.team-member-role-section .role-card-title-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.team-member-role-section .role-card-title {
+    flex: 1 1 180px;
+    min-width: min(100%, 180px);
+    overflow-wrap: anywhere;
+}
+
+.team-member-role-section .role-badges {
+    flex: 1 1 260px;
+    justify-content: flex-start;
+    min-width: min(100%, 220px);
+}
+
+.team-member-role-section .role-badge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .group-profile-list,

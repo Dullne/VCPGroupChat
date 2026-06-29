@@ -5,12 +5,29 @@ export function renderWorkspaceCurrentTeamSummary(deps) {
     const {
         getDom,
         getManagedTeam,
-        getManagedTeamMembers
+        getManagedTeamMembers,
+        getTeamDraftMode,
+        getTeamDraftSelectedRoleIds
     } = deps;
 
     const dom = getDom();
     const team = getManagedTeam();
     if (!dom.currentTeamSummary) {
+        return;
+    }
+    if (getTeamDraftMode?.()) {
+        const selectedCount = getTeamDraftSelectedRoleIds?.().size || 0;
+        dom.currentTeamSummary.innerHTML = '';
+        const title = document.createElement('div');
+        title.className = 'profile-summary-title';
+        title.textContent = `团队草稿 · 已选 ${selectedCount} 个成员`;
+        const description = document.createElement('div');
+        description.className = 'profile-summary-description';
+        description.textContent = selectedCount > 0
+            ? '填写团队名称后提交，系统会创建团队并加入已选成员。'
+            : '先从右侧选择成员，草稿不会自动带入默认团队成员。';
+        dom.currentTeamSummary.appendChild(title);
+        dom.currentTeamSummary.appendChild(description);
         return;
     }
     if (!team) {

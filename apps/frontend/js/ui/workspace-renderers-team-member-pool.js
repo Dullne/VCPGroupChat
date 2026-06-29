@@ -74,6 +74,10 @@ function renderRoleSection({
     isRoleInManagedTeam,
     addRoleToTeam,
     removeRoleFromTeam,
+    selectedLabel = '已在团队',
+    availableLabel = '未进团队',
+    addLabel = '加入这个团队',
+    removeLabel = '移出团队',
     showToast
 }) {
     const section = document.createElement('div');
@@ -107,6 +111,10 @@ function renderRoleSection({
                 isRoleInManagedTeam,
                 addRoleToTeam,
                 removeRoleFromTeam,
+                selectedLabel,
+                availableLabel,
+                addLabel,
+                removeLabel,
                 showToast
             }));
         }
@@ -122,9 +130,13 @@ export function renderWorkspaceTeamMemberPool(deps) {
         getDom,
         getManagedTeam,
         getBootstrapData,
+        getTeamDraftMode,
+        getTeamDraftSelectedRoleIds,
         isRoleInManagedTeam,
         addRoleToTeam,
         removeRoleFromTeam,
+        addRoleToTeamDraft,
+        removeRoleFromTeamDraft,
         personRuntimeActions,
         showToast
     } = deps;
@@ -136,19 +148,22 @@ export function renderWorkspaceTeamMemberPool(deps) {
 
     const team = getManagedTeam();
     const bootstrapData = getBootstrapData();
+    const draftMode = getTeamDraftMode?.() === true;
     dom.teamMemberPoolList.innerHTML = '';
 
-    if (!team) {
+    const coreRoles = getWorkspaceTeamMemberPoolCoreRoles(bootstrapData);
+    renderTagFilterOptions(dom, coreRoles);
+
+    if (!team && !draftMode) {
         dom.teamMemberPoolMeta.textContent = '请先选择团队。';
         dom.teamMemberPoolList.innerHTML = '<div class="role-empty">未选择团队。</div>';
         return;
     }
 
-    const coreRoles = getWorkspaceTeamMemberPoolCoreRoles(bootstrapData);
-    renderTagFilterOptions(dom, coreRoles);
-
     if (!coreRoles.length) {
-        dom.teamMemberPoolMeta.textContent = `当前团队：${team.name}。`;
+        dom.teamMemberPoolMeta.textContent = draftMode
+            ? '团队草稿：当前没有可选角色。'
+            : `当前团队：${team.name}。`;
         const renderedUnboundPersons = renderUnboundPersonRuntimeBindingSection({
             container: dom.teamMemberPoolList,
             bootstrapData,
@@ -180,6 +195,68 @@ export function renderWorkspaceTeamMemberPool(deps) {
 
     if (!filteredRoles.length) {
         dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有匹配角色。</div>';
+        return;
+    }
+
+    if (draftMode) {
+        const selectedRoleIds = getTeamDraftSelectedRoleIds?.() || new Set();
+        const isRoleInTeamDraft = roleId => selectedRoleIds.has(roleId);
+        const selectedCount = coreRoles.filter(role => isRoleInTeamDraft(role.id)).length;
+        const rolesSelected = filteredRoles.filter(role => isRoleInTeamDraft(role.id));
+        const rolesAvailable = filteredRoles.filter(role => !isRoleInTeamDraft(role.id));
+
+        dom.teamMemberPoolMeta.textContent = selectedTag
+            ? `团队草稿：已选 ${selectedCount} 个成员，可选 ${coreRoles.length} 个；当前标签：${selectedTag}。`
+            : `团队草稿：已选 ${selectedCount} 个成员，先选人再创建团队。`;
+
+        renderUnboundPersonRuntimeBindingSection({
+            container: dom.teamMemberPoolList,
+            bootstrapData,
+            personRuntimeActions,
+            showToast
+        });
+
+        if (rolesSelected.length) {
+            renderRoleSection({
+                container: dom.teamMemberPoolList,
+                title: '已选成员',
+                hint: '这些成员会随新团队一起创建，可在提交前继续移出或补充。',
+                roles: rolesSelected,
+                bootstrapData,
+                selectedTag,
+                isRoleInManagedTeam: isRoleInTeamDraft,
+                addRoleToTeam: addRoleToTeamDraft,
+                removeRoleFromTeam: removeRoleFromTeamDraft,
+                selectedLabel: '已选',
+                availableLabel: '可选',
+                addLabel: '加入草稿',
+                removeLabel: '移出草稿',
+                showToast
+            });
+        }
+
+        if (rolesAvailable.length) {
+            renderRoleSection({
+                container: dom.teamMemberPoolList,
+                title: '可加入成员',
+                hint: '点击“加入草稿”，先把成员放进新团队草稿。',
+                roles: rolesAvailable,
+                bootstrapData,
+                selectedTag,
+                isRoleInManagedTeam: isRoleInTeamDraft,
+                addRoleToTeam: addRoleToTeamDraft,
+                removeRoleFromTeam: removeRoleFromTeamDraft,
+                selectedLabel: '已选',
+                availableLabel: '可选',
+                addLabel: '加入草稿',
+                removeLabel: '移出草稿',
+                showToast
+            });
+        }
+
+        if (!rolesSelected.length && !rolesAvailable.length) {
+            dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有可显示的角色。</div>';
+        }
         return;
     }
 

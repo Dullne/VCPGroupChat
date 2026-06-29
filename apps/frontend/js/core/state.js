@@ -12,6 +12,8 @@ export const state = {
     externalImportSources: [],
     selectedTeamId: null,
     selectedProfileId: null,
+    teamDraftMode: false,
+    teamDraftSelectedRoleIds: new Set(),
     teamFilterKeyword: '',
     profileFilterKeyword: '',
     selectedImageBase64: null,

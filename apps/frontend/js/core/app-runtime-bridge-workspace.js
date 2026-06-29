@@ -12,6 +12,8 @@ export function createRuntimeWorkspaceBridges(deps) {
     } = deps;
 
     const createTeamFromForm = (...args) => runtime.workspaceActions.createTeamFromForm(...args);
+    const startTeamDraft = (...args) => runtime.workspaceActions.startTeamDraft(...args);
+    const copyDefaultTeamMembersToDraft = (...args) => runtime.workspaceActions.copyDefaultTeamMembersToDraft(...args);
     const updateManagedTeamFromForm = (...args) => runtime.workspaceActions.updateManagedTeamFromForm(...args);
     const deleteManagedTeam = (...args) => runtime.workspaceActions.deleteManagedTeam(...args);
     const normalizeNatureRandomModeOptions = (rawOptions = {}) => normalizeNatureRandomModeOptionsModule(rawOptions);
@@ -33,6 +35,8 @@ export function createRuntimeWorkspaceBridges(deps) {
 
     return {
         createTeamFromForm,
+        startTeamDraft,
+        copyDefaultTeamMembersToDraft,
         updateManagedTeamFromForm,
         deleteManagedTeam,
         normalizeNatureRandomModeOptions,

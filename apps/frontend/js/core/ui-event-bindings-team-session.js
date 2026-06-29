@@ -2,6 +2,8 @@ export function bindTeamAndSessionEvents(deps) {
     const {
         dom,
         createTeamFromForm,
+        startTeamDraft,
+        copyDefaultTeamMembersToDraft,
         setTeamFilterKeyword,
         renderRoleManager,
         updateManagedTeamFromForm,
@@ -20,6 +22,18 @@ export function bindTeamAndSessionEvents(deps) {
         event.preventDefault();
         await createTeamFromForm();
     });
+
+    if (dom.startTeamDraftBtn) {
+        dom.startTeamDraftBtn.addEventListener('click', () => {
+            startTeamDraft();
+        });
+    }
+
+    if (dom.copyDefaultTeamMembersBtn) {
+        dom.copyDefaultTeamMembersBtn.addEventListener('click', () => {
+            copyDefaultTeamMembersToDraft();
+        });
+    }
 
     dom.teamSearch.addEventListener('input', event => {
         setTeamFilterKeyword(String(event.target.value || '').trim().toLowerCase());

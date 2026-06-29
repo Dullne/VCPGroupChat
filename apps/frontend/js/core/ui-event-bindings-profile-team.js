@@ -19,6 +19,8 @@ export function bindProfileTeamEvents(deps) {
     bindTeamAndSessionEvents({
         dom: deps.dom,
         createTeamFromForm: deps.createTeamFromForm,
+        startTeamDraft: deps.startTeamDraft,
+        copyDefaultTeamMembersToDraft: deps.copyDefaultTeamMembersToDraft,
         setTeamFilterKeyword: deps.setTeamFilterKeyword,
         renderRoleManager: deps.renderRoleManager,
         updateManagedTeamFromForm: deps.updateManagedTeamFromForm,

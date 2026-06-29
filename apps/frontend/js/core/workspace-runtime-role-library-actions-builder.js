@@ -8,6 +8,8 @@ export function buildRoleLibraryActionsForRuntime(deps) {
         getActiveSession: deps.getActiveSession,
         getDom: deps.getDom,
         getManagedTeamId: deps.getManagedTeamId,
+        getTeamDraftSelectedRoleIds: deps.getTeamDraftSelectedRoleIds,
+        setTeamDraftSelectedRoleIds: deps.setTeamDraftSelectedRoleIds,
         getCatalogItem: deps.getCatalogItem,
         setActiveSession: deps.setActiveSession,
         fetchJson: deps.fetchJson,

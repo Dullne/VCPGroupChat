@@ -27,6 +27,8 @@ export const DOM_BINDING_WORKSPACE_GETTERS = {
     roleLibraryStatusFilter: byId('role-library-status-filter'),
     roleLibrarySummary: byId('role-library-summary'),
     teamSearch: byId('team-search'),
+    startTeamDraftBtn: byId('start-team-draft-btn'),
+    copyDefaultTeamMembersBtn: byId('copy-default-team-members-btn'),
     teamList: byId('team-list'),
     currentTeamSummary: byId('current-team-summary'),
     teamFormStatus: byId('team-form-status'),

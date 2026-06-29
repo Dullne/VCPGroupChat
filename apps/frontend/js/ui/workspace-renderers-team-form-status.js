@@ -2,13 +2,33 @@ export function renderWorkspaceTeamFormStatus(deps) {
     const {
         getDom,
         getManagedTeam,
-        getBootstrapData
+        getBootstrapData,
+        getTeamDraftMode,
+        getTeamDraftSelectedRoleIds
     } = deps;
 
     const dom = getDom();
     if (!dom.teamFormStatus) {
         return;
     }
+    const draftMode = getTeamDraftMode?.() === true;
+    const selectedDraftCount = getTeamDraftSelectedRoleIds?.().size || 0;
+    if (dom.createTeamBtn) {
+        dom.createTeamBtn.textContent = `创建团队并加入 ${selectedDraftCount} 人`;
+        dom.createTeamBtn.disabled = !draftMode || selectedDraftCount < 1;
+    }
+    if (draftMode) {
+        dom.teamFormStatus.textContent = selectedDraftCount > 0
+            ? `团队草稿：已选 ${selectedDraftCount} 个成员，填写名称后创建。`
+            : '团队草稿：先从右侧选择至少 1 个成员。';
+        dom.teamFormStatus.className = selectedDraftCount > 0
+            ? 'profile-form-status profile-form-status-ready'
+            : 'profile-form-status profile-form-status-warning';
+        dom.updateTeamBtn.disabled = true;
+        dom.deleteTeamBtn.disabled = true;
+        return;
+    }
+
     const team = getManagedTeam();
     const bootstrapData = getBootstrapData();
     if (!team) {

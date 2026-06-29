@@ -7,6 +7,10 @@ export function renderWorkspaceTeamList(deps) {
         getFilteredTeams,
         getManagedTeamId,
         getManagedTeamMembers,
+        getTeamDraftMode,
+        getTeamDraftSelectedRoleIds,
+        startTeamDraft,
+        setTeamDraftMode,
         setManagedTeam,
         renderAll
     } = deps;
@@ -16,9 +20,41 @@ export function renderWorkspaceTeamList(deps) {
         return;
     }
     dom.teamList.innerHTML = '';
+    const selectedDraftCount = getTeamDraftSelectedRoleIds?.().size || 0;
+    const draftCard = document.createElement('button');
+    draftCard.type = 'button';
+    draftCard.className = 'team-card team-draft-card';
+    if (getTeamDraftMode?.()) {
+        draftCard.classList.add('team-card-active');
+    }
+    draftCard.addEventListener('click', () => {
+        if (getTeamDraftMode?.()) {
+            return;
+        }
+        startTeamDraft?.();
+    });
+    const draftTitle = document.createElement('div');
+    draftTitle.className = 'team-card-title';
+    draftTitle.textContent = '团队草稿';
+    const draftMeta = document.createElement('div');
+    draftMeta.className = 'team-card-meta';
+    draftMeta.textContent = selectedDraftCount > 0
+        ? `已选 ${selectedDraftCount} 个成员`
+        : '先选择成员，再创建团队';
+    const draftDesc = document.createElement('div');
+    draftDesc.className = 'team-card-description';
+    draftDesc.textContent = '不会自动继承默认团队；需要时可显式复制默认成员。';
+    draftCard.appendChild(draftTitle);
+    draftCard.appendChild(draftMeta);
+    draftCard.appendChild(draftDesc);
+    dom.teamList.appendChild(draftCard);
+
     const visibleTeams = getFilteredTeams();
     if (!visibleTeams.length) {
-        dom.teamList.innerHTML = '<div class="role-empty">当前筛选没有匹配团队。</div>';
+        const empty = document.createElement('div');
+        empty.className = 'role-empty';
+        empty.textContent = '当前筛选没有匹配团队。';
+        dom.teamList.appendChild(empty);
         return;
     }
 
@@ -30,6 +66,7 @@ export function renderWorkspaceTeamList(deps) {
             card.classList.add('team-card-active');
         }
         card.addEventListener('click', () => {
+            setTeamDraftMode?.(false);
             setManagedTeam(team.id);
             renderAll();
         });

@@ -21,6 +21,8 @@ export const MAIN_UI_DEP_KEYS = [
     'createGroupProfileFromForm',
     'renderGroupProfileModeOptions',
     'createTeamFromForm',
+    'startTeamDraft',
+    'copyDefaultTeamMembersToDraft',
     'draftRoleIdeaIntoForm',
     'selectRoleStudioEngine',
     'searchRoleStudioReferences',

@@ -23,12 +23,17 @@ export function createWorkspaceTeamMemberCard(deps) {
         isRoleInManagedTeam,
         addRoleToTeam,
         removeRoleFromTeam,
-        showToast
+        showToast,
+        selectedLabel = '已在团队',
+        availableLabel = '未进团队',
+        addLabel = '加入这个团队',
+        removeLabel = '移出团队'
     } = deps;
+    const isSelected = isRoleInManagedTeam(role.id);
 
     const row = document.createElement('div');
     row.className = 'role-card';
-    row.classList.add(isRoleInManagedTeam(role.id)
+    row.classList.add(isSelected
         ? 'team-member-card-in-team'
         : 'team-member-card-available');
 
@@ -40,7 +45,7 @@ export function createWorkspaceTeamMemberCard(deps) {
     titleRow.appendChild(title);
     const runtimeModelStatus = getRoleRuntimeModelStatus(role, bootstrapData);
     titleRow.appendChild(buildRoleBadgeContainer([
-        isRoleInManagedTeam(role.id) ? '已在团队' : '未进团队',
+        isSelected ? selectedLabel : availableLabel,
         ...getIdentityBadges(role),
         role.is_native ? '原生' : '可编辑',
         runtimeModelStatus.model ? formatRoleRuntimeModelBadge(role, bootstrapData) : null,
@@ -54,9 +59,9 @@ export function createWorkspaceTeamMemberCard(deps) {
     const actions = document.createElement('div');
     actions.className = 'role-card-actions';
 
-    if (isRoleInManagedTeam(role.id)) {
+    if (isSelected) {
         actions.appendChild(createAsyncActionButton({
-            label: '移出团队',
+            label: removeLabel,
             handler: async () => {
                 await removeRoleFromTeam(role.id);
             },
@@ -65,7 +70,7 @@ export function createWorkspaceTeamMemberCard(deps) {
         }));
     } else {
         actions.appendChild(createAsyncActionButton({
-            label: '加入这个团队',
+            label: addLabel,
             handler: async () => {
                 await addRoleToTeam(role.id);
             },

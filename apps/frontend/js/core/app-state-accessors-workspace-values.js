@@ -7,6 +7,10 @@ export function createWorkspaceStateValueAccessors(deps) {
 
     const getWorkspaceMode = getStateValue('workspaceMode');
     const setWorkspaceMode = setStateValue('workspaceMode');
+    const getTeamDraftMode = getStateValue('teamDraftMode');
+    const setTeamDraftMode = setStateValue('teamDraftMode');
+    const getTeamDraftSelectedRoleIds = getStateValue('teamDraftSelectedRoleIds');
+    const setTeamDraftSelectedRoleIds = setStateValue('teamDraftSelectedRoleIds');
     const getRoleSelectionExpanded = getStateValue('roleSelectionExpanded');
     const setRoleSelectionExpanded = setStateValue('roleSelectionExpanded');
     const getLatestRoleDraft = getStateValue('latestRoleDraft');
@@ -43,6 +47,9 @@ export function createWorkspaceStateValueAccessors(deps) {
     const clearLauncherSelectedRoleIds = () => {
         state.launcherSelectedRoleIds = new Set();
     };
+    const clearTeamDraftSelectedRoleIds = () => {
+        state.teamDraftSelectedRoleIds = new Set();
+    };
     const clearMemoryReflectionState = () => {
         state.memoryReflection = null;
         state.memoryCandidates = [];
@@ -57,6 +64,11 @@ export function createWorkspaceStateValueAccessors(deps) {
     return {
         getWorkspaceMode,
         setWorkspaceMode,
+        getTeamDraftMode,
+        setTeamDraftMode,
+        getTeamDraftSelectedRoleIds,
+        setTeamDraftSelectedRoleIds,
+        clearTeamDraftSelectedRoleIds,
         getRoleSelectionExpanded,
         setRoleSelectionExpanded,
         getLatestRoleDraft,
