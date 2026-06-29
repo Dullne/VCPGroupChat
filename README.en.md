@@ -4,14 +4,6 @@
 
 VCPGroupChat is the product-layer monorepo for the VCP group chat experience. It combines the browser frontend and the group chat business backend in one product project while keeping VCPToolBox as an independent core capability service.
 
-## Star History
-
-<p align="center">
-  <a href="https://www.star-history.com/#Dullne/VCPGroupChat&Date">
-    <img alt="VCPGroupChat Star History Chart" src="https://api.star-history.com/svg?repos=dullne/vcpgroupchat&type=Date">
-  </a>
-</p>
-
 ## Project Boundaries
 
 ```text
@@ -119,3 +111,11 @@ Do not commit local secrets, runtime databases, cache folders, browser automatio
 ## Migration Notes
 
 This monorepo was created by migrating the earlier standalone frontend and business backend into `apps/frontend` and `apps/backend`. The original repositories can remain as source or history references; this repository is the product-layer home going forward.
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/#Dullne/VCPGroupChat&Date">
+    <img alt="VCPGroupChat Star History Chart" src="https://api.star-history.com/svg?repos=dullne/vcpgroupchat&type=Date">
+  </a>
+</p>

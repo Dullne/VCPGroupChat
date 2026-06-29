@@ -4,14 +4,6 @@
 
 VCPGroupChat 是 VCP 群聊产品层的 monorepo。它把浏览器前端和群聊业务后端放在同一个产品项目里，同时保持 VCPToolBox 作为独立的核心能力服务。
 
-## Star 历史
-
-<p align="center">
-  <a href="https://www.star-history.com/#Dullne/VCPGroupChat&Date">
-    <img alt="VCPGroupChat Star 历史图" src="https://api.star-history.com/svg?repos=dullne/vcpgroupchat&type=Date">
-  </a>
-</p>
-
 ## 项目边界
 
 ```text
@@ -119,3 +111,11 @@ npm run test
 ## 迁移说明
 
 这个 monorepo 是通过迁移早期独立前端和业务后端到 `apps/frontend`、`apps/backend` 创建的。原始仓库可以继续作为源码或历史参考；后续产品层开发以本仓库为主。
+
+## Star 历史
+
+<p align="center">
+  <a href="https://www.star-history.com/#Dullne/VCPGroupChat&Date">
+    <img alt="VCPGroupChat Star 历史图" src="https://api.star-history.com/svg?repos=dullne/vcpgroupchat&type=Date">
+  </a>
+</p>
