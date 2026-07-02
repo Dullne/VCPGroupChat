@@ -12,7 +12,7 @@ VCPGroupChat
   apps/backend    群聊业务 API 和前端静态托管，默认端口 7010
 
 外部依赖
-  VCPToolBox       核心角色、记忆和导入 API，通常运行在 6005
+  VCPToolBox       核心运行时角色、记忆和模型能力，通常运行在 6005
   PromptX          Prompt 和资源文件
   agency-agents    角色模板资源
   model provider   由 GROUPCHAT_LLM_* 配置的 OpenAI 兼容模型端点
@@ -68,7 +68,7 @@ GROUPCHAT_ROLE_FALLBACK_MODELS=
 GROUPCHAT_ROLE_STUDIO_MODELS=
 ```
 
-`VCP_CORE_URL` 和 `VCP_CORE_KEY` 只用于访问 VCP core 的业务 API，例如角色存储、导入 API 和记忆 API。
+`VCP_CORE_URL` 和 `VCP_CORE_KEY` 只用于访问 VCP core 的业务 API，例如运行时角色、记忆和模型相关 API。
 
 ## 本地开发
 

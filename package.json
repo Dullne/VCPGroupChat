@@ -10,8 +10,12 @@
     "backend:start": "npm --prefix apps/backend start",
     "backend:test": "npm --prefix apps/backend test",
     "frontend:test:i18n": "node apps/frontend/tests/i18n-table-integrity.test.mjs && node apps/frontend/tests/i18n-renderer-coverage.test.mjs",
-    "frontend:test:role-studio": "node apps/frontend/tests/role-studio-fallback-status.test.mjs && node apps/frontend/tests/role-studio-renderer-imports.test.mjs && node apps/frontend/tests/role-studio-draft-reveal.test.mjs",
-    "frontend:test": "npm run frontend:test:i18n && npm run frontend:test:role-studio",
+    "frontend:test:role-studio": "node apps/frontend/tests/role-studio-fallback-status.test.mjs && node apps/frontend/tests/role-studio-renderer-imports.test.mjs && node apps/frontend/tests/role-studio-draft-reveal.test.mjs && node apps/frontend/tests/role-studio-context-mode.test.mjs",
+    "frontend:test:team": "node apps/frontend/tests/team-person-pool.test.mjs && node apps/frontend/tests/team-draft-flow-smoke.mjs",
+    "frontend:test:person-first-launcher": "node apps/frontend/tests/person-first-launcher.test.mjs",
+    "frontend:test:person-first-role-library": "node apps/frontend/tests/person-first-role-library.test.mjs",
+    "frontend:test:person-first": "npm run frontend:test:person-first-launcher && npm run frontend:test:person-first-role-library",
+    "frontend:test": "npm run frontend:test:i18n && npm run frontend:test:role-studio && npm run frontend:test:team && npm run frontend:test:person-first",
     "test": "npm run backend:test && npm run frontend:test"
   }
 }
