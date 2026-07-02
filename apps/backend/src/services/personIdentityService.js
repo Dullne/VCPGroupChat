@@ -188,6 +188,47 @@ class PersonIdentityService {
             .map(row => this.normalizePersonRow(row));
     }
 
+    updatePersonProfile(personId, patch = {}) {
+        const normalizedPersonId = normalizeText(personId);
+        if (!normalizedPersonId) {
+            throw new Error('person_id is required');
+        }
+
+        const person = this.getPerson(normalizedPersonId);
+        if (!person) {
+            throw new Error(`person not found: ${personId}`);
+        }
+
+        const fieldValues = [
+            ['description', normalizeText(patch.description)],
+            ['personality', normalizeText(patch.personality)],
+            ['emotional_style', normalizeText(patch.emotional_style ?? patch.emotionalStyle)],
+            ['voice_style', normalizeText(patch.voice_style ?? patch.voiceStyle)]
+        ].filter(([field, value]) => {
+            const provided = Object.prototype.hasOwnProperty.call(patch, field)
+                || (field === 'emotional_style' && Object.prototype.hasOwnProperty.call(patch, 'emotionalStyle'))
+                || (field === 'voice_style' && Object.prototype.hasOwnProperty.call(patch, 'voiceStyle'));
+            // 忽略未提供的字段，也忽略提供了空字符串的字段（防止清空已有内容）
+            return provided && value !== '';
+        });
+
+        if (!fieldValues.length) {
+            return person;
+        }
+
+        const now = nowIso();
+        const assignments = fieldValues.map(([field]) => `${field} = ?`).join(', ');
+        const values = fieldValues.map(([, value]) => value);
+        this.db.prepare(`
+            UPDATE persons
+            SET ${assignments},
+                updated_at = ?
+            WHERE id = ?
+        `).run(...values, now, normalizedPersonId);
+
+        return this.getPerson(normalizedPersonId);
+    }
+
     bindPersonRuntimeRole(personId, payload = {}) {
         const normalizedPersonId = normalizeText(personId);
         const roleId = normalizeText(payload.role_id ?? payload.roleId);
@@ -358,21 +399,61 @@ class PersonIdentityService {
     }
 
     listTeamPersonMembers(teamId) {
-        return this.db.prepare(`
+        const rows = this.db.prepare(`
             SELECT *
             FROM team_person_members
             WHERE team_id = ?
               AND enabled = 1
             ORDER BY member_order ASC, person_name ASC
-        `).all(normalizeText(teamId)).map(row => ({
+        `).all(normalizeText(teamId));
+        const personMap = this.getPersonsByIds([...new Set(rows.map(r => r.person_id))]);
+        return rows.map(row => ({
             team_id: row.team_id,
             person_id: row.person_id,
             person_name: row.person_name,
             member_order: Number(row.member_order || 0),
             enabled: Boolean(row.enabled),
             legacy_role_id: row.legacy_role_id || null,
-            person: this.getPerson(row.person_id)
+            person: personMap.get(row.person_id) || null
         }));
+    }
+
+    listTeamPersonMembersByTeamId(teamIds = null) {
+        const ids = Array.isArray(teamIds) && teamIds.length
+            ? [...new Set(teamIds.map(id => normalizeText(id)).filter(Boolean))]
+            : this.db.prepare('SELECT id FROM teams ORDER BY created_at ASC').all().map(row => row.id);
+
+        const buckets = ids.reduce((acc, teamId) => {
+            acc[teamId] = [];
+            return acc;
+        }, {});
+        if (!ids.length) return buckets;
+
+        const placeholders = ids.map(() => '?').join(', ');
+        const rows = this.db.prepare(`
+            SELECT *
+            FROM team_person_members
+            WHERE team_id IN (${placeholders})
+              AND enabled = 1
+            ORDER BY team_id ASC, member_order ASC, person_name ASC
+        `).all(...ids);
+
+        const personMap = this.getPersonsByIds([...new Set(rows.map(r => r.person_id))]);
+
+        for (const row of rows) {
+            if (!buckets[row.team_id]) buckets[row.team_id] = [];
+            buckets[row.team_id].push({
+                team_id: row.team_id,
+                person_id: row.person_id,
+                person_name: row.person_name,
+                member_order: Number(row.member_order || 0),
+                enabled: Boolean(row.enabled),
+                legacy_role_id: row.legacy_role_id || null,
+                person: personMap.get(row.person_id) || null
+            });
+        }
+
+        return buckets;
     }
 
     removeTeamPersonMember(teamId, personId) {
@@ -471,6 +552,24 @@ class PersonIdentityService {
             if (legacyRoleId) {
                 if (profile?.team_id) {
                     this.db.prepare(`
+                        INSERT INTO team_person_members
+                        (team_id, person_id, person_name, member_order, enabled, legacy_role_id)
+                        VALUES (?, ?, ?, ?, 1, ?)
+                        ON CONFLICT(team_id, person_id)
+                        DO UPDATE SET
+                            person_name = excluded.person_name,
+                            member_order = excluded.member_order,
+                            enabled = 1,
+                            legacy_role_id = excluded.legacy_role_id
+                    `).run(
+                        profile.team_id,
+                        person.id,
+                        personName,
+                        memberOrder,
+                        legacyRoleId
+                    );
+
+                    this.db.prepare(`
                         INSERT INTO team_members (team_id, role_id, role_name, role_order, enabled)
                         VALUES (?, ?, ?, ?, 1)
                         ON CONFLICT(team_id, role_id)
@@ -507,14 +606,29 @@ class PersonIdentityService {
         return this.listGroupPersonMembers(profileId);
     }
 
+    getPersonsByIds(ids) {
+        if (!ids.length) return new Map();
+        const placeholders = ids.map(() => '?').join(', ');
+        return new Map(
+            this.db.prepare(`SELECT * FROM persons WHERE id IN (${placeholders})`).all(...ids)
+                .map(row => [row.id, this.normalizePersonRow(row)])
+        );
+    }
+
     listGroupPersonMembers(profileId) {
-        return this.db.prepare(`
+        const rows = this.db.prepare(`
             SELECT *
             FROM group_person_members
             WHERE profile_id = ?
               AND enabled = 1
             ORDER BY member_order ASC, person_name ASC
-        `).all(normalizeText(profileId)).map(row => ({
+        `).all(normalizeText(profileId));
+        const personMap = this.getPersonsByIds([...new Set(rows.map(r => r.person_id))]);
+        return rows.map(row => this.normalizeGroupPersonMemberRow(row, personMap));
+    }
+
+    normalizeGroupPersonMemberRow(row, personMap = null) {
+        return {
             profile_id: row.profile_id,
             person_id: row.person_id,
             person_name: row.person_name,
@@ -523,8 +637,42 @@ class PersonIdentityService {
             enabled: Boolean(row.enabled),
             speaking_policy: safeJsonParse(row.speaking_policy_json, {}),
             legacy_role_id: row.legacy_role_id || null,
-            person: this.getPerson(row.person_id)
-        }));
+            person: personMap ? (personMap.get(row.person_id) || null) : this.getPerson(row.person_id)
+        };
+    }
+
+    listGroupPersonMembersByProfileId(profileIds = null) {
+        const ids = Array.isArray(profileIds) && profileIds.length
+            ? [...new Set(profileIds.map(id => normalizeText(id)).filter(Boolean))]
+            : this.db.prepare('SELECT id FROM group_profiles ORDER BY created_at ASC').all().map(row => row.id);
+        const buckets = ids.reduce((acc, profileId) => {
+            acc[profileId] = [];
+            return acc;
+        }, {});
+        if (!ids.length) {
+            return buckets;
+        }
+
+        const placeholders = ids.map(() => '?').join(', ');
+        const rows = this.db.prepare(`
+            SELECT *
+            FROM group_person_members
+            WHERE profile_id IN (${placeholders})
+              AND enabled = 1
+            ORDER BY profile_id ASC, member_order ASC, person_name ASC
+        `).all(...ids);
+
+        const personMap = this.getPersonsByIds([...new Set(rows.map(r => r.person_id))]);
+
+        for (const row of rows) {
+            const member = this.normalizeGroupPersonMemberRow(row, personMap);
+            if (!buckets[member.profile_id]) {
+                buckets[member.profile_id] = [];
+            }
+            buckets[member.profile_id].push(member);
+        }
+
+        return buckets;
     }
 
     removeGroupPersonMember(profileId, personId) {
@@ -558,6 +706,65 @@ class PersonIdentityService {
             }
         });
         tx();
+
+        return this.listGroupPersonMembers(normalizedProfileId);
+    }
+
+    moveGroupPersonMember(profileId, personId, direction) {
+        const normalizedProfileId = normalizeText(profileId);
+        const normalizedPersonId = normalizeText(personId);
+        const normalizedDirection = normalizeText(direction).toLowerCase();
+        if (!normalizedProfileId || !normalizedPersonId) {
+            throw new Error('profile_id and person_id are required');
+        }
+        if (!['up', 'down'].includes(normalizedDirection)) {
+            throw new Error('direction must be up or down');
+        }
+
+        const enabledMembers = this.db.prepare(`
+            SELECT *
+            FROM group_person_members
+            WHERE profile_id = ?
+              AND enabled = 1
+            ORDER BY member_order ASC, person_name ASC
+        `).all(normalizedProfileId);
+
+        const index = enabledMembers.findIndex(member => member.person_id === normalizedPersonId);
+        if (index < 0) {
+            throw new Error(`group person member not found: ${personId}`);
+        }
+
+        const targetIndex = normalizedDirection === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= enabledMembers.length) {
+            return this.listGroupPersonMembers(normalizedProfileId);
+        }
+
+        const reordered = [...enabledMembers];
+        const [moved] = reordered.splice(index, 1);
+        reordered.splice(targetIndex, 0, moved);
+
+        const updateGroupPersonOrder = this.db.prepare(`
+            UPDATE group_person_members
+            SET member_order = ?
+            WHERE profile_id = ? AND person_id = ?
+        `);
+        const updateRuntimeOrder = this.db.prepare(`
+            UPDATE group_profile_members
+            SET role_order = ?
+            WHERE profile_id = ? AND role_id = ?
+        `);
+
+        const tx = this.db.transaction(items => {
+            items.forEach((member, itemIndex) => {
+                const nextOrder = (itemIndex + 1) * 10;
+                updateGroupPersonOrder.run(nextOrder, normalizedProfileId, member.person_id);
+                const legacyRoleId = normalizeText(member.legacy_role_id);
+                if (legacyRoleId) {
+                    updateRuntimeOrder.run(nextOrder, normalizedProfileId, legacyRoleId);
+                }
+            });
+        });
+        tx(reordered);
 
         return this.listGroupPersonMembers(normalizedProfileId);
     }

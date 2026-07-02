@@ -5,15 +5,21 @@ const Database = require('better-sqlite3');
 const DEFAULT_TEAM = {
     id: 'team_default',
     name: '默认团队',
-    description: '系统默认角色池，保留历史群聊入口与核心角色。'
+    description: '系统默认人物池，保留历史群聊入口与长期人物。'
 };
 const LEGACY_DEFAULT_TEAM_DESCRIPTION = '默认团队，承载历史群组模板。';
+const DEPRECATED_2026_06_DEFAULT_TEAM_DESCRIPTION = [
+    '系统默认',
+    '角色',
+    '池，保留历史群聊入口与核心',
+    '角色。'
+].join('');
 
 const DEFAULT_PROFILE = {
     id: 'maid_team_default',
     team_id: DEFAULT_TEAM.id,
     name: '女仆协作组',
-    description: '默认的群聊协作组，保留当前六位核心角色。',
+    description: '默认的群聊协作组，保留当前六位长期人物。',
     mode: 'sequential',
     invite_prompt: '接下来请作为{{role_name}}发言，只回答你职责内的内容。',
     mode_options: {},
@@ -287,6 +293,74 @@ function ensureSchemaMigrations(db) {
           )
     `).run({ now: migrationTime });
 
+    const duplicateRoleIds = db.prepare(`
+        SELECT legacy_role_id, COUNT(*) AS cnt
+        FROM persons
+        WHERE identity_kind <> 'legacy_person'
+          AND legacy_role_id IS NOT NULL
+          AND TRIM(legacy_role_id) <> ''
+        GROUP BY legacy_role_id
+        HAVING cnt > 1
+    `).all();
+    if (duplicateRoleIds.length) {
+        console.warn(
+            '[DB Migration] Multiple real persons share the same legacy_role_id — only the earliest-created person per role_id will receive team/group membership during migration. Affected role IDs:',
+            duplicateRoleIds.map(d => `${d.legacy_role_id}(×${d.cnt})`).join(', ')
+        );
+    }
+
+    db.prepare(`
+        INSERT OR IGNORE INTO team_person_members
+        (team_id, person_id, person_name, member_order, enabled, legacy_role_id)
+        SELECT
+            tm.team_id,
+            person.id,
+            COALESCE(NULLIF(TRIM(person.display_name), ''), NULLIF(TRIM(tm.role_name), ''), tm.role_id),
+            tm.role_order,
+            tm.enabled,
+            tm.role_id
+        FROM team_members tm
+        JOIN persons person
+          ON person.id = (
+              SELECT existing_person.id
+              FROM persons existing_person
+              WHERE existing_person.legacy_role_id = tm.role_id
+                AND existing_person.identity_kind <> 'legacy_person'
+              ORDER BY existing_person.created_at ASC, existing_person.id ASC
+              LIMIT 1
+          )
+        WHERE tm.enabled = 1
+          AND tm.role_id IS NOT NULL
+          AND TRIM(tm.role_id) <> ''
+    `).run();
+
+    db.prepare(`
+        INSERT OR IGNORE INTO group_person_members
+        (profile_id, person_id, person_name, group_alias, member_order, enabled, speaking_policy_json, legacy_role_id)
+        SELECT
+            gpm.profile_id,
+            person.id,
+            COALESCE(NULLIF(TRIM(person.display_name), ''), NULLIF(TRIM(gpm.role_name), ''), gpm.role_id),
+            COALESCE(NULLIF(TRIM(person.display_name), ''), NULLIF(TRIM(gpm.role_name), ''), gpm.role_id),
+            gpm.role_order,
+            gpm.enabled,
+            '{}',
+            gpm.role_id
+        FROM group_profile_members gpm
+        JOIN persons person
+          ON person.id = (
+              SELECT existing_person.id
+              FROM persons existing_person
+              WHERE existing_person.legacy_role_id = gpm.role_id
+                AND existing_person.identity_kind <> 'legacy_person'
+              ORDER BY existing_person.created_at ASC, existing_person.id ASC
+              LIMIT 1
+          )
+        WHERE gpm.enabled = 1
+          AND gpm.role_id IS NOT NULL
+          AND TRIM(gpm.role_id) <> ''
+    `).run();
+
     db.prepare(`
         INSERT OR IGNORE INTO team_person_members
         (team_id, person_id, person_name, member_order, enabled, legacy_role_id)
@@ -377,10 +451,11 @@ function ensureDefaultSeed(db) {
     db.prepare(`
         UPDATE teams
         SET description = @description
-        WHERE description = @legacyDescription
+        WHERE description IN (@legacyDescription, @deprecatedDescription)
     `).run({
         description: DEFAULT_TEAM.description,
-        legacyDescription: LEGACY_DEFAULT_TEAM_DESCRIPTION
+        legacyDescription: LEGACY_DEFAULT_TEAM_DESCRIPTION,
+        deprecatedDescription: DEPRECATED_2026_06_DEFAULT_TEAM_DESCRIPTION
     });
 
     const profileExists = db

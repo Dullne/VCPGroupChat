@@ -133,7 +133,47 @@ function testNullMemoryConfigDoesNotCrashPromptBuild() {
     }));
 }
 
+function testPrivateKnowledgePlaceholdersUsePersonIdWhenAvailable() {
+    const orchestrator = new Orchestrator({
+        sessionService: null,
+        vcpCoreClient: null,
+        userName: '用户',
+        userPrompt: '',
+        personIdentityService: null
+    });
+
+    const messages = orchestrator.buildStreamChatMessages({
+        roleSpec: {
+            id: 'ji_archivist',
+            person_id: 'person_ji_archivist',
+            name: '犬娘小吉',
+            template_content: '你是犬娘小吉。',
+            memory: {
+                privateNotebook: '小吉',
+                knowledgeNotebook: '小吉的知识',
+                sharedNotebooks: ['公共']
+            },
+            responsibilities: [],
+            temperature: 0.6
+        },
+        profile: { name: '默认群组', group_prompt: '' },
+        phase: '',
+        fullHistory: []
+    });
+
+    const systemPrompt = messages[0].content;
+    // private/knowledge 用 person_id 派生命名空间
+    assert.match(systemPrompt, /{{person-person_ji_archivist-private日记本}}/);
+    assert.match(systemPrompt, /{{person-person_ji_archivist-knowledge日记本}}/);
+    // 共享本 v1 保持显示名
+    assert.match(systemPrompt, /{{公共日记本}}/);
+    // 不应再注入显示名版本的 private/knowledge 占位符
+    assert.doesNotMatch(systemPrompt, /{{小吉日记本}}/);
+    assert.doesNotMatch(systemPrompt, /{{小吉的知识日记本}}/);
+}
+
 testRoleMemoryNotebooksAreInjectedFromConfig();
 testRuntimeMemoryStatusHistoryIsOmittedFromPrompt();
 testNullMemoryConfigDoesNotCrashPromptBuild();
+testPrivateKnowledgePlaceholdersUsePersonIdWhenAvailable();
 console.log('orchestrator.memoryPlaceholders.test.js passed');

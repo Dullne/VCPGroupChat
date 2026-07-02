@@ -8,6 +8,11 @@ const DEFAULT_GROUPCHAT_MAX_OUTPUT_TOKENS = 320;
 const DEFAULT_GROUPCHAT_REPLY_CHAR_LIMIT = 220;
 const DEFAULT_MODEL_FAILURE_COOLDOWN_MS = 5 * 60 * 1000;
 
+const {
+    getPersonNotebookId,
+    getSharedNotebookId
+} = require('./memoryOwnerResolver');
+
 function extractCoreGatewayError(delta) {
     const text = String(delta || '').trim();
     if (!text) {
@@ -152,6 +157,7 @@ function normalizeRoleSpec(role = {}) {
 
     return {
         id: role.id || roleSpec.id || '',
+        person_id: role.person_id || roleSpec.person_id || role.personId || roleSpec.personId || '',
         name: role.name || roleSpec.name || '临时角色',
         source: role.source || roleSpec.source || 'groupchat',
         description: role.description || roleSpec.description || '',
@@ -249,33 +255,50 @@ function getConfiguredSharedNotebooks(memory = {}) {
         : [];
 }
 
-function collectConfiguredMemoryNotebooks(memory = {}) {
+function collectConfiguredMemoryNotebooks(memory = {}, personId = '') {
     const configuredMemory = memory && typeof memory === 'object' ? memory : {};
     const entries = [];
+    const normalizedPersonId = String(personId || '').trim();
+    const personRef = normalizedPersonId ? { id: normalizedPersonId } : null;
+
     if (configuredMemory.privateNotebook) {
-        entries.push({ label: '私有记忆内容', notebook: configuredMemory.privateNotebook });
+        // 优先用 person_id 派生的稳定命名空间；缺 person_id 时回退显示名（legacy 行为）。
+        const notebookId = personRef ? getPersonNotebookId(personRef, 'private') : '';
+        entries.push({
+            label: '私有记忆内容',
+            notebook_id: notebookId || String(configuredMemory.privateNotebook).trim()
+        });
     }
     if (configuredMemory.knowledgeNotebook) {
-        entries.push({ label: '知识记忆内容', notebook: configuredMemory.knowledgeNotebook });
+        const notebookId = personRef ? getPersonNotebookId(personRef, 'knowledge') : '';
+        entries.push({
+            label: '知识记忆内容',
+            notebook_id: notebookId || String(configuredMemory.knowledgeNotebook).trim()
+        });
     }
     for (const notebook of getConfiguredSharedNotebooks(configuredMemory)) {
-        entries.push({ label: `共享记忆内容（${notebook}）`, notebook });
+        // v1：共享本保持显示名命名空间（authored group_prompt 占位符依赖显示名，且共享本无需 per-person 隔离）。
+        // shared- 前缀迁移留待 v2，需同步更新 group_profiles.group_prompt 文本。
+        entries.push({
+            label: `共享记忆内容（${notebook}）`,
+            notebook_id: notebook
+        });
     }
 
     const seen = new Set();
     return entries.filter(entry => {
-        const notebook = String(entry.notebook || '').trim();
-        if (!notebook || seen.has(notebook)) {
+        const notebookId = String(entry.notebook_id || '').trim();
+        if (!notebookId || seen.has(notebookId)) {
             return false;
         }
-        seen.add(notebook);
-        entry.notebook = notebook;
+        seen.add(notebookId);
+        entry.notebook_id = notebookId;
         return true;
     });
 }
 
-function hasNotebookPlaceholder(text, notebook) {
-    const normalized = String(notebook || '').trim();
+function hasNotebookPlaceholder(text, notebookId) {
+    const normalized = String(notebookId || '').trim();
     if (!normalized) {
         return false;
     }
@@ -284,17 +307,18 @@ function hasNotebookPlaceholder(text, notebook) {
     return placeholderPattern.test(String(text || ''));
 }
 
-function buildConfiguredMemoryContentSection(memory, existingPromptText) {
+function buildConfiguredMemoryContentSection(memory, existingPromptText, options = {}) {
     if (!memory || typeof memory !== 'object') {
         return '';
     }
 
+    const personId = String(options?.personId || '').trim();
     const lines = [];
-    for (const entry of collectConfiguredMemoryNotebooks(memory)) {
-        if (hasNotebookPlaceholder(existingPromptText, entry.notebook)) {
+    for (const entry of collectConfiguredMemoryNotebooks(memory, personId)) {
+        if (hasNotebookPlaceholder(existingPromptText, entry.notebook_id)) {
             continue;
         }
-        const placeholder = buildDiaryPlaceholder(entry.notebook);
+        const placeholder = buildDiaryPlaceholder(entry.notebook_id);
         if (placeholder) {
             lines.push(`- ${entry.label}：${placeholder}`);
         }
@@ -374,7 +398,8 @@ function buildRoleSystemPrompt({ roleSpec, profile, phase, userPrompt }) {
     }
     const configuredMemoryContentSection = buildConfiguredMemoryContentSection(
         roleSpec.memory,
-        sections.join('\n\n')
+        sections.join('\n\n'),
+        { personId: roleSpec.person_id }
     );
     if (configuredMemoryContentSection) {
         sections.push(configuredMemoryContentSection);
@@ -448,13 +473,30 @@ function resolveMaxOutputTokens(roleSpec = {}) {
 }
 
 class Orchestrator {
-    constructor({ sessionService, vcpCoreClient, llmClient, userName, userPrompt }) {
+    constructor({ sessionService, vcpCoreClient, llmClient, userName, userPrompt, personIdentityService }) {
         this.sessionService = sessionService;
         this.vcpCoreClient = vcpCoreClient;
         this.llmClient = llmClient;
         this.userName = userName;
         this.userPrompt = userPrompt;
+        this.personIdentityService = personIdentityService || null;
         this.modelFailureCache = new Map();
+    }
+
+    resolvePersonIdForRole(role) {
+        if (!this.personIdentityService) {
+            return '';
+        }
+        const roleId = String(role?.id || '').trim();
+        if (!roleId) {
+            return '';
+        }
+        try {
+            const person = this.personIdentityService.getPersonByLegacyRoleId(roleId);
+            return person?.id || '';
+        } catch (_) {
+            return '';
+        }
     }
 
     async loadCandidates(session) {
@@ -476,6 +518,7 @@ class Orchestrator {
             if (role) {
                 candidates.push({
                     ...role,
+                    person_id: this.resolvePersonIdForRole(role),
                     role_order: member.role_order,
                     kind: 'core'
                 });

@@ -37,8 +37,8 @@ async function testRoleStudioUsesBackendLlmClientForDrafts() {
                                 name: '测试角色',
                                 description: '负责测试边界',
                                 persona: '你是测试角色。',
-                                responsibilities: ['验证模型配置隔离', '生成角色草稿', '记录边界风险'],
-                                template: '角色名称：测试角色\n角色定位：负责测试边界',
+                                responsibilities: ['验证模型配置隔离', '生成人物草稿', '记录边界风险'],
+                                template: '人物名称：测试人物\n人物定位：负责测试边界',
                                 privateNotebook: '测试角色',
                                 knowledgeNotebook: '测试角色的知识',
                                 invitePrompt: '请作为测试角色发言。',
@@ -81,7 +81,6 @@ async function testRoleStudioUsesBackendLlmClientForDrafts() {
     assert.strictEqual(result.meta.selected_model, 'backend/model');
     assert.strictEqual(result.draft.name, '测试角色');
     assert.deepStrictEqual(calls, [
-        ['core:listRoles'],
         ['llm:chatCompletions', 'backend/model']
     ]);
 }

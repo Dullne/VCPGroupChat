@@ -53,18 +53,6 @@ class VcpCoreClient {
         return data?.role || null;
     }
 
-    async listImportSources() {
-        const data = await this.request('/api/core/import-sources');
-        return Array.isArray(data?.sources) ? data.sources : [];
-    }
-
-    async importFromSource(source, payload = {}) {
-        return this.request(`/api/core/import-sources/${encodeURIComponent(source)}/import`, {
-            method: 'POST',
-            body: payload
-        });
-    }
-
     async roleTurn(payload) {
         return this.request('/api/core/role-turn', {
             method: 'POST',

@@ -7,7 +7,7 @@ VCPGroupChat Backend 是 VCPGroupChat 产品内的业务后端包。它负责群
 它和 VCP core 项目是刻意分离的：
 
 - VCPGroupChat Backend 处理群聊产品工作流。
-- VCP core 提供核心角色存储、记忆 API 和导入 API；它不是产品后端的模型网关。
+- VCP core 提供运行时角色、记忆 API 和执行能力；它不是产品后端的模型网关。
 - `apps/frontend` 是访问这个后端的浏览器前端。
 
 ## 快速启动
@@ -78,7 +78,7 @@ VCPGroupChat Backend 可以使用自己的 OpenAI 兼容模型提供方。它和
 - `GROUPCHAT_LLM_API_KEY`：用于产品后端自己的模型调用。
 - `VCP_CORE_KEY`：用于产品后端安全访问 VCP core。
 
-如果 `GROUPCHAT_LLM_BASE_URL` 为空，产品后端的模型调用会返回配置错误。核心角色 API、导入 API 和记忆 API 仍然通过 `VCP_CORE_URL` 访问。
+如果 `GROUPCHAT_LLM_BASE_URL` 为空，产品后端的模型调用会返回配置错误。运行时角色 API 和记忆 API 仍然通过 `VCP_CORE_URL` 访问。
 
 ## 测试
 

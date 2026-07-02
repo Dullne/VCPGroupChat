@@ -5,17 +5,17 @@ const ENGINE_DEFINITIONS = [
     {
         id: 'vcp_default',
         name: 'VCP 默认生成',
-        description: '沿用当前工坊提示词，直接生成 VCP 群聊角色草稿。'
+        description: '沿用当前工坊提示词，直接生成 VCP 群聊人物草稿。'
     },
     {
         id: 'promptx_nuwa',
         name: 'PromptX 女娲',
-        description: '使用 PromptX 女娲的 DPML 角色创建方法论生成角色草稿。'
+        description: '使用 PromptX 女娲的 DPML 人物设计方法论生成人物草稿。'
     },
     {
         id: 'agency_adapt',
         name: 'agency-agents 改写',
-        description: '从 agency-agents 专家模板库选择参考样本，再改写成 VCP 角色。'
+        description: '从 agency-agents 专家模板库选择参考样本，再改写成 VCP 人物。'
     },
     {
         id: 'hybrid',
@@ -229,6 +229,32 @@ function normalizeSourceItemId(value) {
         .replace(/^agency-agents\//, '')
         .replace(/^agency_agents\//, '')
         .replace(/\.md$/i, '');
+}
+
+function slugifySourceId(value) {
+    return String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\u4e00-\u9fff]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .replace(/_{2,}/g, '_')
+        || 'source_item';
+}
+
+function buildImportedRuntimeIndex(runtimeRoles = []) {
+    const importedIndex = new Map();
+    for (const role of Array.isArray(runtimeRoles) ? runtimeRoles : []) {
+        if (!role?.id) {
+            continue;
+        }
+
+        importedIndex.set(`role:${role.id}`, role.id);
+        const source = role.metadata?.external_source;
+        const externalId = role.metadata?.external_id;
+        if (source && externalId) {
+            importedIndex.set(`${source}:${externalId}`, role.id);
+        }
+    }
+    return importedIndex;
 }
 
 function walkMarkdownFiles(dirPath, maxDepth = 3, currentDepth = 0) {
@@ -533,6 +559,107 @@ class RoleStudioSourceService {
             '摘录：',
             agent.excerpt
         ].filter(Boolean).join('\n')).join('\n\n');
+    }
+
+    getAgencySuggestedRuntimeRoleId(sourceItemId) {
+        return `agency_${slugifySourceId(sourceItemId)}`;
+    }
+
+    getPromptXSuggestedRuntimeRoleId(sourceItemId) {
+        return `promptx_${slugifySourceId(sourceItemId)}`;
+    }
+
+    getPromptXNuwaLegacyItem(promptxContext = this.loadPromptXNuwaContext()) {
+        if (!promptxContext?.available) {
+            return null;
+        }
+
+        return {
+            id: 'nuwa',
+            source_item_id: 'nuwa',
+            source: 'promptx',
+            name: 'PromptX 女娲',
+            description: 'PromptX 女娲人物设计方法论，可作为创建长期人物的参考模板。',
+            division: 'promptx',
+            division_label: 'PromptX',
+            color: '',
+            emoji: '',
+            vibe: 'PromptX role engineering',
+            path: this.promptxResourceDir,
+            excerpt: summarizeInline(promptxContext.methodology, 900),
+            template_content: promptxContext.methodology
+        };
+    }
+
+    toLegacyImportSourceItem(sourceId, sourceName, item, importedIndex = new Map()) {
+        const sourceItemId = item.source_item_id || item.id;
+        const suggestedRoleId = sourceId === 'promptx'
+            ? this.getPromptXSuggestedRuntimeRoleId(sourceItemId)
+            : this.getAgencySuggestedRuntimeRoleId(sourceItemId);
+        const importedRoleId =
+            importedIndex.get(`${sourceId}:${sourceItemId}`)
+            || importedIndex.get(`role:${suggestedRoleId}`)
+            || null;
+
+        return {
+            id: sourceItemId,
+            source: sourceId,
+            source_name: sourceName,
+            source_item_id: sourceItemId,
+            suggested_role_id: suggestedRoleId,
+            name: item.name,
+            description: item.description,
+            preview: item.excerpt || item.vibe || item.description || '',
+            tag: item.division || sourceId,
+            voice_style: item.vibe || '',
+            responsibilities: [],
+            source_path: item.path || '',
+            runtime_role_id: importedRoleId,
+            has_runtime_role: Boolean(importedRoleId),
+            metadata: {
+                division: item.division || '',
+                division_label: item.division_label || '',
+                color: item.color || '',
+                emoji: item.emoji || ''
+            }
+        };
+    }
+
+    listLegacyImportSources({ runtimeRoles = [] } = {}) {
+        const importedIndex = buildImportedRuntimeIndex(runtimeRoles);
+        const agency = this.loadAgencyAgents();
+        const promptx = this.loadPromptXNuwaContext();
+        const promptxLegacyItem = this.getPromptXNuwaLegacyItem(promptx);
+
+        return [
+            {
+                id: 'agency_agents',
+                name: 'agency-agents',
+                description: '产品层读取的 agency-agents 人物参考模板，用于创建长期人物草稿。',
+                available: agency.available,
+                root_path: agency.available ? this.agencyAgentsDir : null,
+                items: agency.available
+                    ? agency.agents
+                        .map(agent => this.toLegacyImportSourceItem(
+                            'agency_agents',
+                            'agency-agents',
+                            agent,
+                            importedIndex
+                        ))
+                        .sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), 'zh-Hans-CN'))
+                    : []
+            },
+            {
+                id: 'promptx',
+                name: 'PromptX',
+                description: '产品层读取的 PromptX 女娲人物设计方法论，可作为长期人物草稿参考。',
+                available: promptx.available,
+                root_path: promptx.available ? this.promptxResourceDir : null,
+                items: promptxLegacyItem
+                    ? [this.toLegacyImportSourceItem('promptx', 'PromptX', promptxLegacyItem, importedIndex)]
+                    : []
+            }
+        ];
     }
 
     async buildGenerationContext({

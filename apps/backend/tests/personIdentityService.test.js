@@ -178,6 +178,29 @@ function testMigrationDoesNotCreateLegacyPersonWhenRuntimeRoleAlreadyBelongsToRe
             .get('person_legacy_software_architect'),
         undefined
     );
+
+    const realTeamMember = db.prepare(`
+        SELECT person_id, person_name, legacy_role_id
+        FROM team_person_members
+        WHERE team_id = ? AND person_id = ? AND enabled = 1
+    `).get('team_test', 'person_real_architect');
+    assert.deepStrictEqual(realTeamMember, {
+        person_id: 'person_real_architect',
+        person_name: '真实架构师',
+        legacy_role_id: 'software_architect'
+    });
+
+    const realGroupMember = db.prepare(`
+        SELECT person_id, person_name, group_alias, legacy_role_id
+        FROM group_person_members
+        WHERE profile_id = ? AND person_id = ? AND enabled = 1
+    `).get('profile_test', 'person_real_architect');
+    assert.deepStrictEqual(realGroupMember, {
+        person_id: 'person_real_architect',
+        person_name: '真实架构师',
+        group_alias: '真实架构师',
+        legacy_role_id: 'software_architect'
+    });
 }
 
 testMigrationDoesNotCreateLegacyPersonWhenRuntimeRoleAlreadyBelongsToRealPerson();
@@ -234,6 +257,51 @@ function testCanAttachPersonToTeamAndProfileWithoutRemovingLegacyRoleFields() {
     assert.ok(groupMembers.some(member => member.person_id === person.id && member.group_alias === '林'));
 }
 
+function testCanListTeamPersonMembersByTeamIdForBootstrap() {
+    const db = createLegacyDb();
+    ensureSchemaMigrations(db);
+    ensureDefaultSeed(db);
+    const service = new PersonIdentityService(db);
+    const person = service.createPerson({
+        display_name: '团队人物甲',
+        legacy_role_id: 'runtime_team_person_a',
+        memory: { privateNotebook: '团队人物甲' }
+    });
+
+    service.addTeamPersonMember('team_test', person.id, { member_order: 90 });
+
+    const buckets = service.listTeamPersonMembersByTeamId(['team_test', 'team_empty']);
+
+    assert.strictEqual(buckets.team_test.some(member => member.person_id === person.id), true);
+    assert.deepStrictEqual(buckets.team_empty, []);
+}
+
+function testCanListGroupPersonMembersByProfileIdForBootstrap() {
+    const db = createLegacyDb();
+    ensureSchemaMigrations(db);
+    ensureDefaultSeed(db);
+    const service = new PersonIdentityService(db);
+    const person = service.createPerson({
+        display_name: '群组人物乙',
+        legacy_role_id: 'runtime_group_person_b',
+        memory: { privateNotebook: '群组人物乙' }
+    });
+
+    service.addGroupPersonMember('profile_test', person.id, {
+        member_order: 95,
+        group_alias: '群组乙'
+    });
+
+    const buckets = service.listGroupPersonMembersByProfileId(['profile_test', 'profile_empty']);
+
+    assert.strictEqual(buckets.profile_test.some(member => (
+        member.person_id === person.id
+        && member.legacy_role_id === 'runtime_group_person_b'
+        && member.person.display_name === '群组人物乙'
+    )), true);
+    assert.deepStrictEqual(buckets.profile_empty, []);
+}
+
 function testMappedPersonMembershipSyncsLegacyRuntimeTables() {
     const db = createLegacyDb();
     ensureSchemaMigrations(db);
@@ -263,6 +331,86 @@ function testMappedPersonMembershipSyncsLegacyRuntimeTables() {
     `).get('profile_test', 'runtime_reviewer');
     assert.ok(groupRuntimeMember, 'mapped person membership keeps legacy group runtime membership active');
     assert.strictEqual(groupRuntimeMember.role_name, '评审员甲');
+}
+
+function testGroupPersonMembershipBackfillsTeamPersonPool() {
+    const db = createLegacyDb();
+    ensureSchemaMigrations(db);
+    ensureDefaultSeed(db);
+    const service = new PersonIdentityService(db);
+    const person = service.createPerson({
+        display_name: '群组人物甲',
+        legacy_role_id: 'runtime_group_person_a',
+        memory: { privateNotebook: '群组人物甲' }
+    });
+
+    service.addGroupPersonMember('profile_test', person.id, { member_order: 35, group_alias: '群组甲' });
+
+    const teamPersonMember = db.prepare(`
+        SELECT *
+        FROM team_person_members
+        WHERE team_id = ? AND person_id = ? AND enabled = 1
+    `).get('team_test', person.id);
+
+    assert.ok(teamPersonMember, 'adding a person to a team-owned group keeps the Team Person Pool in sync');
+    assert.strictEqual(teamPersonMember.legacy_role_id, 'runtime_group_person_a');
+}
+
+function testCanMoveGroupPersonMemberAndSyncRuntimeOrder() {
+    const db = createLegacyDb();
+    ensureSchemaMigrations(db);
+    ensureDefaultSeed(db);
+    db.prepare(`
+        INSERT INTO group_profiles (id, team_id, name, group_prompt, created_at)
+        VALUES ('profile_sort', 'team_test', '排序群组', 'prompt', '2026-06-27T00:00:00.000Z')
+    `).run();
+    const service = new PersonIdentityService(db);
+    const firstPerson = service.createPerson({
+        display_name: '排序人物甲',
+        legacy_role_id: 'runtime_order_a',
+        memory: { privateNotebook: '排序人物甲' }
+    });
+    const secondPerson = service.createPerson({
+        display_name: '排序人物乙',
+        legacy_role_id: 'runtime_order_b',
+        memory: { privateNotebook: '排序人物乙' }
+    });
+    const thirdPerson = service.createPerson({
+        display_name: '排序人物丙',
+        legacy_role_id: 'runtime_order_c',
+        memory: { privateNotebook: '排序人物丙' }
+    });
+
+    service.addGroupPersonMember('profile_sort', firstPerson.id, { member_order: 10, group_alias: '甲' });
+    service.addGroupPersonMember('profile_sort', secondPerson.id, { member_order: 20, group_alias: '乙' });
+    service.addGroupPersonMember('profile_sort', thirdPerson.id, { member_order: 30, group_alias: '丙' });
+
+    const movedMembers = service.moveGroupPersonMember('profile_sort', thirdPerson.id, 'up');
+
+    assert.deepStrictEqual(
+        movedMembers.map(member => member.person_id),
+        [firstPerson.id, thirdPerson.id, secondPerson.id]
+    );
+    assert.deepStrictEqual(
+        movedMembers.map(member => member.member_order),
+        [10, 20, 30]
+    );
+
+    const runtimeOrders = db.prepare(`
+        SELECT role_id, role_order
+        FROM group_profile_members
+        WHERE profile_id = ?
+          AND role_id IN (?, ?, ?)
+        ORDER BY role_order ASC
+    `).all('profile_sort', 'runtime_order_a', 'runtime_order_b', 'runtime_order_c');
+    assert.deepStrictEqual(
+        runtimeOrders,
+        [
+            { role_id: 'runtime_order_a', role_order: 10 },
+            { role_id: 'runtime_order_c', role_order: 20 },
+            { role_id: 'runtime_order_b', role_order: 30 }
+        ]
+    );
 }
 
 function testRemovingMappedPersonMembershipDisablesProductAndLegacyRows() {
@@ -398,11 +546,44 @@ function testRebindingRuntimeRoleDisablesPreviousRuntimeMemberships() {
     );
 }
 
+function testCanPatchSparsePersonProfileWithoutDroppingExistingFields() {
+    const db = createLegacyDb();
+    ensureSchemaMigrations(db);
+    ensureDefaultSeed(db);
+    const service = new PersonIdentityService(db);
+    const person = service.createPerson({
+        display_name: '档案人物',
+        legacy_role_id: 'runtime_profile_person',
+        description: '',
+        personality: '保留已有性格',
+        memory: { privateNotebook: '档案人物' },
+        model_preferences: { model: 'gpt-5' }
+    });
+
+    const updatedPerson = service.updatePersonProfile(person.id, {
+        description: '负责把松散想法整理成可执行协作路径。',
+        emotional_style: '稳而不冷，先接住情绪再推进判断。',
+        voice_style: '短句清楚，结论先行。'
+    });
+
+    assert.strictEqual(updatedPerson.description, '负责把松散想法整理成可执行协作路径。');
+    assert.strictEqual(updatedPerson.personality, '保留已有性格');
+    assert.strictEqual(updatedPerson.emotional_style, '稳而不冷，先接住情绪再推进判断。');
+    assert.strictEqual(updatedPerson.voice_style, '短句清楚，结论先行。');
+    assert.deepStrictEqual(updatedPerson.memory, { privateNotebook: '档案人物' });
+    assert.deepStrictEqual(updatedPerson.model_preferences, { model: 'gpt-5' });
+}
+
 testCanCreateTemplateAndMultiplePeopleFromIt();
 testCanAttachPersonToTeamAndProfileWithoutRemovingLegacyRoleFields();
+testCanListTeamPersonMembersByTeamIdForBootstrap();
+testCanListGroupPersonMembersByProfileIdForBootstrap();
 testMappedPersonMembershipSyncsLegacyRuntimeTables();
+testGroupPersonMembershipBackfillsTeamPersonPool();
+testCanMoveGroupPersonMemberAndSyncRuntimeOrder();
 testRemovingMappedPersonMembershipDisablesProductAndLegacyRows();
 testBindingRuntimeRoleBackfillsExistingPersonMemberships();
 testRebindingRuntimeRoleDisablesPreviousRuntimeMemberships();
+testCanPatchSparsePersonProfileWithoutDroppingExistingFields();
 console.log('personIdentityService.test.js schema migration checks passed');
 console.log('personIdentityService.test.js service checks passed');

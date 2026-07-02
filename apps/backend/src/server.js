@@ -12,14 +12,18 @@ const GroupChatLlmClient = require('./services/groupChatLlmClient');
 const SessionService = require('./services/sessionService');
 const Orchestrator = require('./services/orchestrator');
 const RoleStudioService = require('./services/roleStudioService');
+const RoleStudioSourceService = require('./services/roleStudioSourceService');
 const PersonIdentityService = require('./services/personIdentityService');
 const { SessionEventHub } = require('./services/sessionEventHub');
 const { buildSessionReflectionDraft: buildSessionReflectionDraftWithRoles } = require('./services/reflectionDraftService');
 const { toRoleSummaries } = require('./services/roleSummary');
 const { sendGuardedRoleListJson } = require('./services/apiPayloadGuards');
 const { generatePersonRuntimeRole } = require('./services/personRuntimeRoleGenerationService');
+const { repairMissingPersonRuntimeRoles } = require('./services/personRuntimeRoleRepairService');
+const { enrichSparsePersonProfiles } = require('./services/personProfileEnrichmentService');
 const { buildGroupProfilePatchPayload } = require('./services/groupProfilePayload');
 const { createHttpError } = require('./services/httpError');
+const { resolveNotebookId } = require('./services/memoryOwnerResolver');
 
 const PORT = Number(process.env.PORT || 7010);
 const FRONTEND_STATIC_DIR = process.env.FRONTEND_STATIC_DIR
@@ -34,17 +38,20 @@ const vcpCoreClient = new VcpCoreClient();
 const groupChatLlmClient = new GroupChatLlmClient();
 const sessionEventHub = new SessionEventHub();
 const personIdentityService = new PersonIdentityService(db);
+const roleStudioSourceService = new RoleStudioSourceService();
 const roleStudioService = new RoleStudioService({
     sessionService,
     vcpCoreClient,
-    llmClient: groupChatLlmClient
+    llmClient: groupChatLlmClient,
+    sourceService: roleStudioSourceService
 });
 const orchestrator = new Orchestrator({
     sessionService,
     vcpCoreClient,
     llmClient: groupChatLlmClient,
     userName: USER_NAME,
-    userPrompt: USER_PROMPT
+    userPrompt: USER_PROMPT,
+    personIdentityService
 });
 
 const app = express();
@@ -129,7 +136,7 @@ function buildRoleStudioImportPayload(body = {}) {
     const draft = body.role || body.draft || {};
     const name = normalizeText(draft.name);
     if (!name) {
-        throw createHttpError(400, 'role name is required');
+        throw createHttpError(400, 'person draft name is required');
     }
 
     return {
@@ -154,6 +161,40 @@ function buildRoleStudioImportPayload(body = {}) {
             || `接下来请作为${name}发言。优先按照你的职责范围回答，不要输出额外聊天标识头。`,
         template_content: normalizeText(draft.template_content || draft.template)
     };
+}
+
+function buildRoleStudioPersonPayload(body = {}, importedRole = {}) {
+    const draft = body.role || body.draft || {};
+    const displayName = normalizeText(importedRole.name || draft.name);
+    const memory = draft.memory && typeof draft.memory === 'object'
+        ? draft.memory
+        : {};
+    const model = normalizeText(importedRole.model || draft.model);
+
+    return {
+        display_name: displayName,
+        legacy_role_id: normalizeText(importedRole.id),
+        identity_kind: 'person',
+        description: normalizeText(importedRole.description || draft.description),
+        personality: normalizeText(draft.persona || importedRole.persona),
+        emotional_style: normalizeText(draft.emotional_style || draft.emotionalStyle),
+        voice_style: normalizeText(draft.voice_style || draft.voiceStyle || importedRole.voice_style),
+        memory: {
+            ...memory,
+            privateNotebook: normalizeText(memory.privateNotebook) || displayName
+        },
+        model_preferences: model ? { model } : {}
+    };
+}
+
+function createOrReuseRoleStudioPerson(body, importedRole) {
+    const legacyRoleId = normalizeText(importedRole?.id);
+    if (!legacyRoleId) {
+        throw createHttpError(502, 'core role import did not return a role id', { role: importedRole });
+    }
+
+    return personIdentityService.getPersonByLegacyRoleId(legacyRoleId)
+        || personIdentityService.createPerson(buildRoleStudioPersonPayload(body, importedRole));
 }
 
 function getCandidateCoreFilePath(candidate) {
@@ -204,6 +245,10 @@ async function getMemoryCandidateResponsePayload(sessionId, candidate) {
 }
 
 function buildCoreMemoryCandidatePayload({ session, candidate, confirmedBy }) {
+    const notebookId = resolveNotebookId(candidate, {
+        getPerson: (id) => personIdentityService.getPerson(id),
+        getPersonByLegacyRoleId: (roleId) => personIdentityService.getPersonByLegacyRoleId(roleId)
+    });
     return {
         candidate_id: candidate.id,
         session_id: session.id,
@@ -218,6 +263,7 @@ function buildCoreMemoryCandidatePayload({ session, candidate, confirmedBy }) {
         owner_type: candidate.memory_owner_type,
         owner_id: candidate.memory_owner_id,
         notebook: candidate.notebook,
+        notebook_id: notebookId,
         content: candidate.content,
         reason: candidate.reason,
         confirmed_by: confirmedBy,
@@ -258,6 +304,21 @@ function normalizeBoolean(value, fallback = false) {
         return false;
     }
     return fallback;
+}
+
+function normalizePersonMemberPayloadList(source = []) {
+    if (!Array.isArray(source)) {
+        return [];
+    }
+
+    return source
+        .map((member, index) => ({
+            person_id: normalizeText(member?.person_id || member?.personId || member?.id || member),
+            member_order: member?.member_order ?? member?.memberOrder ?? ((index + 1) * 10),
+            group_alias: normalizeText(member?.group_alias || member?.groupAlias),
+            speaking_policy: member?.speaking_policy || member?.speakingPolicy || null
+        }))
+        .filter(member => member.person_id);
 }
 
 function normalizeStatusList(value) {
@@ -314,12 +375,25 @@ app.get('/api/health', async (_req, res) => {
 
 app.get('/api/bootstrap', async (req, res) => {
     try {
-        const [roles, profiles, teams] = await Promise.all([
+        const [roles, profiles, rawTeams] = await Promise.all([
             vcpCoreClient.listRoles(),
             Promise.resolve(sessionService.listProfiles()),
             Promise.resolve(sessionService.listTeams())
         ]);
-        const teamMembersByTeamId = sessionService.listTeamMembersByTeamId(teams.map(team => team.id));
+        const profileIds = profiles.map(profile => profile.id);
+        const teamIds = rawTeams.map(team => team.id);
+        const teamMembersByTeamId = sessionService.listTeamMembersByTeamId(teamIds);
+        const teamPersonMembersByTeamId = personIdentityService.listTeamPersonMembersByTeamId(teamIds);
+        const groupPersonMembersByProfileId = personIdentityService.listGroupPersonMembersByProfileId(profileIds);
+        const teams = rawTeams.map(team => {
+            const personMemberCount = (teamPersonMembersByTeamId[team.id] || []).length;
+            return {
+                ...team,
+                runtime_member_count: team.member_count,
+                person_member_count: personMemberCount,
+                member_count: personMemberCount
+            };
+        });
         const persons = personIdentityService.listPersons();
         const roleTemplates = personIdentityService.listRoleTemplates();
 
@@ -333,6 +407,8 @@ app.get('/api/bootstrap', async (req, res) => {
             groupchat_runtime: getGroupChatRuntimeConfig(),
             teams,
             team_members_by_team_id: teamMembersByTeamId,
+            team_person_members_by_team_id: teamPersonMembersByTeamId,
+            group_person_members_by_profile_id: groupPersonMembersByProfileId,
             persons,
             role_templates: roleTemplates,
             roles: toRoleSummaries(roles, { persons, roleTemplates }),
@@ -420,7 +496,9 @@ app.get('/api/roles/:id', async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(error.status || 500).json({
+        const statusCode = error.status
+            || (/not found|unsupported|required|available/i.test(error.message) ? 400 : 500);
+        res.status(statusCode).json({
             error: error.message,
             details: error.payload || null
         });
@@ -522,6 +600,46 @@ app.post('/api/persons/:id/runtime-role/generate', async (req, res) => {
     }
 });
 
+app.post('/api/person-runtime-roles/repair', async (req, res) => {
+    try {
+        const result = await repairMissingPersonRuntimeRoles({
+            personIdentityService,
+            vcpCoreClient,
+            personIds: req.body?.person_ids || req.body?.personIds || null,
+            dryRun: normalizeBoolean(req.body?.dry_run ?? req.body?.dryRun, false),
+            limit: req.body?.limit
+        });
+
+        res.status(result.failed.length ? 207 : 200).json(result);
+    } catch (error) {
+        res.status(error.status || 400).json({
+            error: error.message,
+            details: error.payload || null
+        });
+    }
+});
+
+app.post('/api/person-profiles/enrich', async (req, res) => {
+    try {
+        const result = await enrichSparsePersonProfiles({
+            personIdentityService,
+            vcpCoreClient,
+            personIds: req.body?.person_ids || req.body?.personIds || null,
+            dryRun: normalizeBoolean(req.body?.dry_run ?? req.body?.dryRun, false),
+            force: normalizeBoolean(req.body?.force, false),
+            syncRuntime: normalizeBoolean(req.body?.sync_runtime ?? req.body?.syncRuntime, true),
+            limit: req.body?.limit
+        });
+
+        res.status(result.failed.length ? 207 : 200).json(result);
+    } catch (error) {
+        res.status(error.status || 400).json({
+            error: error.message,
+            details: error.payload || null
+        });
+    }
+});
+
 function requireRuntimePersonLegacyRole(person) {
     if (!person) {
         throw createHttpError(404, 'person not found');
@@ -537,7 +655,13 @@ function requireRuntimePersonLegacyRole(person) {
 
 app.get('/api/import-sources', async (_req, res) => {
     try {
-        const sources = await vcpCoreClient.listImportSources();
+        let runtimeRoles = [];
+        try {
+            runtimeRoles = await vcpCoreClient.listRoles();
+        } catch (_error) {
+            runtimeRoles = [];
+        }
+        const sources = roleStudioSourceService.listLegacyImportSources({ runtimeRoles });
         res.json({ sources });
     } catch (error) {
         res.status(error.status || 500).json({
@@ -568,6 +692,7 @@ app.post('/api/role-studio/draft', async (req, res) => {
             idea: req.body?.idea,
             sessionId: req.body?.session_id || null,
             profileId: req.body?.profile_id || null,
+            contextMode: req.body?.context_mode || req.body?.contextMode || 'none',
             preferredModel: req.body?.preferred_model || null,
             engine: req.body?.engine || req.body?.generation_engine || 'vcp_default',
             referenceItemIds:
@@ -597,6 +722,9 @@ app.post('/api/role-studio/save', async (req, res) => {
 
         let team = null;
         let teamMembers = null;
+        const person = createOrReuseRoleStudioPerson(req.body, importedRole);
+        let teamPersonMembers = null;
+        let groupPersonMembers = null;
         let profile = null;
 
         if (target === 'team') {
@@ -608,7 +736,12 @@ app.post('/api/role-studio/save', async (req, res) => {
             if (!team) {
                 throw createHttpError(404, 'team not found');
             }
-            teamMembers = sessionService.addTeamMember(team.id, importedRole.id, importedRole.name);
+            teamPersonMembers = personIdentityService.addTeamPersonMember(team.id, person.id, {
+                person_name: person.display_name,
+                legacy_role_id: importedRole.id,
+                legacy_role_name: importedRole.name
+            });
+            teamMembers = sessionService.listTeamMembers(team.id);
         }
 
         if (target === 'group') {
@@ -616,70 +749,30 @@ app.post('/api/role-studio/save', async (req, res) => {
             if (!profileId) {
                 throw createHttpError(400, 'profile_id is required for target=group');
             }
-            profile = sessionService.addProfileMember(profileId, importedRole.id, importedRole.name);
+            profile = sessionService.getProfile(profileId);
+            if (!profile) {
+                throw createHttpError(404, 'group profile not found');
+            }
+            groupPersonMembers = personIdentityService.addGroupPersonMember(profile.id, person.id, {
+                person_name: person.display_name,
+                group_alias: person.display_name,
+                legacy_role_id: importedRole.id,
+                legacy_role_name: importedRole.name
+            });
+            profile = sessionService.getProfile(profile.id);
             team = sessionService.getTeam(profile.team_id);
             teamMembers = sessionService.listTeamMembers(profile.team_id);
+            teamPersonMembers = personIdentityService.listTeamPersonMembers(profile.team_id);
         }
 
         res.status(201).json({
             role: importedRole,
+            person,
             target,
             team,
             team_members: teamMembers,
-            profile
-        });
-    } catch (error) {
-        res.status(error.status || 500).json({
-            error: error.message,
-            details: error.payload || null
-        });
-    }
-});
-
-app.post('/api/import-sources/:source/import', async (req, res) => {
-    try {
-        const result = await vcpCoreClient.importFromSource(req.params.source, {
-            ids: req.body?.ids || req.body?.source_item_ids || req.body?.sourceItemIds || req.body?.id
-        });
-
-        let profile = null;
-        const createProfilePayload = req.body?.create_profile;
-        if (createProfilePayload?.name) {
-            const cloneFromProfileId = createProfilePayload.clone_from_profile_id || null;
-            profile = sessionService.createProfile({
-                name: createProfilePayload.name,
-                team_id: createProfilePayload.team_id,
-                description: createProfilePayload.description,
-                mode: createProfilePayload.mode,
-                invite_prompt: createProfilePayload.invite_prompt,
-                mode_options: createProfilePayload.mode_options,
-                group_prompt:
-                    createProfilePayload.group_prompt != null
-                        ? createProfilePayload.group_prompt
-                        : (cloneFromProfileId ? undefined : DEFAULT_PROFILE.group_prompt),
-                clone_from_profile_id: cloneFromProfileId,
-                members: (result.roles || []).map(role => ({
-                    role_id: role.id,
-                    role_name: role.name
-                }))
-            });
-        } else if (req.body?.attach_profile_id) {
-            for (const role of result.roles || []) {
-                profile = sessionService.addProfileMember(req.body.attach_profile_id, role.id, role.name);
-            }
-        }
-
-        if (profile && req.body?.activate_session === true) {
-            const session = sessionService.createSession(profile.id, profile.name);
-            return res.status(201).json({
-                ...result,
-                profile,
-                session
-            });
-        }
-
-        res.status(201).json({
-            ...result,
+            team_person_members: teamPersonMembers,
+            group_person_members: groupPersonMembers,
             profile
         });
     } catch (error) {
@@ -702,6 +795,13 @@ app.get('/api/group-profiles', (req, res) => {
 app.post('/api/group-profiles', (req, res) => {
     try {
         const cloneFromProfileId = req.body?.clone_from_profile_id || null;
+        const personMembers = normalizePersonMemberPayloadList(
+            req.body?.person_members
+            || req.body?.personMembers
+            || (Array.isArray(req.body?.person_ids)
+                ? req.body.person_ids.map(personId => ({ person_id: personId }))
+                : [])
+        );
         const profile = sessionService.createProfile({
             id: req.body?.id,
             name: req.body?.name,
@@ -715,12 +815,27 @@ app.post('/api/group-profiles', (req, res) => {
                     ? req.body.group_prompt
                     : (cloneFromProfileId ? undefined : DEFAULT_PROFILE.group_prompt),
             clone_from_profile_id: cloneFromProfileId,
-            members: req.body?.members || []
+            members: personMembers.length ? [] : (req.body?.members || [])
         });
 
-        res.status(201).json({ profile });
+        for (const member of personMembers) {
+            const person = personIdentityService.getPerson(member.person_id);
+            const legacyRoleId = requireRuntimePersonLegacyRole(person);
+            personIdentityService.addGroupPersonMember(profile.id, person.id, {
+                group_alias: member.group_alias,
+                member_order: member.member_order,
+                speaking_policy: member.speaking_policy,
+                legacy_role_id: legacyRoleId,
+                legacy_role_name: person.display_name
+            });
+        }
+
+        res.status(201).json({ profile: sessionService.getProfile(profile.id) });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(error.status || 400).json({
+            error: error.message,
+            details: error.payload || null
+        });
     }
 });
 
@@ -988,6 +1103,36 @@ app.delete('/api/group-profiles/:id/person-members/:personId', (req, res) => {
         }
 
         const members = personIdentityService.removeGroupPersonMember(profile.id, req.params.personId);
+        return res.json({
+            profile: sessionService.getProfile(profile.id),
+            members
+        });
+    } catch (error) {
+        res.status(error.status || 400).json({
+            error: error.message,
+            details: error.payload || null
+        });
+    }
+});
+
+app.patch('/api/group-profiles/:id/person-members/:personId/order', (req, res) => {
+    try {
+        const profile = sessionService.getProfile(req.params.id);
+        if (!profile) {
+            return res.status(404).json({ error: 'group profile not found' });
+        }
+
+        const personId = normalizeText(req.body?.person_id || req.body?.personId || req.params.personId);
+        if (!personId) {
+            return res.status(400).json({ error: 'person_id is required' });
+        }
+
+        const members = personIdentityService.moveGroupPersonMember(
+            profile.id,
+            personId,
+            String(req.body?.direction || '').trim().toLowerCase()
+        );
+
         return res.json({
             profile: sessionService.getProfile(profile.id),
             members
