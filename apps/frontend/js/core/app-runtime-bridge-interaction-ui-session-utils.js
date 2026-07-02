@@ -6,8 +6,7 @@ export function createRuntimeInteractionUiSessionUtilityBridges(deps) {
         normalizeTeamsFromBootstrapModule,
         getDeterministicRandomIntModule,
         pickRandomSubsetDeterministicModule,
-        getRoundRoleDebugBadgeClassModule,
-        getImportedRoleIdFromCatalogItemModule
+        getRoundRoleDebugBadgeClassModule
     } = deps;
 
     const getDeterministicRandomInt = (min, max, seedText) => getDeterministicRandomIntModule(min, max, seedText);
@@ -15,8 +14,6 @@ export function createRuntimeInteractionUiSessionUtilityBridges(deps) {
         pickRandomSubsetDeterministicModule(items, targetCount, seedText);
     const getRoundRoleDebugBadgeClass = getRoundRoleDebugBadgeClassModule;
     const updateRoleRuntimeModel = (role, model) => runtime.roleRuntimeActions.updateRoleRuntimeModel(role, model);
-    const getImportedRoleIdFromCatalogItem = getImportedRoleIdFromCatalogItemModule;
-    const getCatalogItem = (sourceId, sourceItemId) => runtime.roleLibraryRuntime.getCatalogItem(sourceId, sourceItemId);
     const normalizeTeamsFromBootstrap = data => normalizeTeamsFromBootstrapModule(data);
     const resolveManagedTeamId = (preferredTeamId = null) => resolveManagedTeamIdByTeams(getTeams(), preferredTeamId);
 
@@ -25,8 +22,6 @@ export function createRuntimeInteractionUiSessionUtilityBridges(deps) {
         pickRandomSubsetDeterministic,
         getRoundRoleDebugBadgeClass,
         updateRoleRuntimeModel,
-        getImportedRoleIdFromCatalogItem,
-        getCatalogItem,
         normalizeTeamsFromBootstrap,
         resolveManagedTeamId
     };

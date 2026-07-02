@@ -28,8 +28,8 @@ export function buildWorkspaceRendererGroupDeps(deps) {
         getGroupProfileFormLoadedProfileId,
         getProfileById,
         getWorkspaceMode,
-        getLauncherSelectedRoleIds,
-        setLauncherSelectedRoleIds,
+        getLauncherSelectedPersonIds,
+        setLauncherSelectedPersonIds,
         getLauncherRoleFilterKeyword,
         getLauncherRoleTagFilter
     } = deps;
@@ -56,8 +56,8 @@ export function buildWorkspaceRendererGroupDeps(deps) {
             getBootstrapData,
             getManagedTeam,
             isRoleInManagedTeam,
-            getLauncherSelectedRoleIds,
-            setLauncherSelectedRoleIds,
+            getLauncherSelectedPersonIds,
+            setLauncherSelectedPersonIds,
             getLauncherRoleFilterKeyword,
             getLauncherRoleTagFilter,
             renderAll

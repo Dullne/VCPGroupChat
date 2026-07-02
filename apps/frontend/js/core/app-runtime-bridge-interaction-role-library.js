@@ -8,10 +8,11 @@ export function createRuntimeInteractionRoleLibraryBridges(deps) {
     const addRoleToGroup = roleId => runtime.roleLibraryActions.addRoleToGroup(roleId);
     const removeRoleFromGroup = roleId => runtime.roleLibraryActions.removeRoleFromGroup(roleId);
     const moveRoleInManagedProfile = (roleId, direction) => runtime.roleLibraryActions.moveRoleInManagedProfile(roleId, direction);
-    const importCatalogRole = (sourceId, sourceItemId, { attachToCurrentProfile = false } = {}) => runtime.roleLibraryActions.importCatalogRole(sourceId, sourceItemId, { attachToCurrentProfile });
     const personRuntimeActions = {
         bindRuntimeRole: (personId, roleId) => runtime.roleLibraryActions.bindPersonRuntimeRole(personId, roleId),
-        generateRuntimeRole: personId => runtime.roleLibraryActions.generatePersonRuntimeRole(personId)
+        generateRuntimeRole: personId => runtime.roleLibraryActions.generatePersonRuntimeRole(personId),
+        repairMissingRuntimeRoles: personIds => runtime.roleLibraryActions.repairMissingRuntimeRoles(personIds),
+        enrichSparseProfiles: personIds => runtime.roleLibraryActions.enrichSparsePersonProfiles(personIds)
     };
 
     return {
@@ -22,7 +23,6 @@ export function createRuntimeInteractionRoleLibraryBridges(deps) {
         addRoleToGroup,
         removeRoleFromGroup,
         moveRoleInManagedProfile,
-        importCatalogRole,
         personRuntimeActions
     };
 }

@@ -39,11 +39,11 @@ export function renderWorkspaceTeamList(deps) {
     const draftMeta = document.createElement('div');
     draftMeta.className = 'team-card-meta';
     draftMeta.textContent = selectedDraftCount > 0
-        ? `已选 ${selectedDraftCount} 个成员`
-        : '先选择成员，再创建团队';
+        ? `已选 ${selectedDraftCount} 个人物`
+        : '先选择人物，再创建团队';
     const draftDesc = document.createElement('div');
     draftDesc.className = 'team-card-description';
-    draftDesc.textContent = '不会自动继承默认团队；需要时可显式复制默认成员。';
+    draftDesc.textContent = '不会自动继承默认团队；需要时可显式复制默认人物。';
     draftCard.appendChild(draftTitle);
     draftCard.appendChild(draftMeta);
     draftCard.appendChild(draftDesc);
@@ -81,7 +81,7 @@ export function renderWorkspaceTeamList(deps) {
         const meta = document.createElement('div');
         meta.className = 'team-card-meta';
         const profileCount = Number(team.profile_count || 0);
-        meta.textContent = `${memberCount} 个角色${profileCount > 0 ? ` · ${profileCount} 个历史群聊配置` : ''}`;
+        meta.textContent = `${memberCount} 个人物${profileCount > 0 ? ` · ${profileCount} 个历史群聊配置` : ''}`;
 
         const desc = document.createElement('div');
         desc.className = 'team-card-description';

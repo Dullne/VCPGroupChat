@@ -18,8 +18,8 @@ export function createWorkspaceProfileCreateSessionActions(deps) {
         toggleRoleManager: deps.toggleRoleManager,
         renderAll: deps.renderAll,
         getWorkspaceMode: deps.getWorkspaceMode,
-        getLauncherSelectedRoleIds: deps.getLauncherSelectedRoleIds,
-        clearLauncherSelectedRoleIds: deps.clearLauncherSelectedRoleIds,
+        getLauncherSelectedPersonIds: deps.getLauncherSelectedPersonIds,
+        clearLauncherSelectedPersonIds: deps.clearLauncherSelectedPersonIds,
         getBootstrapData: deps.getBootstrapData,
         isRoleInManagedTeam: deps.isRoleInManagedTeam
     });

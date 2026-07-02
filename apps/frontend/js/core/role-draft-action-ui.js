@@ -1,9 +1,12 @@
+import { usesGroupProfileContext } from './role-studio-context-mode.js';
 import { translateUiText } from './i18n.js';
 
 export function setRoleDraftLoadingUi(dom) {
     dom.draftRoleIdeaBtn.disabled = true;
     dom.clearRoleIdeaBtn.disabled = true;
-    dom.roleIdeaStatus.textContent = '正在根据当前群组上下文生成角色草稿...';
+    dom.roleIdeaStatus.textContent = usesGroupProfileContext(dom.roleStudioContextModeSelect?.value)
+        ? '正在参考当前群组生成补位人物草稿...'
+        : '正在生成独立人物草稿...';
     dom.roleIdeaStatus.className = 'profile-form-status';
 }
 

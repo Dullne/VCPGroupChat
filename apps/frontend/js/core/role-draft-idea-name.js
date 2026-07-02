@@ -30,5 +30,5 @@ export function suggestRoleNameFromIdea(idea) {
         return '学习教练';
     }
 
-    return '自定义角色';
+    return '自定义人物';
 }

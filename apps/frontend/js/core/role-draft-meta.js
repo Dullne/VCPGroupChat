@@ -7,6 +7,9 @@ export function normalizeRoleDraftMeta(meta) {
     const requestedModel = String(meta?.requested_model || meta?.requestedModel || '').trim();
     const profileName = String(meta?.profile_name || meta?.profileName || '').trim();
     const sessionId = String(meta?.session_id || meta?.sessionId || '').trim();
+    const contextMode = String(meta?.context_mode || meta?.contextMode || '').trim();
+    const requestedContextMode = String(meta?.requested_context_mode || meta?.requestedContextMode || '').trim();
+    const contextRoleCount = Number(meta?.context_role_count ?? meta?.contextRoleCount ?? 0);
     const engine = String(meta?.engine || meta?.generation_engine || meta?.generationEngine || '').trim();
     const fallbackReason = String(meta?.fallback_reason || meta?.fallbackReason || '').trim();
     const fallbackMessage = String(meta?.fallback_message || meta?.fallbackMessage || '').trim();
@@ -17,7 +20,7 @@ export function normalizeRoleDraftMeta(meta) {
         ? (meta.agency_references || meta.agencyReferences).filter(Boolean)
         : [];
 
-    if (!source && !model && !selectedModel && !requestedModel && !profileName && !sessionId && !engine && !fallbackReason && !fallbackMessage && !promptxFiles.length && !agencyReferences.length) {
+    if (!source && !model && !selectedModel && !requestedModel && !profileName && !sessionId && !contextMode && !requestedContextMode && !contextRoleCount && !engine && !fallbackReason && !fallbackMessage && !promptxFiles.length && !agencyReferences.length) {
         return null;
     }
 
@@ -28,6 +31,9 @@ export function normalizeRoleDraftMeta(meta) {
         requestedModel,
         profileName,
         sessionId,
+        contextMode,
+        requestedContextMode,
+        contextRoleCount,
         engine,
         fallbackReason,
         fallbackMessage,
@@ -81,8 +87,14 @@ export function buildRoleDraftMetaLabels(meta) {
         labels.push(translateUiText(`agency 参考：${meta.agencyReferences.map(item => item.name || item.id).filter(Boolean).slice(0, 3).join('、')}`));
     }
 
-    if (meta.profileName) {
-        labels.push(translateUiText(`上下文模板：${meta.profileName}`));
+    if (meta.contextMode === 'group_profile' && meta.profileName) {
+        const roleCountText = meta.contextRoleCount ? ` · 已参考 ${meta.contextRoleCount} 个已有人物` : '';
+        labels.push(translateUiText(`参考范围：群组「${meta.profileName}」${roleCountText}`));
+    } else if (meta.contextMode === 'none') {
+        const fallbackText = meta.requestedContextMode === 'group_profile' ? '（本地兜底未参考群组）' : '';
+        labels.push(translateUiText(`参考范围：未参考群组${fallbackText}`));
+    } else if (meta.profileName) {
+        labels.push(translateUiText(`参考范围：群组「${meta.profileName}」`));
     }
 
     return labels;

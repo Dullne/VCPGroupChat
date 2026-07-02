@@ -4,12 +4,8 @@ export function createRoleLibraryImportSourceItemsList(deps) {
     const {
         source,
         isCollapsed,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
+        isRoleInManagedProfile
     } = deps;
 
     const list = document.createElement('div');
@@ -21,7 +17,7 @@ export function createRoleLibraryImportSourceItemsList(deps) {
         return list;
     }
     if (!source.items.length) {
-        list.innerHTML = '<div class="role-empty">当前没有可导入角色。</div>';
+        list.innerHTML = '<div class="role-empty">当前没有可参考模板。</div>';
         return list;
     }
 
@@ -29,12 +25,8 @@ export function createRoleLibraryImportSourceItemsList(deps) {
         list.appendChild(createRoleLibraryImportItemCard({
             source,
             item,
-            importCatalogRole,
-            getImportedRoleIdFromCatalogItem,
             isRoleInManagedTeam,
-            isRoleInManagedProfile,
-            removeRoleFromGroup,
-            showToast
+            isRoleInManagedProfile
         }));
     }
     return list;

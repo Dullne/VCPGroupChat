@@ -5,6 +5,8 @@ export const DOM_BINDING_ROLE_GETTERS = {
     roleIdeaInput: byId('role-idea-input'),
     roleStudioEngineSelect: byId('role-studio-engine-select'),
     roleStudioEngineMeta: byId('role-studio-engine-meta'),
+    roleStudioContextModeSelect: byId('role-studio-context-mode-select'),
+    roleStudioContextMeta: byId('role-studio-context-meta'),
     roleStudioFactoryContract: byId('role-studio-factory-contract'),
     roleStudioReferenceSearch: byId('role-studio-reference-search'),
     roleStudioSelectedReferences: byId('role-studio-selected-references'),

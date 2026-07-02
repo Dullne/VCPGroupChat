@@ -5,24 +5,16 @@ export function createRenderRoleLibraryImportSourceListAction(deps) {
     const {
         getDom,
         getExternalImportSources,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
+        isRoleInManagedProfile
     } = deps;
 
     return function renderImportSourceList() {
         renderRoleLibraryImportSourceList({
             getDom,
             getExternalImportSources,
-            importCatalogRole,
-            getImportedRoleIdFromCatalogItem,
             isRoleInManagedTeam,
-            isRoleInManagedProfile,
-            removeRoleFromGroup,
-            showToast
+            isRoleInManagedProfile
         });
     };
 }
@@ -30,6 +22,7 @@ export function createRenderRoleLibraryImportSourceListAction(deps) {
 export function createRenderRoleLibrarySessionRoleListAction(deps) {
     const {
         getDom,
+        getBootstrapData,
         getExternalImportSources,
         getSortedRolesForPanel,
         isRoleInManagedTeam,
@@ -52,6 +45,7 @@ export function createRenderRoleLibrarySessionRoleListAction(deps) {
     return function renderSessionRoleList() {
         renderRoleLibrarySessionRoleList({
             getDom,
+            getBootstrapData,
             getExternalImportSources,
             getSortedRolesForPanel,
             isRoleInManagedTeam,

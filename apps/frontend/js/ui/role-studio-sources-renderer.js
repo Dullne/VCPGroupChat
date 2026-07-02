@@ -11,15 +11,15 @@ function resolveEngineDescription(engines, engineId) {
 
 function resolveEngineContract(engineId) {
     if (engineId === 'promptx_nuwa') {
-        return '当前流水线：PromptX 女娲方法论 -> VCP 角色草稿。适合从零设计角色结构、职责边界和认知分层。';
+        return '当前流水线：PromptX 女娲方法论 -> VCP 人物草稿。适合从零设计人物结构、职责边界和认知分层。';
     }
     if (engineId === 'agency_adapt') {
-        return '当前流水线：agency-agents 专家模板 -> VCP 角色草稿。适合把现有专家模板改写成群聊角色。';
+        return '当前流水线：agency-agents 专家模板 -> VCP 人物草稿。适合把现有专家模板改写成群聊人物。';
     }
     if (engineId === 'hybrid') {
-        return '当前流水线：PromptX 女娲结构化角色设计 + agency-agents 专业模板参考 -> VCP 角色草稿。';
+        return '当前流水线：PromptX 女娲结构化人物设计 + agency-agents 专业模板参考 -> VCP 人物草稿。';
     }
-    return '当前流水线：VCP 默认角色生成 -> VCP 角色草稿。不会直接创建 PromptX 文件或 agency 仓库角色。';
+    return '当前流水线：VCP 默认人物生成 -> VCP 人物草稿。不会直接创建 PromptX 文件或 agency 仓库角色。';
 }
 
 function resolveSelectedReferenceItems(agencyItems, selectedIds) {

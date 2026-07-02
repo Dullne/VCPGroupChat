@@ -1,7 +1,7 @@
 import { buildEphemeralRoleCreatePayload } from './ephemeral-role-create-payload.js';
 
 const TARGET_LABELS = {
-    library: '角色库',
+    library: '人物通讯录',
     team: '当前团队',
     group: '当前群组'
 };
@@ -75,7 +75,7 @@ export function createRoleStudioSaveAction(deps) {
             profileId
         });
         if (!payload) {
-            showToast('角色名称不能为空', 'warning');
+            showToast('人物名称不能为空', 'warning');
             return;
         }
 
@@ -96,13 +96,13 @@ export function createRoleStudioSaveAction(deps) {
                 body: payload
             });
 
-            const roleName = result?.role?.name || payload.draft.name;
+            const personName = result?.person?.display_name || result?.role?.name || payload.draft.name;
             const preferredProfileId = result?.profile?.id || profileId || null;
             await refreshBootstrap(preferredProfileId);
             await reloadActiveSessionAndRoles();
             renderAll();
 
-            dom.roleIdeaStatus.textContent = `已保存「${roleName}」到${TARGET_LABELS[normalizedTarget]}。`;
+            dom.roleIdeaStatus.textContent = `已保存人物「${personName}」到${TARGET_LABELS[normalizedTarget]}。`;
             dom.roleIdeaStatus.className = 'profile-form-status profile-form-status-ready';
         } catch (error) {
             console.error(error);

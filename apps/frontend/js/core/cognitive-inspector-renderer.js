@@ -963,7 +963,7 @@ function renderMemberChips({ dom, automaticRoles, selectedRoles, sessionProfile,
         badges.className = 'cognitive-member-badges';
         const runtimeModelStatus = getRoleRuntimeModelStatus(role, bootstrapData);
         const badgeTexts = [
-            role.source === 'ephemeral' ? '临时角色' : '核心角色',
+            role.source === 'ephemeral' ? '临时角色' : '运行时角色',
             selectedRoleIds.has(role.id)
                 ? (automaticRoleIds.has(role.id) ? '本轮点名' : '本轮外援')
                 : '默认参与',

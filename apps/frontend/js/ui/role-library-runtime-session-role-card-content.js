@@ -29,7 +29,7 @@ export function buildRoleLibrarySessionRoleCardContentBlocks(deps) {
         const tags = parseRoleLibraryTags(nextRole);
         const runtimeSummary = buildRoleRuntimeSummary(nextRole, getRoleRuntimeModel);
         const metaItems = [
-            nextRole.source === 'ephemeral' ? '类型 临时角色' : '类型 核心角色',
+            nextRole.source === 'ephemeral' ? '类型 临时角色' : '类型 运行时角色',
             tags.length ? `标签 ${tags.slice(0, 3).join(' / ')}` : '',
             runtimeSummary,
             nextRole.details_loaded ? '详情 已加载' : ''

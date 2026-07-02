@@ -1,7 +1,6 @@
 import {
     resolveManagedProfileForGroupRoleActions,
-    resolvePersonIdentityForRoleAction,
-    resolveRoleNameForGroupAction
+    resolvePersonIdentityForRoleAction
 } from './role-library-group-actions-context.js';
 import { refreshGroupRoleActionsAfterMutation } from './role-library-group-actions-refresh.js';
 
@@ -52,22 +51,6 @@ export function createAddRoleToGroupAction(deps) {
             return;
         }
 
-        await fetchJson(`/api/group-profiles/${encodeURIComponent(profile.id)}/members`, {
-            method: 'POST',
-            body: {
-                role_id: roleId,
-                role_name: resolveRoleNameForGroupAction({
-                    roleId,
-                    getAvailableRoles,
-                    getBootstrapData
-                })
-            }
-        });
-
-        await refreshGroupRoleActionsAfterMutation({
-            profileId: profile.id,
-            refreshBootstrap,
-            renderAll
-        });
+        showToast('这不是长期人物，请先创建人物或绑定到人物后再加入群组', 'warning');
     };
 }

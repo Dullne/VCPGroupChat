@@ -47,7 +47,7 @@ export function createRoundRoleSelectionListRenderer(deps) {
             title.textContent = role.name;
 
             const badges = buildBadgeContainer([
-                role.source === 'ephemeral' ? '临时角色' : '核心角色',
+                role.source === 'ephemeral' ? '临时角色' : '运行时角色',
                 isRoleInSessionProfile(role.id) ? '群组成员' : '仅点名'
             ]);
 

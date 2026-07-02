@@ -25,12 +25,14 @@ export function createWorkspaceStateValueAccessors(deps) {
     const setRoleStudioSources = setStateValue('roleStudioSources');
     const getSelectedRoleStudioEngine = getStateValue('selectedRoleStudioEngine');
     const setSelectedRoleStudioEngine = setStateValue('selectedRoleStudioEngine');
+    const getSelectedRoleStudioContextMode = getStateValue('selectedRoleStudioContextMode');
+    const setSelectedRoleStudioContextMode = setStateValue('selectedRoleStudioContextMode');
     const getSelectedRoleStudioReferenceIds = getStateValue('selectedRoleStudioReferenceIds');
     const setSelectedRoleStudioReferenceIds = setStateValue('selectedRoleStudioReferenceIds');
     const getAdvancedRoleEditorExpanded = getStateValue('advancedRoleEditorExpanded');
     const setAdvancedRoleEditorExpanded = setStateValue('advancedRoleEditorExpanded');
-    const getLauncherSelectedRoleIds = getStateValue('launcherSelectedRoleIds');
-    const setLauncherSelectedRoleIds = setStateValue('launcherSelectedRoleIds');
+    const getLauncherSelectedPersonIds = getStateValue('launcherSelectedPersonIds');
+    const setLauncherSelectedPersonIds = setStateValue('launcherSelectedPersonIds');
     const getLauncherRoleFilterKeyword = getStateValue('launcherRoleFilterKeyword');
     const setLauncherRoleFilterKeyword = setStateValue('launcherRoleFilterKeyword');
     const getLauncherRoleTagFilter = getStateValue('launcherRoleTagFilter');
@@ -44,8 +46,8 @@ export function createWorkspaceStateValueAccessors(deps) {
     const getMemoryIndexRepair = getStateValue('memoryIndexRepair');
     const setMemoryIndexRepair = setStateValue('memoryIndexRepair');
 
-    const clearLauncherSelectedRoleIds = () => {
-        state.launcherSelectedRoleIds = new Set();
+    const clearLauncherSelectedPersonIds = () => {
+        state.launcherSelectedPersonIds = new Set();
     };
     const clearTeamDraftSelectedRoleIds = () => {
         state.teamDraftSelectedRoleIds = new Set();
@@ -83,13 +85,15 @@ export function createWorkspaceStateValueAccessors(deps) {
         setRoleStudioSources,
         getSelectedRoleStudioEngine,
         setSelectedRoleStudioEngine,
+        getSelectedRoleStudioContextMode,
+        setSelectedRoleStudioContextMode,
         getSelectedRoleStudioReferenceIds,
         setSelectedRoleStudioReferenceIds,
         getAdvancedRoleEditorExpanded,
         setAdvancedRoleEditorExpanded,
-        getLauncherSelectedRoleIds,
-        setLauncherSelectedRoleIds,
-        clearLauncherSelectedRoleIds,
+        getLauncherSelectedPersonIds,
+        setLauncherSelectedPersonIds,
+        clearLauncherSelectedPersonIds,
         getLauncherRoleFilterKeyword,
         setLauncherRoleFilterKeyword,
         getLauncherRoleTagFilter,

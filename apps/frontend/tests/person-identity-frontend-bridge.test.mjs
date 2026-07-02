@@ -62,23 +62,23 @@ const teamAdd = read('js/core/role-library-team-action-add.js');
 assert.match(teamAdd, /resolvePersonIdentityForRoleAction/, 'team add checks whether the selected row is a person');
 assert.match(teamAdd, /person-members/, 'team add can use the person membership route');
 assert.match(teamAdd, /person_id/, 'team add sends person_id for person membership writes');
-assert.match(teamAdd, /\/members/, 'team add keeps the legacy role membership fallback');
+assert.doesNotMatch(teamAdd, /\/members/, 'team add does not write bare legacy role membership');
 
 const teamRemove = read('js/core/role-library-team-action-remove.js');
 assert.match(teamRemove, /resolvePersonIdentityForRoleAction/, 'team remove checks whether the selected row is a person');
 assert.match(teamRemove, /person-members/, 'team remove can use the person membership route');
-assert.match(teamRemove, /\/members/, 'team remove keeps the legacy role membership fallback');
+assert.doesNotMatch(teamRemove, /\/members/, 'team remove does not delete through bare legacy role membership');
 
 const groupAdd = read('js/core/role-library-group-action-add.js');
 assert.match(groupAdd, /resolvePersonIdentityForRoleAction/, 'group add checks whether the selected row is a person');
 assert.match(groupAdd, /person-members/, 'group add can use the person membership route');
 assert.match(groupAdd, /person_id/, 'group add sends person_id for person membership writes');
-assert.match(groupAdd, /\/members/, 'group add keeps the legacy role membership fallback');
+assert.doesNotMatch(groupAdd, /\/members/, 'group add does not write through bare legacy role membership');
 
 const groupRemove = read('js/core/role-library-group-action-remove.js');
 assert.match(groupRemove, /resolvePersonIdentityForRoleAction/, 'group remove checks whether the selected row is a person');
 assert.match(groupRemove, /person-members/, 'group remove can use the person membership route');
-assert.match(groupRemove, /\/members/, 'group remove keeps the legacy role membership fallback');
+assert.doesNotMatch(groupRemove, /\/members/, 'group remove does not delete through bare legacy role membership');
 
 const bindAction = read('js/core/role-library-person-action-bind-runtime-role.js');
 assert.match(bindAction, /createBindPersonRuntimeRoleAction/, 'role library exposes a Person runtime-role binding action');
@@ -90,13 +90,28 @@ assert.match(generateAction, /createGeneratePersonRuntimeRoleAction/, 'role libr
 assert.match(generateAction, /\/api\/persons\/.*\/runtime-role\/generate/, 'generation action calls the backend runtime-role generation route');
 assert.match(generateAction, /refreshBootstrap/, 'generation action refreshes bootstrap after generation');
 
+const repairAction = read('js/core/role-library-person-action-repair-runtime-roles.js');
+assert.match(repairAction, /createRepairPersonRuntimeRolesAction/, 'role library exposes a bulk Person runtime-role repair action');
+assert.match(repairAction, /\/api\/person-runtime-roles\/repair/, 'repair action calls the backend bulk repair route');
+assert.match(repairAction, /refreshBootstrap/, 'repair action refreshes bootstrap after repairing runtime bindings');
+
+const enrichAction = read('js/core/role-library-person-action-enrich-profiles.js');
+assert.match(enrichAction, /createEnrichSparsePersonProfilesAction/, 'role library exposes a bulk Person profile enrichment action');
+assert.match(enrichAction, /\/api\/person-profiles\/enrich/, 'profile enrichment action calls the backend bulk enrichment route');
+assert.match(enrichAction, /sync_runtime/, 'profile enrichment action asks the product backend to sync runtime roles');
+assert.match(enrichAction, /refreshBootstrap/, 'profile enrichment action refreshes bootstrap after enriching profiles');
+
 const roleLibraryActions = read('js/core/role-library-actions.js');
 assert.match(roleLibraryActions, /createBindPersonRuntimeRoleAction/, 'role library includes the Person binding action');
 assert.match(roleLibraryActions, /createGeneratePersonRuntimeRoleAction/, 'role library includes the Person generation action');
+assert.match(roleLibraryActions, /createRepairPersonRuntimeRolesAction/, 'role library includes the bulk Person runtime-role repair action');
+assert.match(roleLibraryActions, /createEnrichSparsePersonProfilesAction/, 'role library includes the bulk Person profile enrichment action');
 
 const roleLibraryBridge = read('js/core/app-runtime-bridge-interaction-role-library.js');
 assert.match(roleLibraryBridge, /bindPersonRuntimeRole/, 'runtime bridge exposes the Person binding action to renderers');
 assert.match(roleLibraryBridge, /generatePersonRuntimeRole/, 'runtime bridge exposes the Person generation action to renderers');
+assert.match(roleLibraryBridge, /repairMissingRuntimeRoles/, 'runtime bridge exposes the bulk Person runtime repair action to renderers');
+assert.match(roleLibraryBridge, /enrichSparseProfiles/, 'runtime bridge exposes the bulk Person profile enrichment action to renderers');
 assert.match(roleLibraryBridge, /personRuntimeActions/, 'runtime bridge groups Person runtime actions for renderer wiring');
 
 const rendererFactory = read('js/core/workspace-runtime-renderers-factory.js');
@@ -106,10 +121,13 @@ const rendererDeps = read('js/ui/workspace-renderers-deps-group.js');
 assert.match(rendererDeps, /personRuntimeActions/, 'workspace renderer deps pass grouped Person runtime actions into member pools');
 
 const personBindingRenderer = read('js/ui/workspace-renderers-person-runtime-binding.js');
-assert.match(personBindingRenderer, /未绑定长期人物/, 'Person binding renderer labels unbound long-lived people');
+assert.match(personBindingRenderer, /待绑定运行时人物/, 'Person binding renderer labels people as needing runtime binding');
 assert.match(personBindingRenderer, /runtime-role-select/, 'Person binding renderer creates a runtime role select');
 assert.match(personBindingRenderer, /绑定运行时角色/, 'Person binding renderer exposes the bind command');
 assert.match(personBindingRenderer, /生成运行时角色/, 'Person binding renderer exposes the generate command');
+assert.match(personBindingRenderer, /一键生成缺失运行时/, 'Person binding renderer exposes the bulk repair command');
+assert.match(personBindingRenderer, /待补全人物档案/, 'Person binding renderer labels sparse long-lived profiles');
+assert.match(personBindingRenderer, /一键补全人物档案/, 'Person binding renderer exposes the bulk profile enrichment command');
 assert.match(personBindingRenderer, /personRuntimeActions/, 'Person binding renderer consumes grouped Person runtime actions');
 
 const teamPool = read('js/ui/workspace-renderers-team-member-pool.js');

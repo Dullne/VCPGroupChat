@@ -49,13 +49,11 @@ export function matchesRoleLibraryKeyword(entity, filters, sourceName = '') {
 export function matchesRoleLibraryImportSource(item, filters, deps) {
     const {
         source,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedProfile,
         isRoleInManagedTeam
     } = deps;
     const itemSource = resolveRoleLibrarySource(item) || String(source?.id || '').toLowerCase();
-    const importedRoleId = getImportedRoleIdFromCatalogItem(item);
-    const imported = Boolean(item.imported || importedRoleId);
+    const runtimeRoleId = item.runtime_role_id || null;
 
     if (filters.source && filters.source !== itemSource) {
         return false;
@@ -63,16 +61,10 @@ export function matchesRoleLibraryImportSource(item, filters, deps) {
     if (!matchesRoleLibraryKeyword(item, filters, source?.name || source?.id || '')) {
         return false;
     }
-    if (filters.status === 'imported' && !imported) {
+    if (filters.status === 'group' && (!runtimeRoleId || !isRoleInManagedProfile(runtimeRoleId))) {
         return false;
     }
-    if (filters.status === 'not-imported' && imported) {
-        return false;
-    }
-    if (filters.status === 'group' && (!importedRoleId || !isRoleInManagedProfile(importedRoleId))) {
-        return false;
-    }
-    if (filters.status === 'team' && (!importedRoleId || !isRoleInManagedTeam(importedRoleId))) {
+    if (filters.status === 'team' && (!runtimeRoleId || !isRoleInManagedTeam(runtimeRoleId))) {
         return false;
     }
     return true;
@@ -86,13 +78,13 @@ export function matchesRoleLibrarySessionRole(role, filters, deps) {
     const source = resolveRoleLibrarySource(role);
     const isEphemeral = role.source === 'ephemeral';
 
-    if (filters.source === 'core' && isEphemeral) {
+    if (filters.source === 'runtime' && isEphemeral) {
         return false;
     }
     if (filters.source === 'ephemeral' && !isEphemeral) {
         return false;
     }
-    if (!['', 'core', 'ephemeral'].includes(filters.source) && source !== filters.source) {
+    if (!['', 'runtime', 'ephemeral'].includes(filters.source) && source !== filters.source) {
         return false;
     }
     if (!matchesRoleLibraryKeyword(role, filters)) {
@@ -104,28 +96,21 @@ export function matchesRoleLibrarySessionRole(role, filters, deps) {
     if (filters.status === 'team' && !isRoleInManagedTeam(role.id)) {
         return false;
     }
-    if (filters.status === 'not-imported') {
-        return false;
-    }
     return true;
 }
 
 export function summarizeRoleLibraryState({ roles, externalImportSources, isRoleInManagedProfile, isRoleInManagedTeam }) {
-    const coreRoles = roles.filter(role => role.source !== 'ephemeral').length;
+    const runtimeRoles = roles.filter(role => role.source !== 'ephemeral').length;
     const ephemeralRoles = roles.filter(role => role.source === 'ephemeral').length;
     const groupMembers = roles.filter(role => isRoleInManagedProfile(role.id)).length;
     const teamMembers = roles.filter(role => isRoleInManagedTeam(role.id)).length;
     const catalogItems = externalImportSources.reduce((sum, source) => sum + (source.items?.length || 0), 0);
-    const importedCatalogItems = externalImportSources
-        .flatMap(source => source.items || [])
-        .filter(item => item.imported || item.imported_role_id).length;
 
     return {
-        coreRoles,
+        runtimeRoles,
         ephemeralRoles,
         groupMembers,
         teamMembers,
-        catalogItems,
-        importedCatalogItems
+        catalogItems
     };
 }

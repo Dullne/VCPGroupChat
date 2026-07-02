@@ -15,7 +15,7 @@ export function bindTeamAndSessionEvents(deps) {
         switchSession,
         setLauncherRoleFilterKeyword,
         setLauncherRoleTagFilter,
-        clearLauncherSelectedRoleIds
+        clearLauncherSelectedPersonIds
     } = deps;
 
     dom.teamForm.addEventListener('submit', async event => {
@@ -68,7 +68,7 @@ export function bindTeamAndSessionEvents(deps) {
 
     if (dom.launcherRoleClearBtn) {
         dom.launcherRoleClearBtn.addEventListener('click', () => {
-            clearLauncherSelectedRoleIds();
+            clearLauncherSelectedPersonIds();
             renderRoleManager();
         });
     }

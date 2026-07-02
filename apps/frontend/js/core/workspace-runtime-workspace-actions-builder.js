@@ -34,8 +34,8 @@ export function buildWorkspaceActionsForRuntime(deps) {
         getTeamDraftSelectedRoleIds: deps.getTeamDraftSelectedRoleIds,
         setTeamDraftSelectedRoleIds: deps.setTeamDraftSelectedRoleIds,
         clearTeamDraftSelectedRoleIds: deps.clearTeamDraftSelectedRoleIds,
-        getLauncherSelectedRoleIds: deps.getLauncherSelectedRoleIds,
-        clearLauncherSelectedRoleIds: deps.clearLauncherSelectedRoleIds,
+        getLauncherSelectedPersonIds: deps.getLauncherSelectedPersonIds,
+        clearLauncherSelectedPersonIds: deps.clearLauncherSelectedPersonIds,
         isRoleInManagedTeam: deps.isRoleInManagedTeam
     });
 }

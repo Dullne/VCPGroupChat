@@ -36,8 +36,8 @@ export function createWorkspaceRuntimeRenderers(deps) {
         getGroupProfileFormLoadedProfileId,
         getProfileById,
         showToast,
-        getLauncherSelectedRoleIds,
-        setLauncherSelectedRoleIds,
+        getLauncherSelectedPersonIds,
+        setLauncherSelectedPersonIds,
         getLauncherRoleFilterKeyword,
         getLauncherRoleTagFilter
     } = deps;
@@ -78,8 +78,8 @@ export function createWorkspaceRuntimeRenderers(deps) {
         getGroupProfileFormLoadedProfileId,
         getProfileById,
         showToast,
-        getLauncherSelectedRoleIds,
-        setLauncherSelectedRoleIds,
+        getLauncherSelectedPersonIds,
+        setLauncherSelectedPersonIds,
         getLauncherRoleFilterKeyword,
         getLauncherRoleTagFilter,
         startTeamDraft: (...args) => workspaceActions.startTeamDraft(...args),

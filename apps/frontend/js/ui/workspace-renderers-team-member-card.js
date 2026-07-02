@@ -7,6 +7,15 @@ function getIdentityBadges(role) {
     if (role?.person_identity) {
         badges.push('长期人物', role.person_identity.display_name);
     }
+    if (role?.runtime_binding_status === 'ready') {
+        badges.push('运行时已连接');
+    }
+    if (role?.runtime_binding_status === 'missing_runtime') {
+        badges.push('运行时缺失');
+    }
+    if (role?.runtime_binding_status === 'unbound_runtime') {
+        badges.push('未绑定运行时');
+    }
     if (role?.role_template_identity || role?.source === 'agency_agents') {
         badges.push('模板来源');
     }
@@ -14,6 +23,10 @@ function getIdentityBadges(role) {
         badges.push('兼容角色');
     }
     return badges;
+}
+
+function canAddRoleToTeam(role) {
+    return !role?.runtime_binding_status || role.runtime_binding_status === 'ready';
 }
 
 export function createWorkspaceTeamMemberCard(deps) {
@@ -30,6 +43,7 @@ export function createWorkspaceTeamMemberCard(deps) {
         removeLabel = '移出团队'
     } = deps;
     const isSelected = isRoleInManagedTeam(role.id);
+    const canAdd = canAddRoleToTeam(role);
 
     const row = document.createElement('div');
     row.className = 'role-card';
@@ -54,7 +68,7 @@ export function createWorkspaceTeamMemberCard(deps) {
 
     const desc = document.createElement('div');
     desc.className = 'role-card-description';
-    desc.textContent = role.description || role.persona || translateUiText('暂无角色描述');
+    desc.textContent = role.person_identity?.description || role.description || role.persona || translateUiText('暂无人物描述');
 
     const actions = document.createElement('div');
     actions.className = 'role-card-actions';
@@ -69,13 +83,20 @@ export function createWorkspaceTeamMemberCard(deps) {
             showToast
         }));
     } else {
-        actions.appendChild(createAsyncActionButton({
-            label: addLabel,
+        const addButton = createAsyncActionButton({
+            label: canAdd ? addLabel : '先绑定运行时',
             handler: async () => {
+                if (!canAdd) {
+                    showToast('这个人物还没有连接可用运行时角色，请先绑定运行时能力', 'warning');
+                    return;
+                }
                 await addRoleToTeam(role.id);
             },
+            variant: canAdd ? 'primary' : 'secondary',
             showToast
-        }));
+        });
+        addButton.disabled = !canAdd;
+        actions.appendChild(addButton);
     }
 
     row.appendChild(titleRow);

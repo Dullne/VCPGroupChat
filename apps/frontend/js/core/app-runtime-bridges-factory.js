@@ -1,8 +1,7 @@
 import {
     normalizeTeamsFromBootstrap as normalizeTeamsFromBootstrapModule,
     normalizeNatureRandomModeOptions as normalizeNatureRandomModeOptionsModule,
-    getRoundRoleDebugBadgeClass as getRoundRoleDebugBadgeClassModule,
-    getImportedRoleIdFromCatalogItem as getImportedRoleIdFromCatalogItemModule
+    getRoundRoleDebugBadgeClass as getRoundRoleDebugBadgeClassModule
 } from './domain-helpers.js';
 import { resolveManagedTeamIdByTeams } from './model-preferences.js';
 import {
@@ -48,7 +47,6 @@ export function createRuntimeBridgesForApp(deps) {
         getDeterministicRandomIntModule,
         pickRandomSubsetDeterministicModule,
         getRoundRoleDebugBadgeClassModule,
-        getImportedRoleIdFromCatalogItemModule,
         buildRoleDraftFromIdeaModule,
         normalizeRoleDraftModule,
         normalizeRoleDraftMetaModule,

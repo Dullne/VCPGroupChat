@@ -10,7 +10,7 @@ const indexHtml = read('index.html');
 assert.match(indexHtml, /id="start-team-draft-btn"/, 'team workspace exposes an explicit new-team draft action');
 assert.match(indexHtml, /id="copy-default-team-members-btn"/, 'team workspace exposes explicit default-team member copy');
 assert.match(indexHtml, /创建团队并加入 0 人/, 'create button communicates member count before submission');
-assert.match(indexHtml, /先选成员，再创建团队/, 'team member column uses draft-first creation copy');
+assert.match(indexHtml, /先选人物，再创建团队/, 'team member column uses draft-first creation copy');
 
 const stateSource = read('js/core/state.js');
 assert.match(stateSource, /teamDraftMode:\s*false/, 'state tracks whether the team workspace is drafting a new team');
@@ -28,7 +28,7 @@ assert.match(workspaceActions, /startTeamDraft/, 'workspace actions expose start
 assert.match(workspaceActions, /copyDefaultTeamMembersToDraft/, 'workspace actions expose default-team copy');
 
 const draftActions = read('js/core/workspace-team-draft-actions.js');
-assert.match(draftActions, /team_members_by_team_id/, 'default-team copy reads bootstrap team member buckets');
+assert.match(draftActions, /team_person_members_by_team_id/, 'default-team copy reads bootstrap team person member buckets');
 assert.match(draftActions, /default_team_id/, 'default-team copy is explicitly sourced from the default team');
 assert.match(draftActions, /setTeamDraftMode\(true\)/, 'starting or copying members enters draft mode');
 assert.match(draftActions, /clearTeamDraftSelectedRoleIds\(\)/, 'starting a fresh draft clears stale selected members');
@@ -41,10 +41,10 @@ assert.match(roleDraftActions, /setTeamDraftSelectedRoleIds\(new Set/, 'draft ro
 const createAction = read('js/core/workspace-team-create-action.js');
 assert.match(createAction, /getTeamDraftMode/, 'create action requires draft mode');
 assert.match(createAction, /getTeamDraftSelectedRoleIds/, 'create action reads selected draft members');
-assert.match(createAction, /请先选择至少 1 个团队成员/, 'create action prevents empty team creation');
+assert.match(createAction, /请先选择至少 1 个团队人物/, 'create action prevents empty team creation');
 assert.match(createAction, /person-members/, 'create action preserves person membership writes');
-assert.match(createAction, /\/members/, 'create action keeps legacy role membership fallback');
-assert.match(createAction, /草稿成员未自动加入/, 'duplicate team names do not add draft members to an existing team');
+assert.doesNotMatch(createAction, /\/members/, 'create action does not write bare legacy role team members');
+assert.match(createAction, /草稿人物未自动加入/, 'duplicate team names do not add draft members to an existing team');
 assert.doesNotMatch(createAction, /default_team_id[\s\S]*POST \/api\/teams/, 'create action does not auto-seed from the default team');
 
 const rendererFactory = read('js/core/workspace-runtime-renderers-factory.js');
@@ -67,8 +67,8 @@ assert.match(teamListRenderer, /setTeamDraftMode\?\.\(false\)/, 'selecting an ex
 
 const teamPoolRenderer = read('js/ui/workspace-renderers-team-member-pool.js');
 assert.match(teamPoolRenderer, /团队草稿：已选/, 'team member pool renders draft status');
-assert.match(teamPoolRenderer, /已选成员/, 'team member pool renders selected draft members');
-assert.match(teamPoolRenderer, /可加入成员/, 'team member pool renders available draft members');
+assert.match(teamPoolRenderer, /已选人物/, 'team member pool renders selected draft people');
+assert.match(teamPoolRenderer, /可加入人物/, 'team member pool renders available draft people');
 assert.match(teamPoolRenderer, /加入草稿/, 'team member card can add to draft');
 assert.match(teamPoolRenderer, /移出草稿/, 'team member card can remove from draft');
 

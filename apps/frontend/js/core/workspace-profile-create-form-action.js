@@ -3,6 +3,7 @@ import { handleGroupProfileCreated } from './workspace-profile-create-form-post-
 import { readGroupProfileCreateFormValues } from './workspace-profile-create-form-values.js';
 import { resolveGroupProfileCreateContext } from './workspace-profile-create-form-validate.js';
 import { requestCreateGroupProfileFromForm } from './workspace-profile-create-form-request.js';
+import { getWorkspaceTeamMemberPoolCoreRoles } from '../ui/workspace-renderers-team-member-pool-core-roles.js';
 
 export function createGroupProfileFromFormAction(deps) {
     const {
@@ -21,47 +22,44 @@ export function createGroupProfileFromFormAction(deps) {
         toggleRoleManager,
         renderAll,
         getWorkspaceMode,
-        getLauncherSelectedRoleIds,
-        clearLauncherSelectedRoleIds,
-        getBootstrapData,
-        isRoleInManagedTeam
+        getLauncherSelectedPersonIds,
+        clearLauncherSelectedPersonIds,
+        getBootstrapData
     } = deps;
 
-    function getRoleName(roleId) {
-        const role = (getBootstrapData()?.roles || []).find(item => item.id === roleId);
-        return role?.name || roleId;
+    function getLauncherPersonCandidates() {
+        return getWorkspaceTeamMemberPoolCoreRoles(getBootstrapData());
     }
 
-    async function prepareLauncherMembers(managedTeam) {
+    async function prepareLauncherMembers() {
         if (getWorkspaceMode?.() !== 'launcher') {
             return [];
         }
 
-        const selectedRoleIds = [...(getLauncherSelectedRoleIds?.() || [])].filter(Boolean);
-        if (!selectedRoleIds.length) {
-            showToast('请先从角色库选择至少 1 个群聊成员', 'warning');
+        const selectedPersonIds = [...(getLauncherSelectedPersonIds?.() || [])].filter(Boolean);
+        if (!selectedPersonIds.length) {
+            showToast('请先从人物通讯录选择至少 1 个群聊成员', 'warning');
             return null;
         }
 
-        for (const [index, roleId] of selectedRoleIds.entries()) {
-            if (isRoleInManagedTeam?.(roleId)) {
-                continue;
-            }
-            await fetchJson(`/api/teams/${encodeURIComponent(managedTeam.id)}/members`, {
-                method: 'POST',
-                body: {
-                    role_id: roleId,
-                    role_name: getRoleName(roleId),
-                    role_order: (index + 1) * 10
-                }
-            });
+        const candidates = getLauncherPersonCandidates();
+        const selectedCandidates = selectedPersonIds
+            .map(personId => candidates.find(candidate => candidate?.person_identity?.id === personId))
+            .filter(Boolean);
+        const hasUnavailableSelection = selectedCandidates.length !== selectedPersonIds.length
+            || selectedCandidates.some(candidate => candidate.runtime_binding_status !== 'ready');
+        if (hasUnavailableSelection) {
+            showToast('已选人物中有未绑定或缺失运行时角色，请先绑定运行时能力后再开聊', 'warning');
+            return null;
         }
 
-        return selectedRoleIds.map((roleId, index) => ({
-            role_id: roleId,
-            role_name: getRoleName(roleId),
-            role_order: (index + 1) * 10
-        }));
+        return selectedCandidates.map((candidate, index) => {
+            return {
+                person_id: candidate.person_identity.id,
+                group_alias: candidate.person_identity.display_name || '',
+                member_order: (index + 1) * 10
+            };
+        });
     }
 
     return async function createGroupProfileFromForm() {
@@ -81,13 +79,14 @@ export function createGroupProfileFromFormAction(deps) {
             return;
         }
         const { managedTeam, currentProfile } = createContext;
-        const launcherMembers = await prepareLauncherMembers(managedTeam);
+        const launcherMembers = await prepareLauncherMembers();
         if (launcherMembers === null) {
             return;
         }
         if (launcherMembers.length > 0) {
             values.cloneCurrentProfile = false;
-            values.members = launcherMembers;
+            values.personMembers = launcherMembers;
+            values.members = [];
             values.startSession = true;
         }
 
@@ -105,7 +104,7 @@ export function createGroupProfileFromFormAction(deps) {
             renderGroupProfileModeOptions
         });
         if (launcherMembers.length > 0) {
-            clearLauncherSelectedRoleIds?.();
+            clearLauncherSelectedPersonIds?.();
         }
 
         const shouldCloseLauncher = launcherMembers.length > 0 && values.startSession;

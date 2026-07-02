@@ -1,5 +1,9 @@
 import { applyRoleStudioEmptyDraftState } from './role-studio-renderer-empty-state.js';
 import { applyRoleStudioFilledDraftState } from './role-studio-renderer-filled-state.js';
+import {
+    describeRoleStudioContextMode,
+    normalizeRoleStudioContextMode
+} from '../core/role-studio-context-mode.js';
 import { translateUiText } from '../core/i18n.js';
 
 export function createRoleStudioRenderer(deps) {
@@ -8,6 +12,8 @@ export function createRoleStudioRenderer(deps) {
         getLatestRoleDraft,
         getLatestRoleDraftMeta,
         getAdvancedRoleEditorExpanded,
+        getSelectedRoleStudioContextMode,
+        getManagedProfile,
         hasMeaningfulRoleDraft,
         renderRoleStudioModelOptions,
         renderRuntimeModelOptions,
@@ -25,6 +31,15 @@ export function createRoleStudioRenderer(deps) {
         renderRoleStudioSources();
         renderRoleStudioModelOptions();
         renderRuntimeModelOptions();
+        const selectedContextMode = normalizeRoleStudioContextMode(getSelectedRoleStudioContextMode?.());
+        if (dom.roleStudioContextModeSelect) {
+            dom.roleStudioContextModeSelect.value = selectedContextMode;
+        }
+        if (dom.roleStudioContextMeta) {
+            dom.roleStudioContextMeta.textContent = translateUiText(describeRoleStudioContextMode(selectedContextMode, {
+                profile: getManagedProfile?.()
+            }));
+        }
 
         dom.roleDraftEmpty.classList.toggle('role-draft-content-hidden', hasDraft);
         dom.roleDraftContent.classList.toggle('role-draft-content-hidden', !hasDraft);

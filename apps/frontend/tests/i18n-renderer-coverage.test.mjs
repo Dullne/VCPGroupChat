@@ -61,11 +61,17 @@ function walk(dir, acc = []) {
 }
 
 // DOM text sinks: capture the assigned/argument expression.
+// Also covers helper functions that internally call translateUiText — the
+// helper itself translates, but the caller's string literal must still be
+// in the i18n table for translation to work.
 const SINK_RES = [
     /\.(?:textContent|innerHTML|innerText)\s*=\s*([\s\S]*?);/g,
     /\bcreateMemoryBadge\(\s*([\s\S]*?)(?:,|\))/g,
     /\{\s*text:\s*([\s\S]*?)(?:,\s*variant|,\s*kind|\})/g,
     /\bnew Option\(\s*([\s\S]*?),/g,
+    // Helper functions that call translateUiText internally:
+    /\bappendSynthesisEmpty\(\s*\w+\s*,\s*([\s\S]*?)\)/g,
+    /\brenderRuntimeChips\(\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([\s\S]*?)\)/g,
 ];
 const STRING_LIT = /'([^'\\]*(?:\\.[^'\\]*)*)'|"([^"\\]*(?:\\.[^"\\]*)*)"|`([^`\\]*(?:\\.[^`\\]*)*)`/g;
 

@@ -32,6 +32,6 @@ export function bindProfileTeamEvents(deps) {
         switchSession: deps.switchSession,
         setLauncherRoleFilterKeyword: deps.setLauncherRoleFilterKeyword,
         setLauncherRoleTagFilter: deps.setLauncherRoleTagFilter,
-        clearLauncherSelectedRoleIds: deps.clearLauncherSelectedRoleIds
+        clearLauncherSelectedPersonIds: deps.clearLauncherSelectedPersonIds
     });
 }

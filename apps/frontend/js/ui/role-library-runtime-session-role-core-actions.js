@@ -19,6 +19,30 @@ export function appendRoleLibrarySessionCoreActions(actions, deps) {
         return;
     }
 
+    const personIdentity = role.person_identity || null;
+    if (!personIdentity) {
+        actions.appendChild(createAsyncActionButton({
+            label: '先创建人物',
+            handler: async () => {
+                showToast('这不是长期人物，请先创建人物或绑定到人物后再加入团队或群组', 'warning');
+            },
+            variant: 'secondary',
+            showToast
+        }));
+        return;
+    }
+    if (role.runtime_binding_status && role.runtime_binding_status !== 'ready') {
+        actions.appendChild(createAsyncActionButton({
+            label: '先绑定运行时',
+            handler: async () => {
+                showToast('这个人物还没有连接可用运行时角色，请先绑定运行时能力后再加入团队或群组', 'warning');
+            },
+            variant: 'secondary',
+            showToast
+        }));
+        return;
+    }
+
     if (!isRoleInManagedTeam(role.id)) {
         actions.appendChild(createAsyncActionButton({
             label: '加入当前团队',

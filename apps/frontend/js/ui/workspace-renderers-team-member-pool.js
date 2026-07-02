@@ -11,7 +11,11 @@ function parseRoleTags(role) {
 
 function buildRoleSearchText(role) {
     const tags = parseRoleTags(role).join(' ');
+    const person = role?.person_identity || {};
     return [
+        person.display_name,
+        person.description,
+        person.personality,
         role?.name,
         role?.id,
         role?.description,
@@ -101,7 +105,7 @@ function renderRoleSection({
 
         const groupHeader = document.createElement('div');
         groupHeader.className = 'role-manager-tip';
-        groupHeader.textContent = `${tag} · ${tagRoles.length} 个角色`;
+        groupHeader.textContent = `${tag} · ${tagRoles.length} 个人物`;
         group.appendChild(groupHeader);
 
         for (const role of tagRoles) {
@@ -162,7 +166,7 @@ export function renderWorkspaceTeamMemberPool(deps) {
 
     if (!coreRoles.length) {
         dom.teamMemberPoolMeta.textContent = draftMode
-            ? '团队草稿：当前没有可选角色。'
+            ? '团队草稿：当前没有可选人物。'
             : `当前团队：${team.name}。`;
         const renderedUnboundPersons = renderUnboundPersonRuntimeBindingSection({
             container: dom.teamMemberPoolList,
@@ -171,7 +175,7 @@ export function renderWorkspaceTeamMemberPool(deps) {
             showToast
         });
         if (!renderedUnboundPersons) {
-            dom.teamMemberPoolList.innerHTML = '<div class="role-empty">核心角色为空，无法配置团队成员。</div>';
+            dom.teamMemberPoolList.innerHTML = '<div class="role-empty">还没有可加入团队的长期人物。</div>';
         }
         return;
     }
@@ -190,11 +194,11 @@ export function renderWorkspaceTeamMemberPool(deps) {
 
     const inTeamCount = coreRoles.filter(role => isRoleInManagedTeam(role.id)).length;
     dom.teamMemberPoolMeta.textContent = selectedTag
-        ? `当前团队：${team.name}。已加入 ${inTeamCount} 个角色，可选 ${coreRoles.length} 个；当前标签：${selectedTag}。`
-        : `当前团队：${team.name}。已加入 ${inTeamCount} 个角色，可按标签或关键词筛选后加入。`;
+        ? `当前团队：${team.name}。已加入 ${inTeamCount} 个人物，可选 ${coreRoles.length} 个；当前标签：${selectedTag}。`
+        : `当前团队：${team.name}。已加入 ${inTeamCount} 个人物，可按标签或关键词筛选后加入。`;
 
     if (!filteredRoles.length) {
-        dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有匹配角色。</div>';
+        dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有匹配人物。</div>';
         return;
     }
 
@@ -206,8 +210,8 @@ export function renderWorkspaceTeamMemberPool(deps) {
         const rolesAvailable = filteredRoles.filter(role => !isRoleInTeamDraft(role.id));
 
         dom.teamMemberPoolMeta.textContent = selectedTag
-            ? `团队草稿：已选 ${selectedCount} 个成员，可选 ${coreRoles.length} 个；当前标签：${selectedTag}。`
-            : `团队草稿：已选 ${selectedCount} 个成员，先选人再创建团队。`;
+            ? `团队草稿：已选 ${selectedCount} 个人物，可选 ${coreRoles.length} 个；当前标签：${selectedTag}。`
+            : `团队草稿：已选 ${selectedCount} 个人物，先选人再创建团队。`;
 
         renderUnboundPersonRuntimeBindingSection({
             container: dom.teamMemberPoolList,
@@ -219,8 +223,8 @@ export function renderWorkspaceTeamMemberPool(deps) {
         if (rolesSelected.length) {
             renderRoleSection({
                 container: dom.teamMemberPoolList,
-                title: '已选成员',
-                hint: '这些成员会随新团队一起创建，可在提交前继续移出或补充。',
+                title: '已选人物',
+                hint: '这些人物会随新团队一起创建，可在提交前继续移出或补充。',
                 roles: rolesSelected,
                 bootstrapData,
                 selectedTag,
@@ -238,8 +242,8 @@ export function renderWorkspaceTeamMemberPool(deps) {
         if (rolesAvailable.length) {
             renderRoleSection({
                 container: dom.teamMemberPoolList,
-                title: '可加入成员',
-                hint: '点击“加入草稿”，先把成员放进新团队草稿。',
+                title: '可加入人物',
+                hint: '点击“加入草稿”，先把人物放进新团队草稿。',
                 roles: rolesAvailable,
                 bootstrapData,
                 selectedTag,
@@ -255,7 +259,7 @@ export function renderWorkspaceTeamMemberPool(deps) {
         }
 
         if (!rolesSelected.length && !rolesAvailable.length) {
-            dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有可显示的角色。</div>';
+            dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有可显示的人物。</div>';
         }
         return;
     }
@@ -274,7 +278,7 @@ export function renderWorkspaceTeamMemberPool(deps) {
         renderRoleSection({
             container: dom.teamMemberPoolList,
             title: '已在这个团队',
-            hint: '这些角色已经是团队成员，可以继续从下方补人，或移出团队。',
+            hint: '这些人物已经在团队人物池里，可以继续从下方补人，或移出团队。',
             roles: rolesInTeam,
             bootstrapData,
             selectedTag,
@@ -288,8 +292,8 @@ export function renderWorkspaceTeamMemberPool(deps) {
     if (rolesAvailable.length) {
         renderRoleSection({
             container: dom.teamMemberPoolList,
-            title: '可加入的角色',
-            hint: '点击“加入这个团队”，把角色放进当前团队成员池。',
+            title: '可加入的人物',
+            hint: '点击“加入这个团队”，把人物放进当前团队人物池。',
             roles: rolesAvailable,
             bootstrapData,
             selectedTag,
@@ -301,6 +305,6 @@ export function renderWorkspaceTeamMemberPool(deps) {
     }
 
     if (!rolesInTeam.length && !rolesAvailable.length) {
-        dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有可显示的角色。</div>';
+        dom.teamMemberPoolList.innerHTML = '<div class="role-empty">当前筛选条件下没有可显示的人物。</div>';
     }
 }

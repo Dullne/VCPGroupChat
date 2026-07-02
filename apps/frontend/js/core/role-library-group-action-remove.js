@@ -43,14 +43,6 @@ export function createRemoveRoleFromGroupAction(deps) {
             return;
         }
 
-        await fetchJson(`/api/group-profiles/${encodeURIComponent(profile.id)}/members/${encodeURIComponent(roleId)}`, {
-            method: 'DELETE'
-        });
-
-        await refreshGroupRoleActionsAfterMutation({
-            profileId: profile.id,
-            refreshBootstrap,
-            renderAll
-        });
+        showToast('这是历史运行时成员，不是长期人物；请在兼容维护入口处理', 'warning');
     };
 }

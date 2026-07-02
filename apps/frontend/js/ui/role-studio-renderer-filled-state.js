@@ -17,7 +17,7 @@ function renderRoleDraftMemoryBadges(dom, draft) {
     for (const label of [
         translateUiText(`私有记忆：${draft.privateNotebook || translateUiText('未命名')}`),
         translateUiText(`知识记忆：${draft.knowledgeNotebook || translateUiText('未命名')}`),
-        draft.model ? translateUiText(`角色固定模型：${draft.model}`) : null
+        draft.model ? translateUiText(`人物固定模型：${draft.model}`) : null
     ]) {
         if (!label) {
             continue;
@@ -40,7 +40,7 @@ function renderRoleDraftResponsibilities(dom, draft) {
     if (dom.roleDraftResponsibilities.childElementCount === 0) {
         const empty = document.createElement('div');
         empty.className = 'role-empty';
-        empty.textContent = '还没有明确职责。建议补一句更具体的角色需求。';
+        empty.textContent = '还没有明确职责。建议补一句更具体的人物需求。';
         dom.roleDraftResponsibilities.appendChild(empty);
     }
 }
@@ -59,8 +59,8 @@ export function applyRoleStudioFilledDraftState(deps) {
     dom.saveRoleDraftBtn.disabled = !hasName;
     dom.saveRoleDraftTeamBtn.disabled = !hasName;
     dom.saveRoleDraftGroupBtn.disabled = !hasName;
-    dom.roleDraftName.textContent = draft.name || '未命名角色';
-    dom.roleDraftDescription.textContent = draft.description || '暂无角色说明';
+    dom.roleDraftName.textContent = draft.name || '未命名人物';
+    dom.roleDraftDescription.textContent = draft.description || '暂无人物说明';
 
     renderRoleDraftMetaBadges(dom, latestRoleDraftMeta, buildRoleDraftMetaLabels);
     renderRoleDraftMemoryBadges(dom, draft);

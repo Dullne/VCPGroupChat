@@ -20,8 +20,8 @@ export function applyModalViewToggle({ mode }) {
     const titles = {
         launcher: '发起群聊',
         team: '团队管理',
-        studio: '角色工坊',
-        library: '角色库'
+        studio: '人物工坊',
+        library: '人物与模板'
     };
     if (title) {
         title.textContent = translateUiText(titles[mode] || '管理');

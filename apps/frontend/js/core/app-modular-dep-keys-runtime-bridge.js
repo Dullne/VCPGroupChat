@@ -10,7 +10,6 @@ export const RUNTIME_BRIDGE_DEP_KEYS = [
     'getDeterministicRandomIntModule',
     'pickRandomSubsetDeterministicModule',
     'getRoundRoleDebugBadgeClassModule',
-    'getImportedRoleIdFromCatalogItemModule',
     'buildRoleDraftFromIdeaModule',
     'normalizeRoleDraftModule',
     'normalizeRoleDraftMetaModule',

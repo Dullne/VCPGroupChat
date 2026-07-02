@@ -33,7 +33,7 @@ export function createEphemeralRoleCreateAction(deps) {
         const formData = new FormData(dom.ephemeralRoleForm);
         const name = String(formData.get('name') || '').trim();
         if (!name) {
-            showToast('角色名称不能为空', 'warning');
+            showToast('人物名称不能为空', 'warning');
             return;
         }
 

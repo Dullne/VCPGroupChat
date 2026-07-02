@@ -8,7 +8,6 @@ export {
 export {
     splitRoleTags,
     getRoleMentionAliases,
-    getMentionedRoleIdsFromText,
-    getImportedRoleIdFromCatalogItem
+    getMentionedRoleIdsFromText
 } from './domain-role-mention.js';
 export { getRoundRoleDebugBadgeClass } from './domain-round-debug.js';

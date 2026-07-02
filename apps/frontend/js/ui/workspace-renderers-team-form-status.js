@@ -19,8 +19,8 @@ export function renderWorkspaceTeamFormStatus(deps) {
     }
     if (draftMode) {
         dom.teamFormStatus.textContent = selectedDraftCount > 0
-            ? `团队草稿：已选 ${selectedDraftCount} 个成员，填写名称后创建。`
-            : '团队草稿：先从右侧选择至少 1 个成员。';
+            ? `团队草稿：已选 ${selectedDraftCount} 个人物，填写名称后创建。`
+            : '团队草稿：先从右侧选择至少 1 个人物。';
         dom.teamFormStatus.className = selectedDraftCount > 0
             ? 'profile-form-status profile-form-status-ready'
             : 'profile-form-status profile-form-status-warning';
@@ -40,7 +40,7 @@ export function renderWorkspaceTeamFormStatus(deps) {
     }
 
     dom.teamFormStatus.textContent = team.id === bootstrapData?.default_team_id
-        ? '当前是默认团队：承载系统默认角色池，暂不支持删除与重命名。'
+        ? '当前是默认团队：承载系统默认人物池，暂不支持删除与重命名。'
         : `当前管理团队：${team.name}。你可以更新描述；如仍有关联群聊配置，系统会阻止删除。`;
     dom.teamFormStatus.className = team.id === bootstrapData?.default_team_id
         ? 'profile-form-status profile-form-status-warning'

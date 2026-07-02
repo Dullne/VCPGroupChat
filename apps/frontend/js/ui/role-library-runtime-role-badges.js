@@ -9,7 +9,20 @@ export function buildRoleLibraryRoleBadges(role, deps) {
     } = deps;
 
     const badges = [];
-    badges.push(role.source === 'ephemeral' ? '临时角色' : '核心角色');
+    if (role.source === 'person') {
+        badges.push('长期人物');
+    } else {
+        badges.push(role.source === 'ephemeral' ? '临时角色' : '运行时角色');
+    }
+    if (role.runtime_binding_status === 'ready') {
+        badges.push('运行时已连接');
+    }
+    if (role.runtime_binding_status === 'missing_runtime') {
+        badges.push('运行时缺失');
+    }
+    if (role.runtime_binding_status === 'unbound_runtime') {
+        badges.push('未绑定运行时');
+    }
     if (role.is_native) {
         badges.push('原生模板');
     }

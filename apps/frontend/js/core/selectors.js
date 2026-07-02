@@ -6,7 +6,8 @@ import { createTeamProfileSelectors } from './selectors-team-profile.js';
 export function createSelectors(deps) {
     const teamProfileSelectors = createTeamProfileSelectors(deps);
     const managedProfileMemberSelectors = createManagedProfileMemberSelectors({
-        getManagedProfile: teamProfileSelectors.getManagedProfile
+        getManagedProfile: teamProfileSelectors.getManagedProfile,
+        getBootstrapData: deps.getBootstrapData
     });
     const managedTeamMemberSelectors = createManagedTeamMemberSelectors({
         getManagedTeamId: teamProfileSelectors.getManagedTeamId,

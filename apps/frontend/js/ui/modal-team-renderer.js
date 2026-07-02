@@ -27,7 +27,7 @@ export function createModalTeamRenderer(deps) {
     }
 
     function renderRoleStudio() {
-        // TODO: 实现角色工坊渲染
+        // TODO: 实现人物工坊渲染
     }
 
     function renderRoleLibrary() {

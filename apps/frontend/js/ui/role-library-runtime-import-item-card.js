@@ -1,6 +1,5 @@
 import { buildRoleBadgeContainer } from './role-card-ui.js';
 import { buildRoleLibraryImportItemBadges } from './role-library-runtime-import-item-badges.js';
-import { buildRoleLibraryImportItemActions } from './role-library-runtime-import-item-actions.js';
 import { parseRoleLibraryTags } from './role-library-runtime-filters.js';
 import { translateUiText } from '../core/i18n.js';
 
@@ -8,17 +7,13 @@ export function createRoleLibraryImportItemCard(deps) {
     const {
         source,
         item,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
+        isRoleInManagedProfile
     } = deps;
 
     const card = document.createElement('div');
     card.className = 'role-card';
-    card.dataset.imported = item.imported || false;
+    card.dataset.templateSource = item.source || source.id;
 
     const titleRow = document.createElement('div');
     titleRow.className = 'role-card-title-row';
@@ -29,7 +24,6 @@ export function createRoleLibraryImportItemCard(deps) {
 
     titleRow.appendChild(titleNode);
     titleRow.appendChild(buildRoleBadgeContainer(buildRoleLibraryImportItemBadges(item, {
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
         isRoleInManagedProfile
     })));
@@ -49,20 +43,8 @@ export function createRoleLibraryImportItemCard(deps) {
         metaRow.innerHTML += `<span class="role-meta-item">模型 ${item.model}</span>`;
     }
 
-    const actions = buildRoleLibraryImportItemActions({
-        source,
-        item,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
-        isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
-    });
-
     card.appendChild(titleRow);
     card.appendChild(description);
     card.appendChild(metaRow);
-    card.appendChild(actions);
     return card;
 }

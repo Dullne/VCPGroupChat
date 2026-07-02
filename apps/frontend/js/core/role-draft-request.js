@@ -1,3 +1,8 @@
+import {
+    normalizeRoleStudioContextMode,
+    usesGroupProfileContext
+} from './role-studio-context-mode.js';
+
 function summarizeErrorMessage(error) {
     return String(error?.message || error || '')
         .replace(/\s+/g, ' ')
@@ -31,6 +36,7 @@ export async function generateRoleDraftFromIdea(deps) {
         getConfig,
         getActiveSession,
         getManagedProfileId,
+        getSelectedRoleStudioContextMode,
         getSelectedRoleStudioModel,
         getSelectedRoleStudioEngine,
         getSelectedRoleStudioReferenceIds,
@@ -41,8 +47,11 @@ export async function generateRoleDraftFromIdea(deps) {
         buildRoleDraftFromIdea
     } = deps;
 
+    const contextMode = normalizeRoleStudioContextMode(getSelectedRoleStudioContextMode?.());
+
     try {
         const activeSession = getActiveSession();
+        const shouldUseGroupContext = usesGroupProfileContext(contextMode);
         const selectedRoleStudioModel = getSelectedRoleStudioModel();
         const selectedReferenceIds = getSelectedRoleStudioReferenceIds();
         const referenceItemIds = selectedReferenceIds instanceof Set
@@ -55,8 +64,9 @@ export async function generateRoleDraftFromIdea(deps) {
             method: 'POST',
             body: {
                 idea,
-                session_id: activeSession?.id || null,
-                profile_id: getManagedProfileId(),
+                context_mode: contextMode,
+                session_id: shouldUseGroupContext ? activeSession?.id || null : null,
+                profile_id: shouldUseGroupContext ? getManagedProfileId() : null,
                 preferred_model: selectedRoleStudioModel || null,
                 engine: getSelectedRoleStudioEngine?.() || 'hybrid',
                 reference_item_ids: referenceItemIds
@@ -75,6 +85,8 @@ export async function generateRoleDraftFromIdea(deps) {
             draft: applyRuntimeModelPreferenceToDraft(buildRoleDraftFromIdea(idea)),
             draftMeta: normalizeRoleDraftMeta({
                 source: 'fallback',
+                context_mode: 'none',
+                requested_context_mode: contextMode,
                 model: 'local-heuristic',
                 requested_model: getSelectedRoleStudioModel() || null,
                 engine: getSelectedRoleStudioEngine?.() || 'hybrid',

@@ -10,28 +10,28 @@ const indexHtml = read('index.html');
 assert.match(
     indexHtml,
     /id="role-draft-preview"[^>]*tabindex="-1"/,
-    'role draft preview should be programmatically focusable after generation'
+    'person draft preview should be programmatically focusable after generation'
 );
 
 const domBindingSource = read('js/core/dom-binding-getters-role.js');
 assert.match(
     domBindingSource,
     /roleDraftPreview:\s*byId\(['"]role-draft-preview['"]\)/,
-    'DOM bindings should expose the role draft preview element'
+    'DOM bindings should expose the person draft preview element'
 );
 
 const actionSource = read('js/core/role-draft-idea-action.js');
 assert.match(
     actionSource,
     /restoreRoleDraftUi\(\s*dom,\s*renderRoleStudio,\s*\{\s*revealDraftPreview:/,
-    'role draft generation should ask the UI restore step to reveal the generated preview'
+    'person draft generation should ask the UI restore step to reveal the generated preview'
 );
 
 const uiSource = read('js/core/role-draft-action-ui.js');
 assert.match(
     uiSource,
     /function\s+revealRoleDraftPreview/,
-    'role draft action UI should expose a focused reveal helper for generated drafts'
+    'person draft action UI should expose a focused reveal helper for generated drafts'
 );
 assert.match(
     uiSource,

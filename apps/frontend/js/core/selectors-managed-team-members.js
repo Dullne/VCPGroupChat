@@ -4,6 +4,18 @@ export function createManagedTeamMemberSelectors(deps) {
         getBootstrapData
     } = deps;
 
+    function normalizeTeamPersonMember(member) {
+        const roleId = String(member?.legacy_role_id || member?.person?.legacy_role_id || '').trim();
+        return {
+            ...member,
+            role_id: roleId,
+            role_name: member?.person_name || member?.person?.display_name || roleId,
+            role_order: Number(member?.member_order || 0),
+            enabled: member?.enabled !== false,
+            identity_kind: 'person'
+        };
+    }
+
     function getManagedTeamMembers() {
         const managedTeamId = getManagedTeamId();
         if (!managedTeamId) {
@@ -11,36 +23,15 @@ export function createManagedTeamMemberSelectors(deps) {
         }
 
         const bootstrapData = getBootstrapData();
-        const membersByTeamId = bootstrapData?.team_members_by_team_id;
+        const membersByTeamId = bootstrapData?.team_person_members_by_team_id;
         const members = Array.isArray(membersByTeamId?.[managedTeamId])
             ? membersByTeamId[managedTeamId]
             : [];
 
-        if (members.length > 0) {
-            return members.filter(member => member?.enabled !== false);
-        }
-
-        // Backward compatibility fallback for legacy bootstrap payloads.
-        const roleMap = new Map();
-        for (const profile of bootstrapData?.profiles || []) {
-            if (String(profile?.team_id || '') !== String(managedTeamId)) {
-                continue;
-            }
-            for (const member of profile.members || []) {
-                if (!member?.enabled || !member.role_id) {
-                    continue;
-                }
-                if (!roleMap.has(member.role_id)) {
-                    roleMap.set(member.role_id, {
-                        role_id: member.role_id,
-                        role_name: member.role_name || member.role_id,
-                        role_order: Number(member.role_order || 0),
-                        enabled: true
-                    });
-                }
-            }
-        }
-        return [...roleMap.values()];
+        return members
+            .filter(member => member?.enabled !== false)
+            .map(normalizeTeamPersonMember)
+            .filter(member => member.role_id);
     }
 
     function getManagedTeamMemberIds() {

@@ -26,6 +26,8 @@ export function buildWorkspaceRoleStudioRenderer(deps) {
         getLatestRoleDraft: deps.getLatestRoleDraft,
         getLatestRoleDraftMeta: deps.getLatestRoleDraftMeta,
         getAdvancedRoleEditorExpanded: deps.getAdvancedRoleEditorExpanded,
+        getSelectedRoleStudioContextMode: deps.getSelectedRoleStudioContextMode,
+        getManagedProfile: deps.getManagedProfile,
         hasMeaningfulRoleDraft: deps.hasMeaningfulRoleDraft,
         renderRoleStudioModelOptions: deps.renderRoleStudioModelOptions,
         renderRuntimeModelOptions: deps.renderRuntimeModelOptions,

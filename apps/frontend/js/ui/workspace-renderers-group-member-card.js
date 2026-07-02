@@ -46,7 +46,7 @@ export function createWorkspaceGroupMemberCard(deps) {
 
     const desc = document.createElement('div');
     desc.className = 'role-card-description';
-    desc.textContent = role.description || role.persona || translateUiText('暂无角色描述');
+    desc.textContent = role.description || role.persona || translateUiText('暂无人物描述');
 
     const actions = document.createElement('div');
     actions.className = 'role-card-actions';

@@ -1,7 +1,6 @@
 import {
     resolveManagedTeamIdForRoleActions,
-    resolvePersonIdentityForRoleAction,
-    resolveRoleNameForGroupAction
+    resolvePersonIdentityForRoleAction
 } from './role-library-group-actions-context.js';
 
 export function createAddRoleToTeamAction(deps) {
@@ -48,19 +47,6 @@ export function createAddRoleToTeamAction(deps) {
             return;
         }
 
-        await fetchJson(`/api/teams/${encodeURIComponent(teamId)}/members`, {
-            method: 'POST',
-            body: {
-                role_id: roleId,
-                role_name: resolveRoleNameForGroupAction({
-                    roleId,
-                    getAvailableRoles,
-                    getBootstrapData
-                })
-            }
-        });
-
-        await refreshBootstrap();
-        renderAll();
+        showToast('这是运行时角色或模板，不是长期人物；请先创建人物再加入团队', 'warning');
     };
 }

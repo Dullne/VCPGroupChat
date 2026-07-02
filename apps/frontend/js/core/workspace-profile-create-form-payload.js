@@ -9,7 +9,8 @@ export function buildGroupProfileCreatePayload(deps) {
         groupPrompt,
         cloneCurrentProfile,
         currentProfileId,
-        members = []
+        members = [],
+        personMembers = []
     } = deps;
 
     return {
@@ -20,7 +21,8 @@ export function buildGroupProfileCreatePayload(deps) {
         invite_prompt: invitePrompt,
         mode_options: modeOptions,
         ...(groupPrompt ? { group_prompt: groupPrompt } : {}),
-        ...(cloneCurrentProfile && currentProfileId && members.length === 0 ? { clone_from_profile_id: currentProfileId } : {}),
+        ...(cloneCurrentProfile && currentProfileId && members.length === 0 && personMembers.length === 0 ? { clone_from_profile_id: currentProfileId } : {}),
+        ...(personMembers.length > 0 ? { person_members: personMembers } : {}),
         ...(members.length > 0 ? { members } : {})
     };
 }

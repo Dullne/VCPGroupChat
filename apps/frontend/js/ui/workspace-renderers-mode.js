@@ -9,19 +9,19 @@ export function renderWorkspaceModeView(deps) {
     const modeConfig = {
         launcher: {
             title: '发起群聊',
-            subtitle: '像微信群一样从角色库选择 AI 成员，确认群名后创建群组并立即开聊。'
+            subtitle: '像微信群一样从人物通讯录选择长期人物，确认群名后创建群组并立即开聊。'
         },
         team: {
-            title: '团队角色池',
-            subtitle: '团队负责按项目或方向收纳角色；群组才是真正上场聊天的 AI 房间。'
+            title: '团队人物池',
+            subtitle: '团队负责按项目或方向收纳长期人物；群组才是真正上场聊天的 AI 房间。'
         },
         studio: {
-            title: '角色工坊',
-            subtitle: '先用一句话生成角色草稿，再决定是否作为当前会话临时角色加入。'
+            title: '人物工坊',
+            subtitle: '先用一句话生成人物草稿，再保存为长期人物；需要时也能作为当前会话临时角色试用。'
         },
         library: {
-            title: '角色库',
-            subtitle: '这里浏览核心角色与外部目录模板。导入到核心后，才能稳定地加入群组并参与长期记忆。'
+            title: '人物与模板',
+            subtitle: '这里浏览长期人物、模板和运行时角色。人物是成员来源，模板用于创建人物，运行时角色只做执行和绑定。'
         }
     };
     const current = modeConfig[workspaceMode] || modeConfig.team;

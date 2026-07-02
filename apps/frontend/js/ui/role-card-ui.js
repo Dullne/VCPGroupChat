@@ -1,3 +1,5 @@
+import { translateUiText } from '../core/i18n.js';
+
 export function createAsyncActionButton({ label, handler, variant = 'primary', showToast }) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -23,7 +25,7 @@ export function buildRoleBadgeContainer(badges) {
     for (const badge of badges.filter(Boolean)) {
         const item = document.createElement('span');
         item.className = 'role-badge';
-        item.textContent = badge;
+        item.textContent = translateUiText(badge);
         container.appendChild(item);
     }
     return container;

@@ -28,7 +28,7 @@ export function createWorkspaceProfileDeleteAction(deps) {
             return;
         }
 
-        const confirmed = window.confirm(`确认删除群聊配置「${profile.name}」吗？此操作不会删除核心角色，但会删除这套业务编排模板。`);
+        const confirmed = window.confirm(`确认删除群聊配置「${profile.name}」吗？此操作不会删除运行时角色，但会删除这套业务编排模板。`);
         if (!confirmed) {
             return;
         }

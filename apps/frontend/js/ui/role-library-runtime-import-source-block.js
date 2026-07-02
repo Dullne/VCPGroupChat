@@ -6,12 +6,8 @@ export function createRoleLibraryImportSourceBlock(deps) {
         source,
         originalItemCount,
         isCollapsed,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
+        isRoleInManagedProfile
     } = deps;
 
     const block = document.createElement('div');
@@ -22,12 +18,8 @@ export function createRoleLibraryImportSourceBlock(deps) {
         source,
         originalItemCount,
         isCollapsed,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
+        isRoleInManagedProfile
     });
     createRoleLibraryImportSourceBlockHeader({
         block,

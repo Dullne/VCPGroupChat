@@ -31,7 +31,3 @@ export function getMentionedRoleIdsFromText(text, roles = []) {
 
     return mentioned;
 }
-
-export function getImportedRoleIdFromCatalogItem(item) {
-    return item.imported_role_id || null;
-}

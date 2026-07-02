@@ -12,6 +12,7 @@ export function createRoleDraftIdeaAction(deps) {
         getConfig,
         getActiveSession,
         getManagedProfileId,
+        getSelectedRoleStudioContextMode,
         getSelectedRoleStudioModel,
         getSelectedRoleStudioEngine,
         getSelectedRoleStudioReferenceIds,
@@ -33,7 +34,7 @@ export function createRoleDraftIdeaAction(deps) {
         const dom = getDom();
         const idea = String(dom.roleIdeaInput.value || '').trim();
         if (!idea) {
-            showToast('请先输入一句话角色需求', 'warning');
+            showToast('请先输入一句话人物需求', 'warning');
             return;
         }
 
@@ -46,6 +47,7 @@ export function createRoleDraftIdeaAction(deps) {
                 getConfig,
                 getActiveSession,
                 getManagedProfileId,
+                getSelectedRoleStudioContextMode,
                 getSelectedRoleStudioModel,
                 getSelectedRoleStudioEngine,
                 getSelectedRoleStudioReferenceIds,

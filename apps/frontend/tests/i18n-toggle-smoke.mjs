@@ -29,7 +29,7 @@ const dynamicTranslationCases = new Map([
     ['当前团队：默认团队。已加入 7 个角色，可按标签或关键词筛选后加入。', 'Current team: 默认团队. 7 roles joined. Filter by tag or keyword to add more.'],
     ['当前团队：默认团队。已加入 7 个角色，可选 12 个；当前标签：产品。', 'Current team: 默认团队. 7 roles joined, 12 available; current tag: 产品.'],
     ['未分组 · 1 个角色', 'Ungrouped · 1 role'],
-    ['团队负责按项目或方向收纳角色；群组才是真正上场聊天的 AI 房间。', 'Teams collect roles by project or direction; groups are the actual AI chat rooms.'],
+    ['团队负责按项目或方向收纳长期人物；群组才是真正上场聊天的 AI 房间。', 'Teams collect long-lived people by project or direction; groups are the actual AI chat rooms.'],
     ['模式：顺序协作 · 每轮 2 · 候选 1 · 预计发言 1 · 前端预测', 'Mode: Sequential Collaboration · per round 2 · candidates 1 · expected speakers 1 · Frontend Prediction'],
     ['预计 1 个角色会发言，0 个候选暂不参与。发送消息后会替换成后端真实运行轨迹。', '1 role is expected to speak; 0 candidates will stay out. After sending, backend runtime trace will replace this preview.'],
     ['预计 2 个角色会发言，1 个候选暂不参与。发送消息后会替换成后端真实运行轨迹。', '2 roles are expected to speak; 1 candidate will stay out. After sending, backend runtime trace will replace this preview.'],

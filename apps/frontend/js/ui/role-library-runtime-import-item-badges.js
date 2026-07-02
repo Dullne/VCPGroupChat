@@ -1,12 +1,11 @@
 export function buildRoleLibraryImportItemBadges(item, deps) {
     const {
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
         isRoleInManagedProfile
     } = deps;
 
     const badges = [];
-    badges.push(item.imported ? '已导入核心' : '未导入');
+    badges.push('人物模板');
     if (item.tag) {
         badges.push(item.tag);
     }
@@ -14,11 +13,11 @@ export function buildRoleLibraryImportItemBadges(item, deps) {
         badges.push(item.voice_style);
     }
 
-    const importedRoleId = getImportedRoleIdFromCatalogItem(item);
-    if (item.imported && importedRoleId && isRoleInManagedTeam(importedRoleId)) {
+    const runtimeRoleId = item.runtime_role_id || null;
+    if (runtimeRoleId && isRoleInManagedTeam(runtimeRoleId)) {
         badges.push('团队成员');
     }
-    if (item.imported && importedRoleId && isRoleInManagedProfile(importedRoleId)) {
+    if (runtimeRoleId && isRoleInManagedProfile(runtimeRoleId)) {
         badges.push('群组成员');
     }
 

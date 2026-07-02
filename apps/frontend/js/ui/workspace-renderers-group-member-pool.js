@@ -40,7 +40,7 @@ export function renderWorkspaceGroupMemberPool(deps) {
 
     const coreRoles = getWorkspaceGroupMemberPoolCoreRoles(bootstrapData, isRoleInManagedTeam);
 
-    dom.groupMemberPoolMeta.textContent = `当前团队：${team.name} · 当前群组：${profile.name}。从团队成员池中拉人入群或移出。`;
+    dom.groupMemberPoolMeta.textContent = `当前团队：${team.name} · 当前群组：${profile.name}。从团队人物池中拉人入群或移出。`;
 
     if (!coreRoles.length) {
         const renderedUnboundPersons = renderUnboundPersonRuntimeBindingSection({
@@ -50,7 +50,7 @@ export function renderWorkspaceGroupMemberPool(deps) {
             showToast
         });
         if (!renderedUnboundPersons) {
-            dom.groupMemberPoolList.innerHTML = '<div class="role-empty">当前团队还没有成员，请先在上方“团队拉人”中拉入角色。</div>';
+            dom.groupMemberPoolList.innerHTML = '<div class="role-empty">当前团队还没有人物，请先在上方“团队拉人”中拉入长期人物。</div>';
         }
         return;
     }

@@ -27,7 +27,7 @@ I choose several AI people, create a group, and start chatting.
 Power user model:
 
 ```text
-I import professional templates, create long-lived AI people from them, organize people into team pools, configure group prompts and speaking rules, and manage memory behavior.
+I reference professional templates, create long-lived AI people from them, organize people into team pools, configure group prompts and speaking rules, and manage memory behavior.
 ```
 
 Implementation model:
@@ -61,7 +61,7 @@ Plain chat wrapper
 | --- | --- | --- | --- |
 | Role Template | Reusable profession/capability blueprint | Job description / archetype | Source, skills, responsibilities, default prompt, tool defaults |
 | Person / Character | Long-lived AI collaborator | Contact | Name, personality, emotional style, relationships, memory notebooks, model preference |
-| Template Library | All available templates | Template catalog | Search, import, inspect source, create people from templates |
+| Template Library | All available templates | Template catalog | Search, inspect source, create people from templates |
 | Person Library | All available AI people | Address book | Search, manage, add people to group/team |
 | Person Studio | Create people from templates or freeform intent | Create contact + identity generator | PromptX/agency-agents/LLM-assisted person creation |
 | Team | Person pool by project or direction | Contact tag, department, project members | Maintain reusable available-person scope |
@@ -159,9 +159,9 @@ Current project can map this gradually:
 | --- | --- | --- |
 | Chat | Main chat surface | Keep as primary workspace |
 | Launch Group Chat | Sidebar + button, group profile form | Add as primary CTA and guided mode |
-| Person Library | Role library modal in current implementation | Rename/copy-position as AI address book; distinguish people from imported templates |
+| Person Library | People & Templates modal in current implementation | Rename/copy-position as AI address book; distinguish people from templates |
 | Person Studio | Studio modal in current implementation | Rename/copy-position as person factory; connect PromptX/agency-agents template references |
-| Template Library | External source filters in current role library | Split imported templates from memory-bearing people |
+| Template Library | External source filters in the current People & Templates surface | Keep templates as references for creating memory-bearing people |
 | Team Person Pool | Team modal | Rename/copy-position as advanced person-pool management |
 | Cognitive Inspector | Right round-role panel | Expand into member/state/memory inspector |
 
@@ -179,7 +179,7 @@ Content plan:
 Main workspace: group/session list, chat stage, cognitive inspector.
 Launcher: person selection, group setup, create-and-chat action.
 Person surfaces: library and studio for finding/creating long-lived people.
-Template surfaces: catalog for importing professional references and creating people from them.
+Template surfaces: catalog for reviewing professional references and creating people from them.
 Advanced surfaces: team pool and group template management.
 ```
 
@@ -339,7 +339,7 @@ Implemented on 2026-06-20.
 
 Current behavior:
 
-1. `发起群聊` mode currently shows a direct role picker built from Role Library data. Target behavior should show a person picker backed by Person Library.
+1. `发起群聊` mode currently shows a direct person picker built from the mixed People & Templates catalog. Target behavior should keep person-first selection semantics backed by Person Library.
 2. Users can search people, filter by tag/source template, select multiple people, and clear selection.
 3. Creating a group from launcher mode first adds selected people to the current Team Person Pool if needed.
 4. The selected people are sent as `members` in `POST /api/group-profiles`; compatibility may still include `role_id` until person membership endpoints exist.
@@ -435,7 +435,7 @@ Evidence:
 apps/frontend/output/playwright/cognitive-inspector-runtime-trace.png
 ```
 
-### Phase 4: Person Library as AI Address Book
+### Phase 4: Person And Template Catalog
 
 Goal:
 
@@ -467,20 +467,20 @@ Phase 4 v1 address-book polish implemented on 2026-06-20.
 
 Current behavior:
 
-1. Current Role Library starts with an `AI Address Book` console, but this is now a legacy label. The target model is Person Library for contacts plus Template Library for reusable external templates.
+1. Current People & Templates surface starts with a person/template catalog console. The target model is Person Library for long-lived people plus Template Library for reusable external templates.
 2. Users can search across role name, id, tag, description, preview, source, and voice style.
-3. Users can filter by source: all, core roles, ephemeral roles, agency-agents, PromptX.
-4. Users can filter by status: all, current group members, current team members, imported core roles, not-imported external templates.
-5. The summary line shows real counts for core roles, ephemeral roles, current team, current group, external templates, and imported templates.
-6. External catalog cards currently use actions such as `导入到核心` and `导入并加入当前群组`; target copy should become `导入为模板` and `从模板创建人物`.
-7. Current role cards currently use actions such as `加入当前团队`, `加入当前群组`, `移出当前团队`, and `移出当前群组`; target copy should make clear these actions operate on people, not templates.
+3. Users can filter by source: all, runtime roles, ephemeral roles, agency-agents, PromptX.
+4. Users can filter by status: all, current group members, current team members.
+5. The summary line shows real counts for runtime roles, ephemeral roles, current team, current group, and external templates.
+6. External catalog cards are reference templates only; templates must create or bind long-lived people before joining teams or groups.
+7. Current role cards only expose team/group actions when the runtime role is bound to a long-lived person; runtime-only rows show a binding/create-person warning.
 8. Empty states now explain when filters have no matching external templates or no matching available roles.
 
 Verified path:
 
 ```text
-Open Role Library
--> Summary shows 核心角色 16 · 临时角色 0 · 当前团队 4 · 当前群组 1 · 外部模板 240 · 已导入 1
+Open People & Templates
+-> Summary shows 运行时角色 16 · 临时角色 0 · 当前团队 4 · 当前群组 1 · 外部模板 240
 -> Source filter PromptX shows 8 external templates and no current-role cards
 -> Status filter 当前群组成员 shows 犬娘小吉 as the only current-role card
 -> Keyword search accessibility shows Accessibility Auditor from agency-agents
@@ -518,12 +518,12 @@ Users can describe a person and save a usable long-lived collaborator without ha
 Implementation status:
 
 ```text
-Phase 5 v1 role-factory polish implemented on 2026-06-20.
+Phase 5 v1 person-factory polish implemented on 2026-06-20.
 ```
 
 Current behavior:
 
-1. Current Role Studio presents itself as `Role Factory`, not a raw backend form. Target copy should become `Person Factory`.
+1. Current Person Studio presents itself as `Person Studio`, not a raw backend form.
 2. The factory panel should explain the corrected contract: PromptX supplies identity structure, agency-agents supplies professional references, and VCP turns the result into a long-lived group-chat person.
 3. Users can switch generation engines: `promptx_nuwa`, `agency_adapt`, `hybrid`, and `vcp_default`.
 4. The visible pipeline copy changes with the selected engine, so users know whether the current draft uses PromptX methodology, agency-agents templates, both, or only VCP default generation.
@@ -536,15 +536,15 @@ Current behavior:
 Verified path:
 
 ```text
-Open Role Studio
+Open Person Studio
 -> Default engine is hybrid
--> Factory panel shows PromptX + agency-agents -> VCP role draft pipeline
+-> Factory panel shows PromptX + agency-agents -> VCP person draft pipeline
 -> Switch promptx_nuwa / agency_adapt / hybrid / vcp_default
 -> Pipeline copy updates for each engine
 -> Search agency-agents reference keyword accessibility
 -> Select Accessibility Auditor
 -> Selected references panel shows Accessibility Auditor
--> Generate role draft from:
+-> Generate person draft from:
    创建一个负责无障碍审核的前端体验审查员，能给出 WCAG 风险、键盘导航问题和具体修复建议。
 -> Backend returns draft "无障碍审核员"
 -> Draft meta shows engine=hybrid, model=bytedance-seed/seed-1.6-flash-20250625, PromptX 方法论 10 个文件, agency 参考 Accessibility Auditor
@@ -565,13 +565,13 @@ Phase 5 v2 persist-to-library flow implemented on 2026-06-20.
 
 Current behavior:
 
-1. Current Role Studio draft preview exposes four explicit next actions:
-   `创建并加入当前会话`, `保存到角色库`, `保存并加入当前团队`, and `保存并加入当前群组`.
+1. Current Person Studio draft preview exposes four explicit next actions:
+   `创建并加入当前会话`, `保存到人物通讯录`, `保存人物并加入当前团队`, and `保存人物并加入当前群组`.
 2. `创建并加入当前会话` currently creates an ephemeral session role for trial use. Target behavior should create an ephemeral person participant with an optional source template.
-3. `保存到角色库` currently calls `POST /api/role-studio/save` with `target=library`, imports the draft through VCP Core, and refreshes bootstrap data. Target behavior should save a person record and create or reference a core role only as runtime compatibility.
-4. `保存并加入当前团队` currently calls the same endpoint with `target=team`, imports the role into VCP Core, and attaches it to the selected Team Role Pool. Target behavior should attach the person to the Team Person Pool.
-5. `保存并加入当前群组` currently calls the same endpoint with `target=group`, imports the role into VCP Core, attaches it to the selected group profile, and relies on `addProfileMember` to keep the role in the group profile's team pool as well. Target behavior should attach the person membership to the group and keep role_id only as compatibility metadata.
-6. The save buttons are disabled until a meaningful draft with a role name exists.
+3. `保存到人物通讯录` calls `POST /api/role-studio/save` with `target=library`, creates or reuses a long-lived person, prepares runtime compatibility through the product runtime bridge, and refreshes bootstrap data.
+4. `保存并加入当前团队` should save a long-lived person and attach the person to the Team Person Pool; runtime role ids remain compatibility metadata.
+5. `保存并加入当前群组` should save a long-lived person and attach the person membership to the group; runtime role ids remain compatibility metadata.
+6. The save buttons are disabled until a meaningful draft with a person name exists.
 7. Saving a draft does not require creating a temporary session role first.
 
 Backend contract:
@@ -582,10 +582,10 @@ body:
   target: library | team | group
   team_id: required when target=team
   profile_id: required when target=group
-  draft: VCP-compatible role draft
+  draft: VCP-compatible person draft
 
 response:
-  role: imported core role
+  role: bound runtime role
   target: resolved target
   team: team when applicable
   team_members: team member list when applicable
@@ -595,16 +595,16 @@ response:
 Verified path:
 
 ```text
-Open Role Studio
+Open Person Studio
 -> Generate draft "工坊保存验收员"
--> Save to Role Library
--> Backend imports role as role_studio_工坊保存验收员
--> Bootstrap role count increases from 16 to 17
--> Open Role Library
+-> Save to People Address Book
+-> Backend prepares runtime compatibility role as role_studio_工坊保存验收员
+-> Bootstrap person and runtime role counts increase
+-> Open People & Templates
 -> Search 工坊保存验收员
--> Role Library shows the saved role as a core role
--> Backend target=team verification attaches the role to a temporary team
--> Backend target=group verification attaches the role to a temporary group and keeps it in the group team's role pool
+-> People & Templates shows the saved long-lived person and runtime binding
+-> Backend target=team verification attaches the person to a temporary team
+-> Backend target=group verification attaches the person to a temporary group and keeps it in the group team's person pool
 -> Temporary verification team/group and core verification role were removed after checks
 -> Bootstrap returns to role_count=16 with no leftover 工坊保存验收 test role/team/group
 -> Console remains 0 errors / 0 warnings

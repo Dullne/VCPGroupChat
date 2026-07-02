@@ -12,6 +12,6 @@ export function finalizeEphemeralRoleCreation(deps) {
     setLatestRoleDraft(null);
     setLatestRoleDraftMeta(null);
     setAdvancedRoleEditorExpanded(false);
-    dom.roleIdeaStatus.textContent = `已创建临时角色「${name}」。如需长期保留，可在角色库中执行长期化。`;
+    dom.roleIdeaStatus.textContent = `已创建临时角色「${name}」。如需长期保留，可在人物与模板中执行长期化。`;
     dom.roleIdeaStatus.className = 'profile-form-status profile-form-status-ready';
 }

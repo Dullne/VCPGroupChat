@@ -13,7 +13,7 @@ export function resolveGroupProfileCreateContext(deps) {
 
     const managedTeam = getManagedTeam();
     if (!managedTeam) {
-        showToast('暂时没有可用的群聊容器，请先到“团队”里创建一个角色池', 'warning');
+        showToast('暂时没有可用的团队人物池，请先到“团队”里创建团队并加入长期人物', 'warning');
         return null;
     }
 

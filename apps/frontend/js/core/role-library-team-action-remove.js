@@ -40,12 +40,6 @@ export function createRemoveRoleFromTeamAction(deps) {
             return;
         }
 
-        await fetchJson(
-            `/api/teams/${encodeURIComponent(teamId)}/members/${encodeURIComponent(roleId)}`,
-            { method: 'DELETE' }
-        );
-
-        await refreshBootstrap();
-        renderAll();
+        showToast('这是运行时兼容角色，不是长期人物；团队池只移除人物', 'warning');
     };
 }

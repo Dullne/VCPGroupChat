@@ -16,7 +16,8 @@ export function requestCreateGroupProfileFromForm(deps) {
         modeOptions,
         groupPrompt,
         cloneCurrentProfile,
-        members = []
+        members = [],
+        personMembers = []
     } = values;
 
     return fetchJson('/api/group-profiles', {
@@ -31,7 +32,8 @@ export function requestCreateGroupProfileFromForm(deps) {
             groupPrompt,
             cloneCurrentProfile,
             currentProfileId,
-            members
+            members,
+            personMembers
         })
     });
 }

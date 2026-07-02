@@ -1,8 +1,11 @@
+import { normalizeRoleStudioContextMode } from './role-studio-context-mode.js';
+
 export function bindRoleStudioEvents(deps) {
     const {
         dom,
         draftRoleIdeaIntoForm,
         selectRoleStudioEngine,
+        setSelectedRoleStudioContextMode,
         searchRoleStudioReferences,
         renderRoleStudioSources,
         setSelectedRoleStudioModel,
@@ -28,6 +31,11 @@ export function bindRoleStudioEvents(deps) {
 
     dom.roleStudioEngineSelect.addEventListener('change', event => {
         selectRoleStudioEngine(event.target.value);
+    });
+
+    dom.roleStudioContextModeSelect.addEventListener('change', event => {
+        setSelectedRoleStudioContextMode(normalizeRoleStudioContextMode(event.target.value));
+        renderRoleStudio();
     });
 
     dom.roleStudioReferenceSearch.addEventListener('input', () => {

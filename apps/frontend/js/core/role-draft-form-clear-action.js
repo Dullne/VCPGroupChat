@@ -14,7 +14,7 @@ export function createClearRoleIdeaDraftAction(deps) {
         setLatestRoleDraft(null);
         setLatestRoleDraftMeta(null);
         setAdvancedRoleEditorExpanded(false);
-        dom.roleIdeaStatus.textContent = '先输入一句话需求，再生成角色草稿。';
+        dom.roleIdeaStatus.textContent = '先输入一句话需求，再生成人物草稿。';
         dom.roleIdeaStatus.className = 'profile-form-status';
         renderRoleStudio();
     };

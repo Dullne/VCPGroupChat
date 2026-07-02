@@ -9,12 +9,8 @@ export function renderRoleLibraryImportSourceList(deps) {
     const {
         getDom,
         getExternalImportSources,
-        importCatalogRole,
-        getImportedRoleIdFromCatalogItem,
         isRoleInManagedTeam,
-        isRoleInManagedProfile,
-        removeRoleFromGroup,
-        showToast
+        isRoleInManagedProfile
     } = deps;
 
     const dom = getDom();
@@ -23,7 +19,7 @@ export function renderRoleLibraryImportSourceList(deps) {
     const filters = readRoleLibraryFilters(dom);
 
     if (!externalImportSources.length) {
-        dom.importSourceList.innerHTML = '<div class="role-empty">当前没有可用的外部角色目录。</div>';
+        dom.importSourceList.innerHTML = '<div class="role-empty">当前没有可用的外部模板目录。</div>';
         return;
     }
 
@@ -32,7 +28,6 @@ export function renderRoleLibraryImportSourceList(deps) {
     for (const source of externalImportSources) {
         const filteredItems = (source.items || []).filter(item => matchesRoleLibraryImportSource(item, filters, {
             source,
-            getImportedRoleIdFromCatalogItem,
             isRoleInManagedProfile,
             isRoleInManagedTeam
         }));
@@ -47,12 +42,8 @@ export function renderRoleLibraryImportSourceList(deps) {
             },
             originalItemCount: source.items?.length || 0,
             isCollapsed,
-            importCatalogRole,
-            getImportedRoleIdFromCatalogItem,
             isRoleInManagedTeam,
-            isRoleInManagedProfile,
-            removeRoleFromGroup,
-            showToast
+            isRoleInManagedProfile
         }));
     }
 
